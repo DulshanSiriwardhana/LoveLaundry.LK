@@ -8,7 +8,7 @@ const CountDown=()=>{
     },[today]);
 
     return(
-        <div>{today.getMilliseconds()}</div>
+        <div>{JSON.stringify(today).substring(1,JSON.stringify(today).length-1)}</div>
     )
 }
 
