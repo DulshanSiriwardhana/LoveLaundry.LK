@@ -9,11 +9,16 @@ const Action=({item, isSelected, setSelected}:{item:ActionType, isSelected:boole
         else setBgcolor(null);
     },[isSelected]);
 
-    return(
+    if (isSelected){  return (
         <div style={{backgroundColor: `${bgcolor}`}} className="border rounded-full w-12 h-12 flex items-center justify-center" onClick={()=>setSelected(item)}>
             {<item.icon className="w-6"/>}
         </div>
-    )
+        )} else {
+            return(
+        <div className="border rounded-full w-12 h-12 flex items-center justify-center" onClick={()=>setSelected(item)}>
+            {<item.icon className="w-6"/>}
+        </div>
+    )}
 }
 
 export default Action;

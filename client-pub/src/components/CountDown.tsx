@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { /*useEffect,*/ useState } from "react";
 
 const CountDown=()=>{
-    const [today, setToday] = useState(new Date());
+    const [today, _setToday] = useState(new Date());
 
-    useEffect(()=>{
-        setToday(new Date());
-    },[today]);
+    // useEffect(()=>{
+    //     setToday(new Date());
+    // },[today]);
 
     return(
         <div>{JSON.stringify(today).substring(1,JSON.stringify(today).length-1)}</div>
