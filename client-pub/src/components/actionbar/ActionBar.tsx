@@ -6,8 +6,10 @@ const ActionBar=({items, selectedItem, setSelectedItem}:{items:ActionType[], sel
     return(
         <div className="max-w-[480px] min-w-[320px] border-2 fixed bottom-20 h-12 rounded-xl w-full border-green-600 flex items-center justify-center gap-12">
             {
-                items.filter((item)=>item!=selectedItem).slice(2,).concat(selectedItem).concat(items.filter((item)=>item!=selectedItem).slice(0,2)).map((item)=>(
-                    <Action item={item} isSelected={selectedItem===item} setSelected={setSelectedItem}/>
+                items.map((item, index)=>(
+                    <div key={index} style={{order:`${10-index}`}} className="transition-all duration-300">
+                        <Action item={item} isSelected={selectedItem===item} setSelected={setSelectedItem}/>
+                    </div>
                 ))
             }
         </div>
