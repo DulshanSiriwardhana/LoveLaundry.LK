@@ -29,5 +29,10 @@ postgresql:Client dbClient = check new (
 }
 
 service /user\-service on new http:Listener(5000) {
-    
+    resource function get health() returns Response {
+        return {
+            message: "Server is online.",
+            data: []
+        };
+    }
 }

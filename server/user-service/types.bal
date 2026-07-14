@@ -19,7 +19,7 @@ type Role record {
     string level;
 };
 
-type useCreate record {
+type UserCreate record {
     string firstName;
     string? middleName;
     string lastName;
@@ -30,7 +30,7 @@ type useCreate record {
     string? profilePicture;
 };
 
-type userUpdate record {
+type UserUpdate record {
     string? firstName;
     string? middleName;
     string? lastName;
@@ -42,17 +42,17 @@ type userUpdate record {
     Role? role;
 };
 
-type userDelete record {
+type UserDelete record {
     string userId;
     string firstName;
 };
 
-type userActivation record {
+type UserActivation record {
     string userId;
     string firstName;
 };
 
-type response record {
+type Response record {
     string? message;
     anydata? data;
 };
