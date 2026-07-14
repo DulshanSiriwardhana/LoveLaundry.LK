@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/log;
 import ballerinax/postgresql;
 
 configurable int db_port = ?;
@@ -6,6 +7,8 @@ configurable string db_host = ?;
 configurable string db_password = ?;
 configurable string db_user = ?;
 configurable string db_name = ?;
+
+int count = 0;
 
 postgresql:Options postgresqlOptions = {
     connectTimeout: 10
@@ -30,8 +33,18 @@ postgresql:Client dbClient = check new (
 
 service /user\-service on new http:Listener(5000) {
     resource function get health() returns Response {
+        count = count+1;
         return {
             message: "Server is online.",
+            data: [count]
+        };
+    }
+
+    resource function get users() returns Response {
+        log:printInfo("GET /users");
+
+        return {
+            message: "no",
             data: []
         };
     }
