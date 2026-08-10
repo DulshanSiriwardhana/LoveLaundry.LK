@@ -1,0 +1,79 @@
+# ── Secrets & Environment ─────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Python Runtime ────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+
+# ── Virtual Environments ──────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Distribution / Build ──────────────────────────────────────────────────────
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+*.whl
+
+# ── Package managers ──────────────────────────────────────────────────────────
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ── Testing & Coverage ────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+
+# ── Type checkers & Linters ───────────────────────────────────────────────────
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+.pyright/
+
+# ── IDE / Editor ──────────────────────────────────────────────────────────────
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Local DB files (SQLite dev) ───────────────────────────────────────────────
+*.sqlite
+*.sqlite3
+*.db
+
+# ── Node (Frontend) ──────────────────────────────────────────────────────────
+quotations-ui/node_modules/
+quotations-ui/dist/
+quotations-ui/dist-ssr/
+quotations-ui/.env
+quotations-ui/.env.*
+!quotations-ui/.env.example
+quotations-ui/*.local
+quotations-ui/npm-debug.log*
+quotations-ui/yarn-debug.log*
+quotations-ui/yarn-error.log*
+quotations-ui/pnpm-debug.log*
