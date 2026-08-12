@@ -1,0 +1,33 @@
+name: Python CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build_and_check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [bill-service, quotation-service, user-service]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+
+    - name: Install Dependencies
+      run: |
+        cd ${{ matrix.service }}
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Syntax Check
+      run: |
+        cd ${{ matrix.service }}
+        python -m compileall src/
