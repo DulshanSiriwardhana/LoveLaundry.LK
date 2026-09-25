@@ -1,0 +1,16 @@
+[submodule "system-manegment/bill-service"]
+	path = system-manegment/bill-service
+	url = https://github.com/LoveLaundry/bill-service.git
+	branch = main
+[submodule "system-manegment/quotation-service"]
+	path = system-manegment/quotation-service
+	url = https://github.com/LoveLaundry/quotation-service.git
+	branch = main
+[submodule "system-manegment/quotations-ui"]
+	path = system-manegment/quotations-ui
+	url = https://github.com/LoveLaundry/quotations-ui.git
+	branch = main
+[submodule "system-manegment/user-service"]
+	path = system-manegment/user-service
+	url = https://github.com/LoveLaundry/user-service.git
+	branch = main
