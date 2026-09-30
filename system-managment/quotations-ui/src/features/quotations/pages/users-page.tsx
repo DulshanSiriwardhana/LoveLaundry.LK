@@ -186,7 +186,7 @@ export default function UsersPage() {
             </div>
 
             {/* Stats row */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
                     { label: 'Total Users', value: users.length, color: 'text-[#101828]' },
                     { label: 'Active', value: users.filter(u => u.status === 'active').length, color: 'text-[#16A34A]' },

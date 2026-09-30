@@ -9,12 +9,14 @@ import { ConfirmDialog } from '../../../components/ui/confirm-dialog'
 import { useEnterFlow } from '../../../hooks/use-enter-flow'
 import { useEscape } from '../../../hooks/use-escape'
 import { todayISO } from '../../../lib/date'
+import { currentYear } from '../../../lib/time'
+import { invalidateResource } from '../../../cache/invalidation'
 
 export default function HolidaysPage() {
   const qc = useQueryClient()
   const [showForm, setShowForm] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
-  const [yearFilter, setYearFilter] = useState(new Date().getFullYear())
+  const [yearFilter, setYearFilter] = useState(currentYear())
   const flow = useEnterFlow()
   useEscape(showForm, () => setShowForm(false))
 
@@ -28,7 +30,7 @@ export default function HolidaysPage() {
     onSuccess: () => {
       toast.success('Holiday added')
       setShowForm(false)
-      qc.invalidateQueries({ queryKey: ['holidays'] })
+      invalidateResource(qc, 'holidays')
     },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
@@ -38,7 +40,7 @@ export default function HolidaysPage() {
     onSuccess: () => {
       toast.success('Holiday removed')
       setDeleteTarget(null)
-      qc.invalidateQueries({ queryKey: ['holidays'] })
+      invalidateResource(qc, 'holidays')
     },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
@@ -116,7 +118,7 @@ export default function HolidaysPage() {
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Add Holiday</h2>
-              <button onClick={() => setShowForm(false)}><X size={20} /></button>
+              <button onClick={() => setShowForm(false)} aria-label="Close form"><X size={20} /></button>
             </div>
             <form onSubmit={e => {
               e.preventDefault()

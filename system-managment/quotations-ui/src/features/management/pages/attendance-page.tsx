@@ -10,6 +10,8 @@ import { ConfirmDialog } from '../../../components/ui/confirm-dialog'
 import { EmptyState } from '../../../components/ui/empty-state'
 import { buildStaffSummary, type AttendanceRecord } from '../utils/attendance-summary'
 import { buildSalaryForecast } from '../utils/salary-forecast'
+import { addDaysISO, currentMonth, currentYear, daysInMonth, todayISO, weekdayOfISO } from '../../../lib/time'
+import { invalidateResource } from '../../../cache/invalidation'
 
 const STATUSES = ['PRESENT', 'HALF_DAY', 'PAID_LEAVE', 'UNPAID_LEAVE', 'ABSENT'] as const
 const STATUS_LABEL: Record<string, string> = {
@@ -39,8 +41,8 @@ const CELL_CODE: Record<string, string> = {
 const DAY_NAMES = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
 function monthRange(year: number, month: number) {
-  const firstDow = new Date(year, month - 1, 1).getDay()
-  const numDays = new Date(year, month, 0).getDate()
+  const firstDow = weekdayOfISO(`${year}-${String(month).padStart(2, '0')}-01`)
+  const numDays = daysInMonth(year, month)
   const days: string[] = []
   for (let day = 1; day <= numDays; day++) {
     days.push(`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`)
@@ -50,11 +52,10 @@ function monthRange(year: number, month: number) {
 
 export default function AttendancePage() {
   const qc = useQueryClient()
-  const now = new Date()
   const [selectedEmp, setSelectedEmp] = useState('')
   const [viewMode, setViewMode] = useState<'single' | 'all'>('single')
-  const [year, setYear] = useState(now.getFullYear())
-  const [month, setMonth] = useState(now.getMonth() + 1)
+  const [year, setYear] = useState(currentYear())
+  const [month, setMonth] = useState(currentMonth())
   const [pickedDates, setPickedDates] = useState<Set<string>>(new Set())
   const [bulkStatus, setBulkStatus] = useState<string>('PRESENT')
   const [bulkOt, setBulkOt] = useState(0)
@@ -65,10 +66,7 @@ export default function AttendancePage() {
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
   useEscape(!!editDate, () => setEditDate(null))
   useEscape(!!quickDate, () => setQuickDate(null))
-  const todayStr = useMemo(() => {
-    const t = new Date()
-    return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`
-  }, [])
+  const todayStr = useMemo(() => todayISO(), [])
 
   const startDate = `${year}-${String(month).padStart(2, '0')}-01`
   const endDate = `${year}-${String(month).padStart(2, '0')}-${String(monthRange(year, month).numDays).padStart(2, '0')}`
@@ -101,9 +99,8 @@ export default function AttendancePage() {
       if (h.date) set.add(h.date)
       if (h.start_date && h.start_date !== h.date) set.add(h.start_date)
       if (h.end_date && h.end_date !== h.start_date && h.end_date !== h.date) {
-        const d = new Date(h.start_date || h.date)
-        const end = new Date(h.end_date)
-        while (d <= end) { set.add(d.toISOString().slice(0, 10)); d.setDate(d.getDate() + 1) }
+        const from = h.start_date || h.date
+        for (let day = from; day <= h.end_date; day = addDaysISO(day, 1)) set.add(day)
       }
     }
     return set
@@ -152,9 +149,7 @@ export default function AttendancePage() {
     mutationFn: (data: any) => attendanceApi.create(selectedEmp, data),
     onSuccess: () => {
       toast.success('Attendance saved')
-      qc.invalidateQueries({ queryKey: ['attendance', selectedEmp] })
-      qc.invalidateQueries({ queryKey: ['attendance-summary', selectedEmp] })
-      qc.invalidateQueries({ queryKey: ['attendance-all'] })
+      invalidateResource(qc, 'attendance')
     },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed to save attendance'),
   })
@@ -164,9 +159,7 @@ export default function AttendancePage() {
     onSuccess: () => {
       toast.success('Attendance updated')
       setEditDate(null)
-      qc.invalidateQueries({ queryKey: ['attendance', selectedEmp] })
-      qc.invalidateQueries({ queryKey: ['attendance-summary', selectedEmp] })
-      qc.invalidateQueries({ queryKey: ['attendance-all'] })
+      invalidateResource(qc, 'attendance')
     },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed to update attendance'),
   })
@@ -177,9 +170,7 @@ export default function AttendancePage() {
       toast.success('Record deleted')
       setEditDate(null)
       setDeleteTarget(null)
-      qc.invalidateQueries({ queryKey: ['attendance', selectedEmp] })
-      qc.invalidateQueries({ queryKey: ['attendance-summary', selectedEmp] })
-      qc.invalidateQueries({ queryKey: ['attendance-all'] })
+      invalidateResource(qc, 'attendance')
     },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed to delete record'),
   })
@@ -189,9 +180,7 @@ export default function AttendancePage() {
     onSuccess: () => {
       toast.success(`${pickedDates.size} record(s) saved as ${STATUS_LABEL[bulkStatus] || bulkStatus}`)
       setPickedDates(new Set())
-      qc.invalidateQueries({ queryKey: ['attendance', selectedEmp] })
-      qc.invalidateQueries({ queryKey: ['attendance-summary', selectedEmp] })
-      qc.invalidateQueries({ queryKey: ['attendance-all'] })
+      invalidateResource(qc, 'attendance')
     },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Bulk save failed'),
   })
@@ -211,7 +200,7 @@ export default function AttendancePage() {
   }
 
   const goToday = () => {
-    setYear(now.getFullYear()); setMonth(now.getMonth() + 1)
+    setYear(currentYear()); setMonth(currentMonth())
     setPickedDates(new Set()); setEditDate(null); setQuickDate(null)
   }
 
@@ -286,13 +275,13 @@ export default function AttendancePage() {
                 <Table2 size={14} /> All Staff
               </button>
             </div>
-            <button onClick={goPrev} className="p-2 border rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700" title="Previous month">
+            <button onClick={goPrev} aria-label="Previous month" className="p-2 border rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700" title="Previous month">
               <ChevronLeft size={16} />
             </button>
             <button onClick={goToday} className="px-3 py-2 border rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700" title="Jump to today">
               Today
             </button>
-            <button onClick={goNext} className="p-2 border rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700" title="Next month">
+            <button onClick={goNext} aria-label="Next month" className="p-2 border rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700" title="Next month">
               <ChevronRight size={16} />
             </button>
           </div>
@@ -340,7 +329,7 @@ export default function AttendancePage() {
             ))}
             {days.map((d: string, i: number) => {
               const rec = byDate[d]
-              const dow = new Date(d + 'T00:00:00').getDay()
+              const dow = weekdayOfISO(d)
               const picked = pickedDates.has(d)
               const isHoliday = holidaySet.has(d)
               const isWeekend = dow === 0 || dow === 6
@@ -478,7 +467,7 @@ export default function AttendancePage() {
                   <div className="grid" style={{ gridTemplateColumns: `150px repeat(${days.length}, 34px)` }}>
                     <div className="sticky left-0 top-0 z-10 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase border-b border-r">Employee</div>
                     {days.map((d: string) => {
-                      const dow = new Date(d + 'T00:00:00').getDay()
+                      const dow = weekdayOfISO(d)
                       const isHoliday = holidaySet.has(d)
                       const isWeekend = dow === 0 || dow === 6
                       const isToday = d === todayStr
@@ -498,7 +487,7 @@ export default function AttendancePage() {
                         </div>
                         {days.map((d: string) => {
                           const rec = dayMap[d]
-                          const dow = new Date(d + 'T00:00:00').getDay()
+                          const dow = weekdayOfISO(d)
                           const isHoliday = holidaySet.has(d)
                           const isWeekend = dow === 0 || dow === 6
                           const bg = isHoliday ? 'bg-purple-50 dark:bg-purple-900/10' : isWeekend ? 'bg-slate-50 dark:bg-slate-800/40' : ''
@@ -537,7 +526,7 @@ export default function AttendancePage() {
       {/* Edit modal */}
       {editDate && editForm && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setEditDate(null)}>
-          <div className="bg-white dark:bg-gray-800 rounded-xl border p-6 w-[380px] space-y-4 shadow-xl" onClick={e => e.stopPropagation()} ref={editFlow.ref} onKeyDown={editFlow.handleKeyDown}>
+          <div className="bg-white dark:bg-gray-800 rounded-lg border p-6 w-[380px] max-w-[calc(100vw-24px)] space-y-4 shadow-xl" onClick={e => e.stopPropagation()} ref={editFlow.ref} onKeyDown={editFlow.handleKeyDown}>
             <div className="flex items-center justify-between">
               <h3 className="font-semibold flex items-center gap-2">
                 <Pencil size={16} /> {editDate}

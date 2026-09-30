@@ -1,5 +1,6 @@
 import billsApi from '../../../api/bills-api'
 import { withItems } from '../../../lib/api-normalise'
+import { dateToStartOfDayISO } from '../../../lib/time'
 import type {
     GatePass,
     GatePassBalanceResponse,
@@ -10,7 +11,7 @@ import type {
 
 function toISODatetime(dateStr: string): string {
     if (dateStr.includes('T')) return dateStr
-    return `${dateStr}T00:00:00`
+    return dateToStartOfDayISO(dateStr)
 }
 
 export const gatepasses = {

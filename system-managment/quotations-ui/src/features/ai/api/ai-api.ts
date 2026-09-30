@@ -1,5 +1,6 @@
 import axios, { type AxiosInstance } from 'axios'
 import { AI_SERVICE, canonicalJson, hmacSha256Hex, sha256Hex } from '../../../config/ai'
+import { extractResponseMessage } from '../../../api/interceptors'
 
 /**
  * Secured Love AI client.
@@ -69,8 +70,24 @@ class LoveAiClient {
     return verifyEnvelope(data)
   }
 
+  /**
+   * The shared response interceptor is deliberately not attached here: this
+   * service authenticates with a request signature, so a 401 means a bad
+   * signature rather than an expired session, and clearing the session would
+   * sign the operator out for an AI-side problem. What it *does* need is the
+   * message normalisation, or a FastAPI `detail` array reaches the UI as
+   * "[object Object]".
+   */
+  private async request<T>(run: () => Promise<{ data: T }>): Promise<T> {
+    try {
+      return (await run()).data
+    } catch (err) {
+      throw new Error(extractResponseMessage(err))
+    }
+  }
+
   health() {
-    return this.http.get('/api/ai/health').then(r => r.data)
+    return this.request(() => this.http.get('/api/ai/health'))
   }
 
   dashboard(months = 12) {

@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { companySettingsApi } from '../api/management-api'
 import { toast } from 'sonner'
 import { Save, Settings } from 'lucide-react'
+import { invalidateResource } from '../../../cache/invalidation'
 
 // Order follows JS Date.getDay(): 0=Sunday ... 6=Saturday.
 const DOW_LABELS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -36,7 +37,7 @@ export default function CompanySettingsPage() {
     mutationFn: (data: any) => companySettingsApi.update(data),
     onSuccess: () => {
       toast.success('Company settings saved')
-      qc.invalidateQueries({ queryKey: ['company-settings'] })
+      invalidateResource(qc, 'settings')
     },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed to save settings'),
   })

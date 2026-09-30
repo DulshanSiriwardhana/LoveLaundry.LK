@@ -21,6 +21,11 @@ mgmtApi.interceptors.request.use((config) => {
   return config
 })
 
+// Without this, a 401 from the management backend would neither clear the
+// session nor redirect, and the raw Axios error would skip extractMessage() —
+// so "[object Object]" could surface across the whole management surface.
+attachResponseInterceptor(mgmtApi)
+
 installOfflineAdapter(mgmtApi, 'management')
 
 // ── Customers ─────────────────────────────────────────────────────────────

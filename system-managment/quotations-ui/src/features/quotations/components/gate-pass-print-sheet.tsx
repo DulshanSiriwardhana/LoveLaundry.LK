@@ -1,6 +1,7 @@
 import React from 'react'
 import type { GatePass } from '../../../types/operations'
 import { GATE_PASS_STATUSES } from './operations-status'
+import { formatCalendarDate } from '../../../lib/time'
 
 const gatePassPrintStyles = `
   @media print {
@@ -231,7 +232,7 @@ export const GatePassPrintSheet = React.forwardRef<HTMLDivElement, { gp: GatePas
                         <div className="gps-detail-right">
                             <div className="gps-detail-line">
                                 <span className="gps-detail-label">Date Received:</span>
-                                <span className="gps-detail-value">{gp.receiving_date ? new Date(gp.receiving_date).toLocaleDateString() : ''}</span>
+                                <span className="gps-detail-value">{formatCalendarDate(gp.receiving_date)}</span>
                             </div>
                             <div className="gps-detail-line">
                                 <span className="gps-detail-label">Item Types:</span>

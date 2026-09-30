@@ -10,17 +10,19 @@ import {
   CheckCircle,
 } from '@phosphor-icons/react'
 import { chatApi, type ConversationDetail, type ConversationSummary } from '../../../api/chat.service'
+import { TIME_ZONE } from '../../../lib/time'
 
 function formatTime(value?: string): string {
   if (!value) return ''
   const d = new Date(value)
   if (isNaN(d.getTime())) return ''
-  return d.toLocaleString(undefined, {
+  return new Intl.DateTimeFormat('en-GB', {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  })
+    timeZone: TIME_ZONE,
+  }).format(d)
 }
 
 function MessageBubble({ msg }: { msg: ConversationDetail['messages'][number] }) {

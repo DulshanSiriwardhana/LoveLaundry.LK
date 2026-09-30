@@ -15,6 +15,7 @@ import { useEnterFlow } from '../../../hooks/use-enter-flow'
 import { useEscape } from '../../../hooks/use-escape'
 import { todayISO } from '../../../lib/date'
 import { useDefaults } from '../../../components/ops'
+import { invalidateResource } from '../../../cache/invalidation'
 
 const PAGE_SIZE = 20
 
@@ -64,7 +65,7 @@ export default function ManagementExpenses() {
       toast.success('Expense added')
       defaults.set('exp_category', data.category_id ?? '')
       defaults.set('exp_method', data.payment_method ?? 'CASH')
-      qc.invalidateQueries({ queryKey: ['mgmt-expenses'] })
+      invalidateResource(qc, 'expenses')
       setShowForm(false)
     },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
@@ -72,13 +73,13 @@ export default function ManagementExpenses() {
 
   const updateMut = useMutation({
     mutationFn: ({ id, data }: any) => expensesApi.update(id, data),
-    onSuccess: () => { toast.success('Expense updated'); qc.invalidateQueries({ queryKey: ['mgmt-expenses'] }); setEditing(null) },
+    onSuccess: () => { toast.success('Expense updated'); invalidateResource(qc, 'expenses'); setEditing(null) },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 
   const deleteMut = useMutation({
     mutationFn: (id: string) => expensesApi.remove(id),
-    onSuccess: () => { toast.success('Expense deleted'); qc.invalidateQueries({ queryKey: ['mgmt-expenses'] }); setDeleteTarget(null) },
+    onSuccess: () => { toast.success('Expense deleted'); invalidateResource(qc, 'expenses'); setDeleteTarget(null) },
   })
 
   const expenseColumns = [
@@ -171,7 +172,7 @@ export default function ManagementExpenses() {
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">{editing ? 'Edit' : 'Add'} Expense</h2>
-              <button onClick={() => { setShowForm(false); setEditing(null) }}><X size={20} /></button>
+              <button onClick={() => { setShowForm(false); setEditing(null) }} aria-label="Close form"><X size={20} /></button>
             </div>
             <form onSubmit={e => {
               e.preventDefault()

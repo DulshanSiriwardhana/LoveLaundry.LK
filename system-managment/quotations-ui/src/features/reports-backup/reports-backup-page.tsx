@@ -48,11 +48,10 @@ import {
   type LastBackupMeta,
 } from './folder-store'
 import type { DailyReportSnapshot, MonthlyReportSnapshot, WrittenFile } from './types'
+import { formatTimestamp, todayISO } from '../../lib/time'
 
 function todayStr(): string {
-  const d = new Date()
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+  return todayISO()
 }
 
 function currentMonth(): string {
@@ -358,7 +357,7 @@ export default function ReportsBackupPage() {
                   <div className="min-w-0">
                     <p className="text-[13px] font-semibold text-[#111827] truncate">{folder.name}</p>
                     <p className="text-[11px] text-[#6B7280]">
-                      {folder.configuredAt ? `Configured ${new Date(folder.configuredAt).toLocaleString()}` : 'Configured on this browser'}
+                      {folder.configuredAt ? `Configured ${formatTimestamp(folder.configuredAt)}` : 'Configured on this browser'}
                       {folderCheck?.ok ? ' • writable' : folderCheck ? ` • ${folderCheck.error ?? 'check needed'}` : ''}
                     </p>
                   </div>
@@ -562,7 +561,7 @@ export default function ReportsBackupPage() {
           <CardContent>
             {result ? (
               <div className="space-y-3">
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <StatBox label="Income" value={fmtMoney(result.snapshot.totals.income)} tone="green" />
                   <StatBox label="Expenses" value={fmtMoney(result.snapshot.totals.expenses)} tone="red" />
                   <StatBox label="Net" value={fmtMoney(result.snapshot.totals.net)} tone="red" />

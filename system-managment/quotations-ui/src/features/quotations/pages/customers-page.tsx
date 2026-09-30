@@ -133,7 +133,10 @@ export default function CustomersPage() {
             <Stat
               icon={<Banknote className="h-4 w-4" />}
               label="Outstanding"
-              value={`LKR ${(clientSummary?.stats?.outstanding_amount ?? 0 + (clientSummary?.stats?.shop_outstanding ?? 0)).toLocaleString()}`}
+              value={`LKR ${(
+                (clientSummary?.stats?.outstanding_amount ?? 0) +
+                (clientSummary?.stats?.shop_outstanding ?? 0)
+              ).toLocaleString()}`}
             />
           </div>
 

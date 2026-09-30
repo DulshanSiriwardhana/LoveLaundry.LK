@@ -16,6 +16,8 @@ import { ConfirmDialog } from '../../../components/ui/confirm-dialog'
 import { useEnterFlow } from '../../../hooks/use-enter-flow'
 import { useEscape } from '../../../hooks/use-escape'
 import { todayISO } from '../../../lib/date'
+import { currentMonth, currentYear, daysInMonth, monthName } from '../../../lib/time'
+import { invalidateResource } from '../../../cache/invalidation'
 
 const PAGE_SIZE = 12
 
@@ -80,52 +82,52 @@ export default function ManagementEmployees() {
 
   const createMut = useMutation({
     mutationFn: (data: any) => employeesApi.create(data),
-    onSuccess: () => { toast.success('Employee added'); qc.invalidateQueries({ queryKey: ['mgmt-employees'] }); setShowForm(false) },
+    onSuccess: () => { toast.success('Employee added'); invalidateResource(qc, 'employees'); setShowForm(false) },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 
   const updateMut = useMutation({
     mutationFn: ({ id, data }: any) => employeesApi.update(id, data),
-    onSuccess: () => { toast.success('Employee updated'); qc.invalidateQueries({ queryKey: ['mgmt-employees'] }); setEditing(null); setShowForm(false) },
+    onSuccess: () => { toast.success('Employee updated'); invalidateResource(qc, 'employees'); setEditing(null); setShowForm(false) },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 
   const deactivateMut = useMutation({
     mutationFn: (id: string) => employeesApi.remove(id),
-    onSuccess: () => { toast.success('Employee deactivated'); qc.invalidateQueries({ queryKey: ['mgmt-employees'] }); setDeactivateTarget(null) },
+    onSuccess: () => { toast.success('Employee deactivated'); invalidateResource(qc, 'employees'); setDeactivateTarget(null) },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 
   const activateMut = useMutation({
     mutationFn: (id: string) => employeesApi.activate(id),
-    onSuccess: () => { toast.success('Employee activated'); qc.invalidateQueries({ queryKey: ['mgmt-employees'] }) },
+    onSuccess: () => { toast.success('Employee activated'); invalidateResource(qc, 'employees') },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 
   const createSalaryMut = useMutation({
     mutationFn: ({ empId, data }: any) => employeesApi.createSalary(empId, data),
-    onSuccess: () => { toast.success('Salary recorded'); setShowSalary(null); qc.invalidateQueries({ queryKey: ['mgmt-employees'] }) },
+    onSuccess: () => { toast.success('Salary recorded'); setShowSalary(null); invalidateResource(qc, 'employees', 'salary') },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 
   const totalSalary = employees.reduce((s: number, e: any) => s + (e.basic_salary || 0), 0)
 
-  const attYear = now.getFullYear()
-  const attMonth = now.getMonth() + 1
+  const attYear = currentYear()
+  const attMonth = currentMonth()
   const monthStart = `${attYear}-${String(attMonth).padStart(2, '0')}-01`
-  const monthEnd = `${attYear}-${String(attMonth).padStart(2, '0')}-${String(new Date(attYear, attMonth, 0).getDate()).padStart(2, '0')}`
+  const monthEnd = `${attYear}-${String(attMonth).padStart(2, '0')}-${String(daysInMonth(attYear, attMonth)).padStart(2, '0')}`
 
   const { data: monthAtt = [] } = useQuery({
     queryKey: ['mgmt-attendance-month', monthStart],
     queryFn: () => attendanceApi.listRange(monthStart, monthEnd).then(r => r.data),
   })
 
-  const attSummary = useMemo(() => buildStaffSummary(monthAtt), [monthAtt])
-
   const { data: holidaysData = [] } = useQuery({
     queryKey: ['mgmt-holidays', attYear],
     queryFn: () => holidaysApi.list(attYear).then(r => r.data),
   })
+
+  const attSummary = useMemo(() => buildStaffSummary(monthAtt, holidaysData), [monthAtt, holidaysData])
 
   return (
     <div className="space-y-4">
@@ -298,7 +300,7 @@ export default function ManagementEmployees() {
 
               <div className="flex gap-2">
                 <button
-                  onClick={() => navigate(`/management/salary-slip?emp=${emp.id}&year=${now.getFullYear()}&month=${now.getMonth() + 1}`)}
+                  onClick={() => navigate(`/management/salary-slip?emp=${emp.id}&year=${currentYear()}&month=${currentMonth()}`)}
                   className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-sm bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40"
                 >
                   <FileText size={14} /> Slip ({slipLabel})
@@ -322,7 +324,7 @@ export default function ManagementEmployees() {
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">{editing ? 'Edit' : 'Add'} Employee</h2>
-              <button onClick={() => { setShowForm(false); setEditing(null) }}><X size={20} /></button>
+              <button onClick={() => { setShowForm(false); setEditing(null) }} aria-label="Close form"><X size={20} /></button>
             </div>
             <form onSubmit={e => {
               e.preventDefault()
@@ -482,13 +484,13 @@ export default function ManagementEmployees() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-gray-500">Month</label>
-                  <select name="month" defaultValue={now.getMonth() + 1} className="w-full px-3 py-2 border rounded-lg text-sm" autoFocus>
-                    {Array.from({length: 12}, (_, i) => <option key={i+1} value={i+1}>{new Date(0, i).toLocaleString('default', {month:'long'})}</option>)}
+                  <select name="month" defaultValue={currentMonth()} className="w-full px-3 py-2 border rounded-lg text-sm" autoFocus>
+                    {Array.from({length: 12}, (_, i) => <option key={i+1} value={i+1}>{monthName(`2000-${String(i + 1).padStart(2, '0')}`)}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-xs text-gray-500">Year</label>
-                  <input name="year" type="number" defaultValue={new Date().getFullYear()} className="w-full px-3 py-2 border rounded-lg text-sm" />
+                  <input name="year" type="number" defaultValue={currentYear()} className="w-full px-3 py-2 border rounded-lg text-sm" />
                 </div>
               </div>
               <div>

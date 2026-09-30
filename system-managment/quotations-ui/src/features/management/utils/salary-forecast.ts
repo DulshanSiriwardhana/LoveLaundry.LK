@@ -1,4 +1,5 @@
 import { buildHolidaySet } from './attendance-summary'
+import { daysInMonth, todayISO, weekdayOfISO } from '../../../lib/time'
 
 export interface SalaryForecastInput {
   year: number
@@ -21,20 +22,20 @@ export function buildSalaryForecast(
   otHours: number,
   info: SalaryForecastInput,
 ): SalaryForecast {
-  const daysInMonth = new Date(info.year, info.month, 0).getDate()
+  const total = daysInMonth(info.year, info.month)
   let weekendCount = 0
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dow = new Date(info.year, info.month - 1, d).getDay()
+  for (let d = 1; d <= total; d++) {
+    const dow = weekdayOfISO(`${info.year}-${String(info.month).padStart(2, '0')}-${String(d).padStart(2, '0')}`)
     if (dow === 0 || dow === 6) weekendCount += 1
   }
   const holidaySet = buildHolidaySet(info.holidays || [])
   let holidayCount = 0
-  for (let d = 1; d <= daysInMonth; d++) {
+  for (let d = 1; d <= total; d++) {
     const iso = `${info.year}-${String(info.month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
-    const dow = new Date(info.year, info.month - 1, d).getDay()
+    const dow = weekdayOfISO(iso)
     if (holidaySet.has(iso) && dow !== 0 && dow !== 6) holidayCount += 1
   }
-  const workingDays = Math.max(0, daysInMonth - weekendCount - holidayCount)
+  const workingDays = Math.max(0, total - weekendCount - holidayCount)
 
   const salaryType = emp.salary_type || 'MONTHLY'
   const basic = Number(emp.basic_salary) || 0
@@ -52,7 +53,7 @@ export function buildSalaryForecast(
     base = Math.round(dailyRate * workingDays)
     method = 'Daily · days worked'
   } else if (salaryType === 'WEEKLY') {
-    base = Math.round(weeklyRate * (daysInMonth / 7))
+    base = Math.round(weeklyRate * (total / 7))
     method = 'Weekly'
   } else if (salaryType === 'CONTRACT') {
     base = Math.round(contract)
@@ -82,15 +83,15 @@ export function buildRemainingForecast(
   emp: any,
   info: SalaryForecastInput & { today?: string },
 ): RemainingForecast {
-  const daysInMonth = new Date(info.year, info.month, 0).getDate()
-  const today = info.today || new Date().toISOString().slice(0, 10)
+  const total = daysInMonth(info.year, info.month)
+  const today = info.today || todayISO()
   const holidaySet = buildHolidaySet(info.holidays || [])
   const pad = (n: number) => String(n).padStart(2, '0')
   let totalWorking = 0
   let remainingWorking = 0
-  for (let d = 1; d <= daysInMonth; d++) {
+  for (let d = 1; d <= total; d++) {
     const iso = `${info.year}-${pad(info.month)}-${pad(d)}`
-    const dow = new Date(info.year, info.month - 1, d).getDay()
+    const dow = weekdayOfISO(iso)
     if (dow === 0 || dow === 6 || holidaySet.has(iso)) continue
     totalWorking += 1
     if (iso >= today) remainingWorking += 1

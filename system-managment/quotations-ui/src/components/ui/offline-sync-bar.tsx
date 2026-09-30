@@ -74,18 +74,21 @@ function Bar({
   children: React.ReactNode
 }) {
   const tones: Record<string, string> = {
-    error: 'bg-red-600 text-white',
-    warn: 'bg-amber-500 text-white',
-    muted: 'bg-slate-700 text-white',
-    info: 'bg-sky-600 text-white',
+    error: 'bg-danger text-white',
+    warn: 'bg-warning text-white',
+    muted: 'bg-fg-3 text-white',
+    info: 'bg-info text-white',
   }
   return (
     <div
       role="status"
       aria-live="polite"
       onClick={onClick}
+      // `no-print`: this is a fixed-position app overlay, not part of any
+      // document. Without it the pill prints on top of every bill, invoice
+      // and salary slip the moment the operator goes offline.
       className={cn(
-        'fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 cursor-default items-center gap-2 rounded-full px-4 py-2 text-xs font-medium shadow-lg',
+        'no-print fixed bottom-4 left-1/2 z-50 flex max-w-[calc(100vw-32px)] -translate-x-1/2 items-center gap-2 rounded-full px-4 py-2 text-xs font-medium shadow-lg',
         tones[tone],
         onClick && 'cursor-pointer',
       )}

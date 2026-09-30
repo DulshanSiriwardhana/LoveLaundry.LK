@@ -15,6 +15,12 @@ export const gatepassKeys = {
  * Query keys whose results depend on gate pass delivery state.
  * Any delivery / status / quantity change must invalidate all of these or
  * dashboards and reports keep showing stale pending totals.
+ *
+ * React Query matches a filter key against a query key by *prefix*, so each
+ * entry here is a namespace root. The Today screen reads
+ * ['ops','pending-gatepasses'] and ['ops','events',date] (see useDailyOps), so
+ * ['ops'] has to be listed — the bare ['pending-gatepasses'] / ['events'] that
+ * used to sit here matched nothing and left the dashboard stale.
  */
 export const DELIVERY_DEPENDENT_KEYS = [
     ['gatepasses'],
@@ -22,8 +28,13 @@ export const DELIVERY_DEPENDENT_KEYS = [
     ['dashboard'],
     ['reports'],
     ['notifications'],
-    ['pending-gatepasses'],
     ['client-summary'],
+    ['ops'],
+    // Bills are created directly from a gate pass, so their balances and the
+    // unbilled-gate-pass list both change with delivery state.
+    ['bills'],
+    ['shop-bills'],
+    ['returns'],
     ['events'],
 ] as const
 

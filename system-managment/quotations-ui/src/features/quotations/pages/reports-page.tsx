@@ -8,6 +8,7 @@ import { ErrorState } from '../../../components/ui/error-state'
 import { Breadcrumb } from '../../../components/ui/breadcrumb'
 import { reports } from '../services/reports.service'
 import { toast } from 'sonner'
+import { formatCalendarDate, formatTimestamp } from '../../../lib/time'
 
 type ReportTab = 'client' | 'item' | 'gatepass' | 'billing' | 'audit'
 
@@ -202,7 +203,7 @@ function ClientSearch() {
                     {data.gatepasses.map((gp: any, i: number) => (
                       <tr key={i} className="hover:bg-[#F9FAFB] transition-colors">
                         <td className="px-4 py-3 font-mono text-[12px] font-semibold text-[#101828]">{gp.gate_pass_number}</td>
-                        <td className="px-4 py-3" style={{ color: 'var(--text-secondary)' }}>{gp.receiving_date ? new Date(gp.receiving_date).toLocaleDateString() : '—'}</td>
+                        <td className="px-4 py-3" style={{ color: 'var(--text-secondary)' }}>{formatCalendarDate(gp.receiving_date)}</td>
                         <td className="px-4 py-3" style={{ color: 'var(--text-secondary)' }}>{gp.received_by || '—'}</td>
                         <td className="px-4 py-3 font-semibold text-[#101828]">{gp.total_received ?? gp.items?.length ?? '—'}</td>
                         <td className="px-4 py-3"><StatusBadge status={gp.status} /></td>
@@ -236,7 +237,7 @@ function ClientSearch() {
                     {data.bills.map((b: any, i: number) => (
                       <tr key={i} className="hover:bg-[#F9FAFB] transition-colors">
                         <td className="px-4 py-3 font-mono text-[12px] font-semibold text-[#101828]">{b.bill_number || b.id}</td>
-                        <td className="px-4 py-3" style={{ color: 'var(--text-secondary)' }}>{b.created_at ? new Date(b.created_at).toLocaleDateString() : '—'}</td>
+                        <td className="px-4 py-3" style={{ color: 'var(--text-secondary)' }}>{formatCalendarDate(b.created_at)}</td>
                         <td className="px-4 py-3 font-semibold text-[#101828]">LKR {(b.total_amount || 0).toLocaleString()}</td>
                         <td className="px-4 py-3 font-semibold text-[#16A34A]">LKR {(b.paid_amount || 0).toLocaleString()}</td>
                         <td className="px-4 py-3"><StatusBadge status={b.payment_status} /></td>
@@ -350,7 +351,7 @@ function GatePassReport() {
             >
               <td className="px-4 py-3 font-mono text-[12px] font-semibold text-[#101828] whitespace-nowrap">{row.gate_pass_number}</td>
               <td className="px-4 py-3 font-medium text-[#101828]">{row.client_name}</td>
-              <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{row.receiving_date ? new Date(row.receiving_date).toLocaleDateString() : '—'}</td>
+              <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{formatCalendarDate(row.receiving_date)}</td>
               <td className="px-4 py-3" style={{ color: 'var(--text-secondary)' }}>{row.received_by || '—'}</td>
               <td className="px-4 py-3 font-semibold text-[#101828]">{row.total_received ?? '—'}</td>
               <td className="px-4 py-3 font-semibold text-[#16A34A]">{row.total_delivered ?? '—'}</td>
@@ -485,7 +486,7 @@ function AuditLog() {
               className="hover:bg-[#F9FAFB] transition-colors"
             >
               <td className="px-4 py-3 text-[12px] whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>
-                {row.timestamp ? new Date(row.timestamp).toLocaleString() : '—'}
+                {formatTimestamp(row.timestamp)}
               </td>
               <td className="px-4 py-3 font-medium text-[#101828]">{row.user_id || '—'}</td>
               <td className="px-4 py-3"><ActionBadge action={row.action} /></td>

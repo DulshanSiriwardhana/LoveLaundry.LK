@@ -1,17 +1,18 @@
-import { QueryClient, type QueryClientConfig } from '@tanstack/react-query'
+import { QueryClient, MutationCache, type QueryClientConfig } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { RouterProvider } from 'react-router-dom'
 import { Suspense, useEffect, useMemo, useRef, type ReactNode } from 'react'
 import { Toaster, toast } from 'sonner'
 import { router } from './routes'
 import './App.css'
-import LoveLoader from './components/ui/LoveLoader'
+import { PageLoader } from './components/ui/loader'
 import { ThemeProvider } from './context/ThemeContext'
 import { HotelProvider } from './context/HotelContext'
 import { useAuth } from './context/AuthContext'
 import { DefaultsProvider } from './components/ops/defaults-provider'
 import { sanitizeScope } from './cache/db'
 import { createIndexedDbPersister } from './cache/persister'
+import { invalidateDerived } from './cache/invalidation'
 import { PendingSyncProvider } from './cache/pending-sync'
 import { setCacheScope } from './cache/scope'
 import {
@@ -49,8 +50,18 @@ const queryClientConfig: QueryClientConfig = {
   },
 }
 
-const queryClient = new QueryClient(queryClientConfig)
-
+const queryClient = new QueryClient({
+  ...queryClientConfig,
+  // Runs in addition to each mutation's own onSuccess (a defaultOptions
+  // callback would be overridden by it), so no write can leave a dashboard or
+  // report showing pre-write numbers. Compute-only endpoints opt out with
+  // `meta: { readOnly: true }` because they persist nothing.
+  mutationCache: new MutationCache({
+    onSuccess: (_data, _variables, _context, mutation) => {
+      if (!mutation.meta?.readOnly) invalidateDerived(queryClient)
+    },
+  }),
+})
 // Per-resource staleness (dashboards short, reference data long) — applied at
 // query creation on top of the global default above.
 configureQueryDefaults(queryClient)
@@ -129,7 +140,7 @@ function App() {
           <DefaultsProvider>
           {/* Suspense covers route-level lazy chunks: the loader only shows while
               a page bundle is actually being fetched, removing the old 600ms wait. */}
-          <Suspense fallback={<LoveLoader />}>
+          <Suspense fallback={<PageLoader />}>
             <HotelProvider>
               <RouterProvider router={router} />
             </HotelProvider>

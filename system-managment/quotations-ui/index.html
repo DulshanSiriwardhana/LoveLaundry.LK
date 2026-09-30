@@ -6,6 +6,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Love Laundry — Laundry pricing and quotation management." />
     <title>Love Laundry · Quotation Management</title>
+    <script>
+      // Apply the saved palette before first paint. Without this the app would
+      // render one frame in the default light palette and flash on every load.
+      (function () {
+        try {
+          var t = localStorage.getItem('theme-preset') || 'light'
+          var root = document.documentElement
+          root.setAttribute('data-theme', t)
+          if (t === 'dark' || t === 'nightblue' || t === 'contrast-dark') {
+            root.classList.add('dark-theme')
+          }
+          var size = { xs: '12px', sm: '13px', md: '14px', lg: '15px', xl: '17px', xxl: '19px' }[
+            localStorage.getItem('theme-font-size') || 'md'
+          ]
+          var zoom = { xs: 0.85, sm: 0.92, md: 1, lg: 1.08, xl: 1.18, xxl: 1.3 }[
+            localStorage.getItem('theme-font-size') || 'md'
+          ]
+          root.style.setProperty('--body-font-size', size)
+          root.style.setProperty('--body-font-zoom', String(zoom))
+        } catch (e) {
+          /* private mode / storage disabled — the defaults are already correct */
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -7,6 +7,7 @@ import { Card, CardContent } from '../../../components/ui/card'
 import { Button } from '../../../components/ui/button'
 import { Badge } from '../../../components/ui/badge'
 import { BillStatusBadge } from '../../../components/ui/bill-status-badge'
+import { PrintTarget } from '../../../components/ui/print-target'
 import { EmptyState } from '../../../components/ui/empty-state'
 import { ErrorState } from '../../../components/ui/error-state'
 import { Skeleton } from '../../../components/ui/skeleton'
@@ -14,12 +15,10 @@ import { Breadcrumb } from '../../../components/ui/breadcrumb'
 import { formatDate } from '../../../lib/utils'
 import { ConsolidatedInvoiceTemplate } from '../components/consolidated-invoice-template'
 import type { Bill } from '../../../types/bill'
+import { startOfMonthISO, todayISO } from '../../../lib/time'
 
 function defaultThisMonthRange() {
-  const now = new Date()
-  const first = new Date(now.getFullYear(), now.getMonth(), 1)
-  const pad = (d: Date) => d.toISOString().slice(0, 10)
-  return { from: pad(first), to: pad(now) }
+  return { from: startOfMonthISO(), to: todayISO() }
 }
 
 function isUnpaid(b: Bill): boolean {
@@ -43,7 +42,7 @@ export default function InvoiceCreatePage() {
   })
 
   const unpaid = useMemo(() => (data?.items ?? []).filter(isUnpaid), [data])
-  const nowStr = new Date().toISOString().slice(0, 10).replace(/-/g, '')
+  const nowStr = todayISO().replace(/-/g, '')
   const invoiceNo = `INV-${nowStr}-${String(unpaid.length + 1).padStart(4, '0')}`
 
   // Default all unpaid bills as selected whenever the list changes
@@ -219,14 +218,14 @@ export default function InvoiceCreatePage() {
       </div>
 
       {/* Hidden Print Template */}
-      <div style={{ display: 'none' }}>
+      <PrintTarget>
         <ConsolidatedInvoiceTemplate
           ref={printRef}
           bills={chosen}
           dateFrom={dateFrom}
           dateTo={dateTo}
         />
-      </div>
+      </PrintTarget>
     </div>
   )
 }

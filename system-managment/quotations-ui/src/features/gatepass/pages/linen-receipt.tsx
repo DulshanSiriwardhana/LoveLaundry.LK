@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Printer, RotateCcw, ArrowLeft } from 'lucide-react'
 import { useEnterFlow } from '../../../hooks/use-enter-flow'
+import { todayISO } from '../../../lib/time'
 import { Breadcrumb } from '../../../components/ui/breadcrumb'
 import { Button } from '../../../components/ui/button'
 import {
@@ -135,7 +136,7 @@ const SECTIONS: RecipSection[] = [
 export default function CamelotLinenReceipt() {
   const flow = useEnterFlow<HTMLDivElement>()
   const [receiptNo, setReceiptNo] = useState('')
-  const [date, setDate] = useState(() => new Date().toLocaleDateString('en-GB'))
+  const [date, setDate] = useState(() => todayISO())
   const [cells, setCells] = useState<Record<string, string>>({})
   const allKeys = useMemo(() => collectCellKeys(SECTIONS), [])
 

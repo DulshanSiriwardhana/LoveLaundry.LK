@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { importApi } from '../api/management-api'
 import { toast } from 'sonner'
 import { Upload, Download, CheckCircle2, XCircle, FileSpreadsheet, ArrowRight, AlertTriangle } from 'lucide-react'
+import { invalidateResource } from '../../../cache/invalidation'
 
 type Step = 'upload' | 'preview' | 'result'
 
@@ -25,6 +26,7 @@ export default function ImportWizard() {
       setStep('preview')
     },
     onError: () => toast.error('Failed to preview file'),
+    meta: { readOnly: true },
   })
 
   const executeMut = useMutation({
@@ -36,8 +38,7 @@ export default function ImportWizard() {
     onSuccess: (data) => {
       setResult(data)
       setStep('result')
-      qc.invalidateQueries({ queryKey: ['mgmt-transactions'] })
-      qc.invalidateQueries({ queryKey: ['mgmt-dashboard'] })
+      invalidateResource(qc, 'transactions')
     },
     onError: () => toast.error('Import failed'),
   })
@@ -189,7 +190,7 @@ export default function ImportWizard() {
         <div className="bg-white dark:bg-gray-800 rounded-xl border p-8 text-center space-y-4">
           <CheckCircle2 size={64} className="mx-auto text-green-500" />
           <h2 className="text-xl font-bold">Import Complete!</h2>
-          <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-md mx-auto">
             <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
               <p className="text-2xl font-bold">{result.total_rows}</p>
               <p className="text-sm text-gray-500">Total Rows</p>

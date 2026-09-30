@@ -19,6 +19,7 @@ import {
 } from '../hooks/useLegacyInvoices'
 import type { LegacyInvoice } from '../../../types/shop-bill'
 import { formatDateOnly } from '../../../lib/utils'
+import { formatDayMonthYear, todayISO } from '../../../lib/time'
 
 interface InvoiceRow {
   id: string
@@ -172,7 +173,7 @@ onSuccess: invoice => {
     { id: 'laundry', label: 'Laundry Sign', value: signatures.laundry },
   ]
 
-  const nowStr = new Date().toISOString().slice(0, 10).replace(/-/g, '')
+  const nowStr = todayISO().replace(/-/g, '')
   const previewNumber = saved?.invoice_number ?? `INV-${nowStr}-LEGACY`
 
   const printEntries = saved?.entries ?? verticalRows.map(r => ({ date: r.date, bill_number: r.billNumber, amount: r.amount }))
@@ -407,7 +408,7 @@ onSuccess: invoice => {
               <div className="li-meta">
                 <div className="li-title">Invoice</div>
                 <div className="li-meta-line">{previewNumber}</div>
-                <div className="li-meta-line">{new Date().toLocaleDateString('en-LK')}</div>
+                <div className="li-meta-line">{formatDayMonthYear(todayISO())}</div>
               </div>
             </div>
 
@@ -417,7 +418,7 @@ onSuccess: invoice => {
                 <div className="li-info-row"><span className="li-info-label">Bill To</span><span className="li-info-value">{saved?.shop_name || shopName}</span></div>
                 <div className="li-info-row"><span className="li-info-label">Invoice No</span><span className="li-info-value">{previewNumber}</span></div>
                 <div className="li-info-row"><span className="li-info-label">Description</span><span className="li-info-value">{saved?.description || description || '—'}</span></div>
-                <div className="li-info-row"><span className="li-info-label">Date</span><span className="li-info-value">{new Date().toLocaleDateString('en-LK')}</span></div>
+                <div className="li-info-row"><span className="li-info-label">Date</span><span className="li-info-value">{formatDayMonthYear(todayISO())}</span></div>
               </div>
 
               {/* Entries Table */}
@@ -475,7 +476,7 @@ onSuccess: invoice => {
                 <div className="li-sig-line">Laundry Sign</div>
               </div>
               <div className="li-sig"><div className="li-fill-line">{previewNumber}</div>Invoice Number</div>
-              <div className="li-sig"><div className="li-fill-line">{new Date().toLocaleDateString('en-LK')}</div>Date</div>
+              <div className="li-sig"><div className="li-fill-line">{formatDayMonthYear(todayISO())}</div>Date</div>
             </div>
           </div>
         </div>

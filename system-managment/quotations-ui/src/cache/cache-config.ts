@@ -7,7 +7,7 @@ import type { Query, QueryClient } from '@tanstack/react-query'
  * interpreted changes — the whole persisted cache is discarded on mismatch,
  * which is preferable to rendering corrupt/outdated structures.
  */
-export const CACHE_VERSION = '20260920-v1'
+export const CACHE_VERSION = '20260930-v2'
 
 /** Default TTL for a persisted snapshot until it is considered too old to
  *  restore at all (freshness after restore is handled by per-resource

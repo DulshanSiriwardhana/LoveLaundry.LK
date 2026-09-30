@@ -1,3 +1,4 @@
+import { addDaysISO } from '../../../lib/time'
 export interface AttendanceRecord {
   id?: string
   employee_id: string
@@ -34,11 +35,8 @@ export function buildHolidaySet(holidays: Array<{ date?: string; start_date?: st
     if (h.start_date && h.start_date !== h.date) set.add(h.start_date)
     if (h.end_date && h.end_date !== h.start_date && h.end_date !== h.date) {
       const from = h.start_date || h.date || ''
-      const d = new Date(from)
-      const end = new Date(h.end_date)
-      while (d <= end) {
-        set.add(d.toISOString().slice(0, 10))
-        d.setDate(d.getDate() + 1)
+      for (let day = from; day <= h.end_date; day = addDaysISO(day, 1)) {
+        set.add(day)
       }
     }
   }

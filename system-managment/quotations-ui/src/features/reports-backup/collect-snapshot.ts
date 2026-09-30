@@ -25,13 +25,14 @@ import type {
   SalarySlipRecord,
   ShopBillRecord,
 } from './types'
+import { formatISODate, getDateParts } from '../../lib/time'
 
 function pad(n: number): string {
   return String(n).padStart(2, '0')
 }
 
 export function toDay(d: Date): string {
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+  return formatISODate(getDateParts(d))
 }
 
 /** Extracts a local date (YYYY-MM-DD) from a string / Date / timestamp, or undefined. */

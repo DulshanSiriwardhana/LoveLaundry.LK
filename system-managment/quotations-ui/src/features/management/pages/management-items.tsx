@@ -8,6 +8,7 @@ import { Pagination } from '../../../components/ui/pagination'
 import { ConfirmDialog } from '../../../components/ui/confirm-dialog'
 import { useEnterFlow } from '../../../hooks/use-enter-flow'
 import { useEscape } from '../../../hooks/use-escape'
+import { invalidateResource } from '../../../cache/invalidation'
 
 const PAGE_SIZE = 20
 
@@ -43,30 +44,30 @@ export default function ManagementItems() {
 
   const createItemMut = useMutation({
     mutationFn: (data: any) => itemsApi.create(data),
-    onSuccess: () => { toast.success('Item created'); qc.invalidateQueries({ queryKey: ['mgmt-items'] }); setShowForm(false) },
+    onSuccess: () => { toast.success('Item created'); invalidateResource(qc, 'items'); setShowForm(false) },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 
   const updateItemMut = useMutation({
     mutationFn: ({ id, data }: any) => itemsApi.update(id, data),
-    onSuccess: () => { toast.success('Item updated'); qc.invalidateQueries({ queryKey: ['mgmt-items'] }); setEditing(null) },
+    onSuccess: () => { toast.success('Item updated'); invalidateResource(qc, 'items'); setEditing(null) },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 
   const deleteItemMut = useMutation({
     mutationFn: (id: string) => itemsApi.remove(id),
-    onSuccess: () => { toast.success('Item deactivated'); qc.invalidateQueries({ queryKey: ['mgmt-items'] }); setDeleteItemTarget(null) },
+    onSuccess: () => { toast.success('Item deactivated'); invalidateResource(qc, 'items'); setDeleteItemTarget(null) },
   })
 
   const createCatMut = useMutation({
     mutationFn: (data: any) => itemsApi.createCategory(data),
-    onSuccess: () => { toast.success('Category created'); qc.invalidateQueries({ queryKey: ['mgmt-categories'] }); setShowForm(false) },
+    onSuccess: () => { toast.success('Category created'); invalidateResource(qc, 'categories'); setShowForm(false) },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 
   const deleteCatMut = useMutation({
     mutationFn: (id: string) => itemsApi.removeCategory(id),
-    onSuccess: () => { toast.success('Category deactivated'); qc.invalidateQueries({ queryKey: ['mgmt-categories'] }); setDeleteCatTarget(null) },
+    onSuccess: () => { toast.success('Category deactivated'); invalidateResource(qc, 'categories'); setDeleteCatTarget(null) },
   })
 
   return (
@@ -124,8 +125,8 @@ export default function ManagementItems() {
                     <td className="px-3 py-2 text-right">LKR {(item.total_revenue || 0).toLocaleString()}</td>
                     <td className="px-3 py-2 text-right text-green-600">LKR {((item.total_revenue || 0) - (item.total_cost || 0)).toLocaleString()}</td>
                     <td className="px-3 py-2 text-center">
-                      <button onClick={() => { setEditing(item); setShowForm(true) }} className="p-1 hover:bg-gray-100 rounded"><Pencil size={14} /></button>
-                      <button onClick={() => setDeleteItemTarget(item)} className="p-1 hover:bg-red-100 text-red-500 rounded"><Trash2 size={14} /></button>
+                      <button onClick={() => { setEditing(item); setShowForm(true) }} aria-label="Edit" className="p-1 hover:bg-gray-100 rounded"><Pencil size={14} /></button>
+                      <button onClick={() => setDeleteItemTarget(item)} aria-label="Delete item" className="p-1 hover:bg-red-100 text-red-500 rounded"><Trash2 size={14} /></button>
                     </td>
                   </tr>
                 ))}
@@ -158,7 +159,7 @@ export default function ManagementItems() {
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">{editing ? 'Edit' : 'Add'} {tab === 'items' ? 'Item' : 'Category'}</h2>
-              <button onClick={() => { setShowForm(false); setEditing(null) }}><X size={20} /></button>
+              <button onClick={() => { setShowForm(false); setEditing(null) }} aria-label="Close form"><X size={20} /></button>
             </div>
             {tab === 'items' ? (
               <form onSubmit={e => {

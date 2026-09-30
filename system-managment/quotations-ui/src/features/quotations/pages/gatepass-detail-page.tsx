@@ -15,6 +15,7 @@ import { ErrorState } from '../../../components/ui/error-state'
 import { Skeleton } from '../../../components/ui/skeleton'
 import { Breadcrumb } from '../../../components/ui/breadcrumb'
 import { formatDate } from '../../../lib/utils'
+import { formatTime } from '../../../lib/time'
 import { DATE_CORRECTION_REASONS } from '../../../lib/date-corrections'
 import { useGatePass, useGatePassBalance, useGatePassDeliveries, useUpdateGatePassStatus, useAdjustGatePass, useUpdateGatePassDate, useCreateBillFromGatePass, useUpdateGatePass, useMarkGatePassDelivered, useReopenLegacyGatePass } from '../hooks/useGatePasses'
 import { useUpdateDeliveryDate } from '../hooks/useDeliveries'
@@ -24,6 +25,7 @@ import { SearchableSelect } from '../../../components/ui'
 import { toQuotationOptions, type QuotationOption } from './create-gatepass-page'
 import type { GatePassBalanceItem, Return } from '../../../types/operations'
 import { ops, type TransactionEvent } from '../../today/services/ops.service'
+import { todayISO } from '../../../lib/time'
 
 /** Stable empty array so `?? NO_ITEMS` doesn't invalidate memos on every render. */
 const NO_ITEMS: never[] = []
@@ -92,7 +94,7 @@ function fmtWhen(value?: string): string {
     if (diffMin < 60) return `${diffMin}m ago`
     if (diffMin < 1440) return `${Math.floor(diffMin / 60)}h ago`
     const datePart = formatDate(d.toISOString())
-    const timePart = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+    const timePart = formatTime(d.toISOString())
     return `${datePart} · ${timePart}`
 }
 
@@ -159,7 +161,7 @@ export default function GatePassDetailPage() {
     const [markOpen, setMarkOpen] = useState(false)
     const [reopenConfirm, setReopenConfirm] = useState(false)
     const [markNote, setMarkNote] = useState('')
-    const [markDate, setMarkDate] = useState(() => new Date().toISOString().split('T')[0])
+    const [markDate, setMarkDate] = useState(() => todayISO())
     const [adjustingItem, setAdjustingItem] = useState<string | null>(null)
     const [adjustingSpec, setAdjustingSpec] = useState('')
     const [adjustQty, setAdjustQty] = useState(0)
@@ -512,7 +514,7 @@ export default function GatePassDetailPage() {
                             size="sm"
                             onClick={() => {
                                 setMarkNote('')
-                                setMarkDate(new Date().toISOString().split('T')[0])
+                                setMarkDate(todayISO())
                                 setMarkOpen(true)
                             }}
                             disabled={markDelivered.isPending}
@@ -554,6 +556,7 @@ export default function GatePassDetailPage() {
                                 onClick={startEditDate}
                                 className="text-[#6B7280] hover:text-[#2563EB] transition"
                                 title="Correct receiving date"
+                                aria-label="Correct receiving date"
                             >
                                 <Pencil className="h-3.5 w-3.5" />
                             </button>

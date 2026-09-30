@@ -19,6 +19,7 @@ import {
 import { Button } from '../../../components/ui/button'
 import { EmptyState } from '../../../components/ui/empty-state'
 import { ErrorState } from '../../../components/ui/error-state'
+import { PrintTarget } from '../../../components/ui/print-target'
 import { Skeleton } from '../../../components/ui/skeleton'
 import { Breadcrumb } from '../../../components/ui/breadcrumb'
 import { SyncStatusBar } from '../../../components/ui/sync-status-bar'
@@ -33,6 +34,7 @@ import { HotelBadge } from '../components/hotel-badge'
 import { StatusSectionList, type StatusSection } from '../components/status-section-list'
 import { useHotelScope } from '../../../context/HotelContext'
 import type { GatePass } from '../../../types/operations'
+import { todayISO } from '../../../lib/time'
 
 const SECTION_ORDER = ['pending', 'received', 'partial', 'completed', 'historical'] as const
 type SectionKey = (typeof SECTION_ORDER)[number]
@@ -133,7 +135,7 @@ export default function GatePassesPage() {
     const requestPrint = (gp: GatePass) => setPrintTarget(gp)
 
     const kpis: MetricItem[] = useMemo(() => {
-        const today = new Date().toISOString().slice(0, 10)
+        const today = todayISO()
         return [
             { id: 'total', label: 'Total Gate Passes', value: allGatePasses.length, icon: <ClipboardList size={15} />, tone: 'blue' },
             { id: 'today', label: "Today's Receipts", value: allGatePasses.filter(gp => String(gp.receiving_date || '').slice(0, 10) === today).length, icon: <CalendarDays size={15} />, tone: 'blue' },
@@ -341,9 +343,9 @@ export default function GatePassesPage() {
 
             {/* Hidden print sheet */}
             {printTarget && (
-                <div style={{ display: 'none' }}>
+                <PrintTarget>
                     <GatePassPrintSheet ref={printRef} gp={printTarget} />
-                </div>
+                </PrintTarget>
             )}
         </div>
     )

@@ -1,5 +1,6 @@
 import { RefreshCw, CloudOff, AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react'
 import { useSyncStatus, type ResourceSyncState, type SyncStatus } from '../../cache/useSyncStatus'
+import { TIME_ZONE } from '../../lib/time'
 
 const DATE_FMT = new Intl.DateTimeFormat('en-GB', {
   day: '2-digit',
@@ -7,6 +8,7 @@ const DATE_FMT = new Intl.DateTimeFormat('en-GB', {
   year: 'numeric',
   hour: 'numeric',
   minute: '2-digit',
+  timeZone: TIME_ZONE,
 })
 
 function formatLastUpdated(ts: number | null): string {

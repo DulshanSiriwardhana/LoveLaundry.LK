@@ -9,6 +9,8 @@ import { SalarySlipPrint } from '../components/salary-slip-print'
 import { TableEmptyRow } from '../../../components/ui/empty-state'
 import { LoadingSpinner } from '../../../components/ui/loading-spinner'
 import { Pagination } from '../../../components/ui/pagination'
+import { currentMonth, currentYear } from '../../../lib/time'
+import { invalidateResource } from '../../../cache/invalidation'
 
 const PAGE_SIZE = 20
 
@@ -38,11 +40,11 @@ export default function SalaryHistoryPage() {
   const slipRef = useRef<HTMLDivElement>(null)
   const [selectedEmp, setSelectedEmp] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
-  const [yearFilter, setYearFilter] = useState(new Date().getFullYear())
+  const [yearFilter, setYearFilter] = useState(currentYear())
   const [viewSlip, setViewSlip] = useState<any>(null)
   const [slipLang, setSlipLang] = useState<'EN' | 'SI'>('EN')
-  const [payYear, setPayYear] = useState(new Date().getFullYear())
-  const [payMonth, setPayMonth] = useState(new Date().getMonth() + 1)
+  const [payYear, setPayYear] = useState(currentYear())
+  const [payMonth, setPayMonth] = useState(currentMonth())
   const [preview, setPreview] = useState<any>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
   const [payrollLoading, setPayrollLoading] = useState(false)
@@ -80,25 +82,25 @@ export default function SalaryHistoryPage() {
 
   const finalizeMut = useMutation({
     mutationFn: (slipId: string) => salaryApi.finalizeSlip(slipId),
-    onSuccess: () => { toast.success('Salary slip finalized'); qc.invalidateQueries({ queryKey: ['salary-slips'] }) },
+    onSuccess: () => { toast.success('Salary slip finalized'); invalidateResource(qc, 'salary') },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 
   const cancelMut = useMutation({
     mutationFn: (slipId: string) => salaryApi.cancelSlip(slipId),
-    onSuccess: () => { toast.success('Salary slip cancelled'); qc.invalidateQueries({ queryKey: ['salary-slips'] }); setViewSlip(null) },
+    onSuccess: () => { toast.success('Salary slip cancelled'); invalidateResource(qc, 'salary'); setViewSlip(null) },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 
   const deleteMut = useMutation({
     mutationFn: (slipId: string) => salaryApi.deleteSlip(slipId),
-    onSuccess: () => { toast.success('Salary slip deleted'); qc.invalidateQueries({ queryKey: ['salary-slips'] }); setViewSlip(null) },
+    onSuccess: () => { toast.success('Salary slip deleted'); invalidateResource(qc, 'salary'); setViewSlip(null) },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 
   const payMut = useMutation({
     mutationFn: ({ slipId, amount }: { slipId: string; amount: number }) => salaryApi.paySlip(slipId, amount),
-    onSuccess: () => { toast.success('Marked as paid'); qc.invalidateQueries({ queryKey: ['salary-slips'] }); setViewSlip(null) },
+    onSuccess: () => { toast.success('Marked as paid'); invalidateResource(qc, 'salary'); setViewSlip(null) },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 
@@ -129,7 +131,7 @@ export default function SalaryHistoryPage() {
       const r = await salaryApi.payrollRun(payYear, payMonth)
       toast.success(`${r.data.created?.length ?? 0} slip(s) created, ${r.data.skipped?.length ?? 0} skipped`)
       setPreview(null)
-      qc.invalidateQueries({ queryKey: ['salary-slips'] })
+      invalidateResource(qc, 'salary')
     } catch (e: any) {
       toast.error(e.response?.data?.detail || 'Payroll run failed')
     } finally {
@@ -139,7 +141,7 @@ export default function SalaryHistoryPage() {
 
   const handlePrint = useReactToPrint({
     contentRef: slipRef,
-    documentTitle: viewSlip ? `SalarySlip-${viewSlip.slip_number}` : 'SalarySlip',
+    documentTitle: viewSlip?.slip_number ? `SalarySlip-${viewSlip.slip_number}` : 'SalarySlip',
   })
 
   const [overrideEmp, setOverrideEmp] = useState<any>(null)
@@ -147,7 +149,7 @@ export default function SalaryHistoryPage() {
 
   const overrideMut = useMutation({
     mutationFn: (data: any) => salaryPackagesApi.upsert(data),
-    onSuccess: () => { toast.success('Month arrangement saved'); setOverrideEmp(null); setPreview(null) },
+    onSuccess: () => { toast.success('Month arrangement saved'); invalidateResource(qc, 'salary'); setOverrideEmp(null); setPreview(null) },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 
@@ -454,7 +456,7 @@ export default function SalaryHistoryPage() {
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-1">
               <h3 className="font-semibold flex items-center gap-2"><Settings2 size={18} /> Adjust Month Arrangement</h3>
-              <button onClick={() => setOverrideEmp(null)}><XCircle size={20} /></button>
+              <button onClick={() => setOverrideEmp(null)} aria-label="Close"><XCircle size={20} /></button>
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               {overrideEmp.name} · {overrideMonth} — saved as a per-month override for this employee. Past finalized months are never changed.

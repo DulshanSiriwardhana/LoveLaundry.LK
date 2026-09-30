@@ -79,7 +79,7 @@ export function NotificationDetailDialog({ open, onOpenChange, data, type }: Not
         <DialogBody className="space-y-4">
           {isGatePass ? (
             <div className="rounded-lg border border-[#E4E7EC] bg-white p-4 space-y-3">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-x-4 gap-y-3">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-wide text-[#98A2B3]">Client</p>
                   <p className="text-[14px] font-medium text-[#101828]">{(data as GatePassPendingEntry).client_name}</p>
@@ -98,7 +98,7 @@ export function NotificationDetailDialog({ open, onOpenChange, data, type }: Not
                 </div>
               </div>
 
-              <div className="border-t border-[#F2F4F7] pt-3 grid grid-cols-2 gap-4">
+              <div className="border-t border-[#F2F4F7] pt-3 grid grid-cols-1 min-[380px]:grid-cols-2 gap-x-4 gap-y-3">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-wide text-[#98A2B3]">Received</p>
                   <p className="text-[14px] font-medium text-[#101828]">{(data as GatePassPendingEntry).received}</p>
@@ -111,7 +111,7 @@ export function NotificationDetailDialog({ open, onOpenChange, data, type }: Not
             </div>
           ) : (
             <div className="rounded-lg border border-[#E4E7EC] bg-white p-4 space-y-3">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-x-4 gap-y-3">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-wide text-[#98A2B3]">Client</p>
                   <p className="text-[14px] font-medium text-[#101828]">{(data as Quotation).client_name}</p>

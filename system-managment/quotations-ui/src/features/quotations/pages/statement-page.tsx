@@ -16,6 +16,7 @@ import { returns as returnsApi } from '../services/returns.service'
 import { payments } from '../services/reports.service'
 import type { Bill } from '../../../types/bill'
 import type { Delivery, Return, Payment } from '../../../types/operations'
+import { todayISO } from '../../../lib/time'
 
 interface StatementData {
   bills: Bill[]
@@ -74,7 +75,7 @@ function downloadCSV(rows: Row[], clientName: string): void {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `statement-${clientName.replace(/[^\w]+/g, '-')}-${new Date().toISOString().slice(0, 10)}.csv`
+  a.download = `statement-${clientName.replace(/[^\w]+/g, '-')}-${todayISO()}.csv`
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)

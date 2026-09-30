@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { dispatch } from '../services/dispatch.service'
 import type { DispatchCreate, DispatchUpdate } from '../../../types/operations'
+import { invalidateResource } from '../../../cache/invalidation'
 
 export const dispatchKeys = {
     all: ['dispatch'] as const,
@@ -58,9 +59,11 @@ export function useDeleteDispatch() {
 }
 
 export function useOptimizeRoute() {
+    const qc = useQueryClient()
     return useMutation({
         mutationFn: ({ assigned_to, date }: { assigned_to: string; date?: string }) =>
             dispatch.optimize(assigned_to, date),
+        onSuccess: () => invalidateResource(qc, 'dispatch'),
         onError: () => toast.error('Could not plan route'),
     })
 }

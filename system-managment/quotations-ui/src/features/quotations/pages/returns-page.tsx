@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Plus, Search, RotateCcw, X, Send } from 'lucide-react'
@@ -11,6 +12,7 @@ import { Skeleton } from '../../../components/ui/skeleton'
 import { Breadcrumb } from '../../../components/ui/breadcrumb'
 import { returns as returnsApi } from '../services/returns.service'
 import type { Return } from '../../../types/operations'
+import { invalidateResource } from '../../../cache/invalidation'
 
 const STATUS_COLORS: Record<string, { bg: string; border: string; text: string }> = {
   PENDING: { bg: '#FEF3C7', border: '#FDE68A', text: '#D97706' },
@@ -94,6 +96,7 @@ function ReturnCard({ r, onResent }: { r: Return; onResent: (returnId: string, i
 }
 
 export default function ReturnsPage() {
+  const queryClient = useQueryClient()
   const [searchInput, setSearchInput] = useState('')
   const [clientName, setClientName] = useState('')
   const [returns, setReturns] = useState<Return[]>([])
@@ -127,6 +130,7 @@ export default function ReturnsPage() {
   const handleResent = async (returnId: string, itemName: string, spec: string) => {
     try {
       await returnsApi.markResent(returnId, itemName, spec)
+      invalidateResource(queryClient, 'returns')
       toast.success('Marked as sent')
       fetchReturns()
     } catch (err: any) {

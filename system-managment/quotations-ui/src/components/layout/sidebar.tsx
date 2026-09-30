@@ -4,7 +4,7 @@ import {
   House, ChartBar, ClipboardText, Truck, UsersThree, CurrencyCircleDollar, FileText,
   FolderOpen, GearSix, Users, Database, CaretLeft, CaretRight, ChatCircleDots, Scan, Upload,
   ListChecks, Receipt, UserCircle, Package, Wallet, Money, CalendarBlank, CalendarPlus,
-  Lightning, Brain, CloudArrowDown, FlowArrow, Package as PackageIcon, CaretDown,
+  Lightning, Brain, CloudArrowDown, FlowArrow, Package as PackageIcon, CaretDown, ChartLineUp,
 } from '@phosphor-icons/react'
 import { LogoOnDark } from '../brand/logo'
 import { cn } from '../../lib/utils'
@@ -50,6 +50,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
       { to: '/bills', label: 'Bills', icon: CurrencyCircleDollar, permission: 'view_bills' },
       { to: '/statements', label: 'Client Statement', icon: Wallet, permission: 'view_bills' },
       { to: '/shop-bills', label: 'Shop Bills', icon: CurrencyCircleDollar, permission: 'view_bills' },
+      { to: '/shop-bills/dashboard', label: 'Shop Analytics', icon: ChartLineUp, permission: 'view_bills' },
       { to: '/legacy-invoice', label: 'Legacy Invoice', icon: FileText, permission: 'view_bills' },
       { to: '/invoices/new', label: 'Invoices', icon: FileText, permission: 'view_bills' },
     ],
@@ -154,10 +155,12 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
             role="dialog"
             aria-modal="true"
             aria-label="Main navigation"
-            className="sidebar-dark fixed inset-y-0 left-0 z-50 flex w-[268px] max-w-[85vw] flex-col lg:hidden"
+            className="nav-drawer sidebar-dark fixed inset-y-0 left-0 z-50 flex w-[268px] max-w-[85vw] flex-col lg:hidden"
             style={{ animation: 'slide-in-left 160ms cubic-bezier(0.16, 1, 0.3, 1)' }}
           >
             <SidebarContent collapsed={false} onToggle={onToggle} isMobile />
+            {/* The keyframes follow the animation token (slide-up uses the same
+                curve); injected here because the drawer is the only consumer. */}
             <style>{`@keyframes slide-in-left{from{transform:translateX(-100%)}to{transform:translateX(0)}}`}</style>
           </aside>
         </>

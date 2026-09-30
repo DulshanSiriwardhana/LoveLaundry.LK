@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Plus, Trash2, ArrowLeft, Truck } from 'lucide-react'
@@ -9,6 +10,7 @@ import { returns as returnsApi } from '../services/returns.service'
 import { gatepasses as gatepassApi } from '../services/gatepass.service'
 import { deliveries as deliveriesApi } from '../services/delivery.service'
 import type { GatePass, Delivery, ReturnItem, BillAdjustment } from '../../../types/operations'
+import { invalidateResource } from '../../../cache/invalidation'
 
 const REASONS = [
   { value: 'WRONG_ITEM', label: 'Wrong Item Sent' },
@@ -68,6 +70,7 @@ function defaultGPItemReturn(): GPItemReturn {
 }
 
 export default function CreateReturnPage() {
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
   const [gatePasses, setGatePasses] = useState<GatePass[]>([])
   const [selectedGP, setSelectedGP] = useState<GatePass | null>(null)
@@ -199,6 +202,7 @@ export default function CreateReturnPage() {
         bill_adjustment: adjustment.adjustment_type !== 'NONE' ? adjustment : undefined,
         notes: notes || undefined,
       })
+      invalidateResource(queryClient, 'returns', 'gatepasses')
       const createdId = created ? created.return_id || created._id : ''
       navigate(createdId ? `/returns/${String(createdId)}` : '/returns')
     } catch (err: any) {
@@ -391,7 +395,7 @@ export default function CreateReturnPage() {
                     </label>
 
                     {isSelected && sel && (
-                      <div className="mt-3 pt-3 border-t border-amber-200 grid grid-cols-4 gap-2">
+                      <div className="mt-3 pt-3 border-t border-amber-200 grid grid-cols-2 sm:grid-cols-4 gap-2">
                         <div>
                           <label className="text-[10px] text-[#98A2B3] mb-0.5 block">Qty</label>
                           <input

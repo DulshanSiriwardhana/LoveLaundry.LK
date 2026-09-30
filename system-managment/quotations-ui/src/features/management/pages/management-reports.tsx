@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { reportsApi, customersApi } from '../api/management-api'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts'
 import { Filter } from 'lucide-react'
+import { currentMonth, currentYear } from '../../../lib/time'
 
 const COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
 const LIST_LIMIT = 500
@@ -13,8 +14,8 @@ export default function ManagementReports() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [customerId, setCustomerId] = useState('')
-  const [year, setYear] = useState(new Date().getFullYear())
-  const [month, setMonth] = useState(new Date().getMonth() + 1)
+  const [year, setYear] = useState(currentYear())
+  const [month, setMonth] = useState(currentMonth())
 
   const { data: customersData = { items: [] } } = useQuery({
     queryKey: ['mgmt-customers-list'],

@@ -16,19 +16,38 @@ export function setUnauthorizedHandler(handler: UnauthorizedHandler | null) {
   if (handler) redirecting = false
 }
 
-function extractMessage(err: AxiosError): string {
-  const data = err.response?.data as unknown as { detail?: unknown } | undefined
-  const detail = data?.detail
-  if (typeof detail === 'string' && detail.trim()) return detail
-  if (detail && typeof detail === 'object') {
+/**
+ * Reduce any thrown value to a human-readable message.
+ *
+ * FastAPI reports validation problems as a `detail` that is sometimes a string
+ * and sometimes an array of objects. Rendering the latter directly produces
+ * "[object Object]" in the UI, so it is serialised here instead.
+ *
+ * Exported for clients that must not run the session-expiry path — the AI
+ * service authenticates with a request signature, so a 401 there means a bad
+ * signature rather than a logged-out user, and tearing the session down would
+ * be wrong.
+ */
+export function extractResponseMessage(err: unknown): string {
+  const detail = (err as AxiosError | undefined)?.response?.data as
+    | { detail?: unknown }
+    | undefined
+  const value = detail?.detail
+  if (typeof value === 'string' && value.trim()) return value
+  if (value && typeof value === 'object') {
     try {
-      const serialized = JSON.stringify(detail)
+      const serialized = JSON.stringify(value)
       if (serialized && serialized !== '{}') return serialized
     } catch {
       /* ignore */
     }
   }
-  return err.message || 'Request failed'
+  if (err instanceof Error && err.message) return err.message
+  return 'Request failed'
+}
+
+function extractMessage(err: AxiosError): string {
+  return extractResponseMessage(err)
 }
 
 /**
@@ -54,16 +73,21 @@ export function attachResponseInterceptor(instance: AxiosInstance) {
     },
     (err: AxiosError) => {
       if (err.response?.status === 401) {
-        localStorage.removeItem('ll_token')
-        localStorage.removeItem('ll_user')
+        // Classify the endpoint *before* touching storage. A rejected login is
+        // itself a 401; tearing down the session there would log the user out
+        // for typing the wrong password while signed in on another tab.
         const url = (err.config?.url ?? '').toLowerCase()
         const isAuthCall =
           url.includes('/auth/login') ||
           url.includes('/token') ||
           url.includes('/auth/')
-        if (!isAuthCall && !redirecting && unauthorizedHandler) {
-          redirecting = true
-          unauthorizedHandler()
+        if (!isAuthCall) {
+          localStorage.removeItem('ll_token')
+          localStorage.removeItem('ll_user')
+          if (!redirecting && unauthorizedHandler) {
+            redirecting = true
+            unauthorizedHandler()
+          }
         }
       }
       // Preserve the original error's shape (including .response) so that

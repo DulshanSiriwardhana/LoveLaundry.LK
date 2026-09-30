@@ -10,6 +10,7 @@ import { ConfirmDialog } from '../../../components/ui/confirm-dialog'
 import { useEnterFlow } from '../../../hooks/use-enter-flow'
 import { useEscape } from '../../../hooks/use-escape'
 import { todayISO } from '../../../lib/date'
+import { invalidateResource } from '../../../cache/invalidation'
 
 const PAGE_SIZE = 20
 
@@ -45,25 +46,25 @@ export default function ExtraWorkPage() {
 
   const createCat = useMutation({
     mutationFn: (data: any) => extraWorkApi.createCategory(data),
-    onSuccess: () => { toast.success('Category created'); setShowCatForm(false); qc.invalidateQueries({ queryKey: ['extra-work-categories'] }) },
+    onSuccess: () => { toast.success('Category created'); setShowCatForm(false); invalidateResource(qc, 'extraWork') },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 
   const deleteCat = useMutation({
     mutationFn: (id: string) => extraWorkApi.deleteCategory(id),
-    onSuccess: () => { toast.success('Category deleted'); setDeleteCatTarget(null); qc.invalidateQueries({ queryKey: ['extra-work-categories'] }) },
+    onSuccess: () => { toast.success('Category deleted'); setDeleteCatTarget(null); invalidateResource(qc, 'extraWork') },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 
   const createRec = useMutation({
     mutationFn: (data: any) => extraWorkApi.createRecord(data),
-    onSuccess: () => { toast.success('Record added'); setShowRecordForm(false); qc.invalidateQueries({ queryKey: ['extra-work-records'] }) },
+    onSuccess: () => { toast.success('Record added'); setShowRecordForm(false); invalidateResource(qc, 'extraWork') },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 
   const deleteRec = useMutation({
     mutationFn: (id: string) => extraWorkApi.deleteRecord(id),
-    onSuccess: () => { toast.success('Record deleted'); setDeleteRecTarget(null); qc.invalidateQueries({ queryKey: ['extra-work-records'] }) },
+    onSuccess: () => { toast.success('Record deleted'); setDeleteRecTarget(null); invalidateResource(qc, 'extraWork') },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
 

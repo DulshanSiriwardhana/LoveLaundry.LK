@@ -10,6 +10,7 @@ import { useEnterFlow } from '../../../hooks/use-enter-flow'
 import { useEscape } from '../../../hooks/use-escape'
 import { todayISO } from '../../../lib/date'
 import { useDefaults } from '../../../components/ops'
+import { invalidateResource } from '../../../cache/invalidation'
 
 const METHODS = ['CASH', 'BANK_TRANSFER', 'CHEQUE', 'CARD', 'ONLINE']
 const PAGE_SIZE = 20
@@ -51,7 +52,7 @@ export default function ManagementPayments() {
       toast.success('Payment recorded')
       defaults.set('pay_customer', data.customer_id ?? '')
       defaults.set('pay_method', data.payment_method ?? 'CASH')
-      qc.invalidateQueries({ queryKey: ['mgmt-payments'] })
+      invalidateResource(qc, 'mgmtPayments')
       setShowForm(false)
     },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
@@ -59,7 +60,7 @@ export default function ManagementPayments() {
 
   const deleteMut = useMutation({
     mutationFn: (id: string) => paymentsApi.remove(id),
-    onSuccess: () => { toast.success('Payment deleted'); qc.invalidateQueries({ queryKey: ['mgmt-payments'] }); setDeleteTarget(null) },
+    onSuccess: () => { toast.success('Payment deleted'); invalidateResource(qc, 'mgmtPayments'); setDeleteTarget(null) },
   })
 
   const totalPaid = payments.reduce((s: number, p: any) => s + p.amount, 0)

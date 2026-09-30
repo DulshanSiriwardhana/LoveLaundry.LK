@@ -12,6 +12,7 @@ import { EmptyState } from '../../../components/ui/empty-state'
 import { LoadingSpinner } from '../../../components/ui/loading-spinner'
 import { ExportButton } from '../../../components/ui/export-button'
 import { Pagination } from '../../../components/ui/pagination'
+import { invalidateResource } from '../../../cache/invalidation'
 
 const PAGE_SIZE = 20
 
@@ -47,7 +48,7 @@ export default function ManagementTransactions() {
 
   const deleteMut = useMutation({
     mutationFn: (id: string) => transactionsApi.remove(id),
-    onSuccess: () => { toast.success('Transaction deleted'); qc.invalidateQueries({ queryKey: ['mgmt-transactions'] }) },
+    onSuccess: () => { toast.success('Transaction deleted'); invalidateResource(qc, 'transactions') },
   })
 
   const totalAmount = pageTransactions.reduce((s: number, t: any) => s + t.total_amount, 0)
@@ -139,7 +140,7 @@ export default function ManagementTransactions() {
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Transaction Details</h2>
-              <button onClick={() => setViewTxn(null)}><X size={20} /></button>
+              <button onClick={() => setViewTxn(null)} aria-label="Close details"><X size={20} /></button>
             </div>
             <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
               <div><p className="text-gray-500">Date</p><p className="font-medium">{viewTxn.transaction_date}</p></div>

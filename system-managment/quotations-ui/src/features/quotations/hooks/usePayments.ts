@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { payments } from '../services/reports.service'
 import type { PaymentCreate } from '../../../types/operations'
+import { invalidateResource } from '../../../cache/invalidation'
 
 export const paymentKeys = {
     all: ['payments'] as const,
@@ -23,8 +24,7 @@ export function useCreatePayment() {
             payments.create(billId, data),
         onSuccess: (_, { billId }) => {
             qc.invalidateQueries({ queryKey: paymentKeys.list(billId) })
-            qc.invalidateQueries({ queryKey: ['bills', billId] })
-            qc.invalidateQueries({ queryKey: ['bills', 'list'] })
+            invalidateResource(qc, 'bills')
             toast.success('Payment recorded successfully')
         },
         onError: () => toast.error('Failed to record payment'),

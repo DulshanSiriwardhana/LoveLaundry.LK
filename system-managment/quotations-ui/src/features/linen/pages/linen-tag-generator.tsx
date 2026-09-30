@@ -7,6 +7,7 @@ import { Card, CardContent } from '../../../components/ui/card'
 import { Button } from '../../../components/ui/button'
 import { Breadcrumb } from '../../../components/ui/breadcrumb'
 import { Printer, Plus, Loader2, CheckCircle } from 'lucide-react'
+import { formatDayMonthYear, todayISO } from '../../../lib/time'
 
 interface TagItem {
   linen_id: string
@@ -114,7 +115,7 @@ export default function LinenTagGenerator() {
     const printWindow = window.open('', '_blank')
     if (!printWindow) return
 
-    const printDate = new Date().toLocaleDateString()
+    const printDate = formatDayMonthYear(todayISO())
 
     printWindow.document.write(`<!DOCTYPE html>
 <html><head><title>Linen Tags</title>

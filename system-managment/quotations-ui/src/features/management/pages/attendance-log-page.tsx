@@ -4,6 +4,8 @@ import { employeesApi, attendanceApi } from '../api/management-api'
 import { toast } from 'sonner'
 import { Save, CalendarDays, CheckCircle2, UserRound } from 'lucide-react'
 import { EmptyState } from '../../../components/ui/empty-state'
+import { todayISO } from '../../../lib/time'
+import { invalidateResource } from '../../../cache/invalidation'
 
 const STATUSES = ['PRESENT', 'HALF_DAY', 'PAID_LEAVE', 'UNPAID_LEAVE', 'ABSENT'] as const
 const STATUS_COLORS: Record<string, string> = {
@@ -21,10 +23,7 @@ interface Row {
 
 export default function AttendanceLogPage() {
   const qc = useQueryClient()
-  const today = useMemo(() => {
-    const d = new Date()
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-  }, [])
+  const today = useMemo(() => todayISO(), [])
   const [logDate, setLogDate] = useState(today)
 
   const { data: employees = [] } = useQuery({
@@ -76,7 +75,7 @@ export default function AttendanceLogPage() {
     },
     onSuccess: () => {
       toast.success(`Attendance saved for ${logDate}`)
-      qc.invalidateQueries({ queryKey: ['mgmt-attendance-log-records'] })
+      invalidateResource(qc, 'attendance')
       refetchRecs()
     },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed to save attendance'),

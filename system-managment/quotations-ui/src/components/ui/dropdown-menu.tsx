@@ -60,6 +60,7 @@ export function DropdownMenu({
   const [activeIndex, setActiveIndex] = React.useState(-1)
   const [flipLeft, setFlipLeft] = React.useState(false)
   const [upward, setUpward] = React.useState(false)
+  const [maxHeight, setMaxHeight] = React.useState(320)
   const triggerRef = React.useRef<HTMLButtonElement>(null)
   const menuRef = React.useRef<HTMLDivElement>(null)
   const menuId = React.useId()
@@ -115,6 +116,13 @@ export function DropdownMenu({
 
     setFlipLeft(align === 'end' && tRect.right - mRect.width < margin)
     setUpward(tRect.bottom + mRect.height + margin > vh && tRect.top - mRect.height - margin > 0)
+    // A menu taller than the space on either side of the trigger is capped and
+    // scrolled. Without this a long menu on a short viewport (a phone with the
+    // keyboard up, or a laptop in a split screen) simply runs off the top and
+    // its first items become unreachable.
+    const spaceBelow = vh - tRect.bottom - margin
+    const spaceAbove = tRect.top - margin
+    setMaxHeight(Math.max(120, Math.min(spaceBelow, spaceAbove)))
   }, [open, align])
 
   const move = (dir: 1 | -1) => {
@@ -178,11 +186,12 @@ export function DropdownMenu({
           onKeyDown={onMenuKeyDown}
           className={cn(
             'absolute z-50 min-w-[184px] max-w-[min(260px,calc(100vw-16px))] overflow-y-auto overscroll-contain',
-            'rounded-[8px] border border-[var(--border-2)] bg-[var(--surface)] p-1 shadow-[var(--shadow-pop)]',
+            'rounded-md border border-[var(--border-2)] bg-[var(--surface)] p-1 shadow-[var(--shadow-pop)]',
             upward ? 'bottom-full mb-1' : 'top-full mt-1',
             flipLeft ? 'right-0 left-auto' : align === 'end' ? 'right-0' : 'left-0',
             menuClassName,
           )}
+          style={{ maxHeight }}
         >
           {groups.map((group, gi) => (
             <div key={group.label ?? gi}>

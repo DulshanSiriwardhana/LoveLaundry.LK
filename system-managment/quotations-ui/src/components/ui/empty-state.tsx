@@ -55,11 +55,11 @@ export function EmptyState({
     <Wrapper
       className={cn(
         'flex flex-col items-center justify-center px-6 py-10 text-center',
-        !bare && 'rounded-[10px] border border-dashed border-[var(--border-2)] bg-[var(--surface-2)]',
+        !bare && 'rounded-lg border border-dashed border-[var(--border-2)] bg-[var(--surface-2)]',
         className,
       )}
     >
-      <div className="mb-2.5 flex size-9 items-center justify-center rounded-[8px] border border-[var(--border)] bg-[var(--surface)] text-[var(--text-faint)]">
+      <div className="mb-2.5 flex size-9 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--text-faint)]">
         {icon ?? <Icon className="size-[18px]" aria-hidden />}
       </div>
       <p className="text-[13.5px] font-semibold text-[var(--text-primary)]">
@@ -144,11 +144,11 @@ export function ErrorState({
     <div
       role="alert"
       className={cn(
-        'flex flex-col items-center justify-center rounded-[10px] border border-[var(--danger-border)] bg-[var(--danger-soft)] px-6 py-8 text-center',
+        'flex flex-col items-center justify-center rounded-lg border border-[var(--danger-border)] bg-[var(--danger-soft)] px-6 py-8 text-center',
         className,
       )}
     >
-      <div className="mb-2.5 flex size-9 items-center justify-center rounded-[8px] border border-[var(--danger-border)] bg-[var(--surface)] text-[var(--danger-text)]">
+      <div className="mb-2.5 flex size-9 items-center justify-center rounded-md border border-[var(--danger-border)] bg-[var(--surface)] text-[var(--danger-text)]">
         <AlertCircle className="size-[18px]" aria-hidden />
       </div>
       <p className="text-[13.5px] font-semibold text-[var(--danger-text)]">{title}</p>

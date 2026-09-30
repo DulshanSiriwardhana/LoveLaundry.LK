@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { toast } from 'sonner'
 import {
   ClipboardList, Plus, Trash2, AlertCircle, ArrowLeft, Link2, X, Sparkles, History, FileClock, RotateCcw,
 } from 'lucide-react'
@@ -11,11 +12,11 @@ import { SearchableSelect, type SearchableOption } from '../../../components/ui'
 import { useDataGrid, mergeRefs } from '../../../hooks/use-data-grid'
 import { useEnterFlow } from '../../../hooks/use-enter-flow'
 import { useCreateGatePass, useGatePasses } from '../hooks/useGatePasses'
-import { useQuotations } from '../hooks/useQuotations'
+import { useQuotations, useUpdateQuotation } from '../hooks/useQuotations'
 import { useDefaults, useDraft, hasDraft } from '../../../components/ops'
 import type { GatePassItem } from '../../../types/operations'
 import type { Quotation } from '../../../types/quotation'
-import { quotationService } from '../services/quotation.service'
+import { dateToStartOfDayISO, todayISO } from '../../../lib/time'
 
 const EMPTY_ITEM: GatePassItem = {
     item_name: '',
@@ -46,13 +47,11 @@ interface LastItemSeed {
 }
 
 function todayLocal(): string {
-    const now = new Date()
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    return todayISO()
 }
 
 function genGatePassNumber(): string {
-    const now = new Date()
-    return `GP-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(Math.floor(Math.random() * 9000) + 1000)}`
+    return `GP-${todayLocal().replace(/-/g, '')}-${String(Math.floor(Math.random() * 9000) + 1000)}`
 }
 
 // ─── Item Name Autocomplete ───────────────────────────────────────────────────
@@ -124,6 +123,7 @@ export default function CreateGatePassPage() {
     const createGatePass = useCreateGatePass()
     const { data: gatepasses = [] } = useGatePasses()
     const { data: quotations = [], isLoading: quotationsLoading } = useQuotations()
+    const updateQuotation = useUpdateQuotation()
     const defaults = useDefaults()
 
     const { value: form, set: setForm, clear: clearDraft, dirty } = useDraft<GatePassDraft>('gate-pass-create', {
@@ -321,9 +321,24 @@ export default function CreateGatePassPage() {
                         })),
                     ],
                 }
-                await quotationService.updateQuotation(getQuotationId(selectedQuotation), payload)
+                // Go through the mutation rather than the bare service: it
+                // invalidates ['quotations'] and refreshes the cached record,
+                // so the auto-added lines are actually visible afterwards.
+                // Calling the service directly left the quotation list serving
+                // a pre-update snapshot for the full staleTime window.
+                await updateQuotation.mutateAsync({
+                    id: getQuotationId(selectedQuotation),
+                    payload,
+                })
             } catch (err) {
-                console.error('Failed to update quotation with custom items', err)
+                // Surface it: the gate pass is still created, so a silent
+                // failure would leave the quotation missing the new items with
+                // no indication anything went wrong.
+                toast.error(
+                    `Gate pass saved, but the quotation could not be updated: ${
+                        err instanceof Error ? err.message : 'unknown error'
+                    }`,
+                )
             }
         }
 
@@ -331,7 +346,7 @@ export default function CreateGatePassPage() {
             {
                 gate_pass_number: form.gate_pass_number.trim(),
                 client_name: form.client_name.trim(),
-                receiving_date: new Date(form.receiving_date).toISOString(),
+                receiving_date: dateToStartOfDayISO(form.receiving_date),
                 received_by: form.received_by.trim(),
                 notes: form.notes.trim() || undefined,
                 items: form.items,
@@ -441,6 +456,7 @@ export default function CreateGatePassPage() {
                                 <button
                                     type="button"
                                     onClick={removeQuotationLink}
+                                    aria-label="Remove quotation link"
                                     className="flex h-7 w-7 items-center justify-center rounded-lg text-[#EA580C] hover:bg-[#FED7AA] transition-colors cursor-pointer"
                                 >
                                     <X className="h-3.5 w-3.5" />

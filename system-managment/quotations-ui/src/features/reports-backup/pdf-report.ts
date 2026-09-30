@@ -24,6 +24,7 @@ import {
   sourceOk,
 } from './pdf-drawing'
 import type { DailyReportSnapshot } from './types'
+import { monthName as monthNameOf } from '../../lib/time'
 
 installVfs()
 
@@ -66,9 +67,8 @@ function attendanceCounts(records: DailyReportSnapshot['attendance']) {
 }
 
 function residencyMonths(date: string): string {
-  const [y, m] = date.split('-').map(Number)
-  const monthName = new Date(y, (m || 1) - 1, 1).toLocaleString('en-GB', { month: 'long' })
-  return `${monthName} ${y}`
+  const y = date.split('-')[0]
+  return `${monthNameOf(date)} ${y}`
 }
 
 function totalsRow(label: string, share: string, cells: (string | number)[]): (string | number)[] {

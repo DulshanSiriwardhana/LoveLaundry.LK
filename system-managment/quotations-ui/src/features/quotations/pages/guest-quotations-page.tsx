@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { FileText, Storefront, X, Phone } from '@phosphor-icons/react'
 import api from '../../../api/api'
 import type { Quotation } from '../../../types/quotation'
+import { formatCalendarDate } from '../../../lib/time'
 import { Logo } from '../../../components/brand/logo'
 import { Button } from '../../../components/ui/button'
 import { Badge, type BadgeTone } from '../../../components/ui/badge'
@@ -16,10 +17,7 @@ const STATUS_TONE: Record<string, BadgeTone> = {
   archived: 'neutral',
 }
 
-const formatDate = (dateString: string) =>
-  new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(
-    new Date(dateString),
-  )
+const formatDate = (dateString: string) => formatCalendarDate(dateString)
 
 const lkr = (n: number) => `LKR ${n.toLocaleString('en-LK', { maximumFractionDigits: 2 })}`
 

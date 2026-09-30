@@ -10,6 +10,7 @@ import { EmptyState } from '../../../components/ui/empty-state'
 import { Breadcrumb } from '../../../components/ui/breadcrumb'
 import { formatDate } from '../../../lib/utils'
 import { Search, ChevronLeft, ChevronRight, Download, X } from 'lucide-react'
+import { todayISO } from '../../../lib/time'
 
 export default function LinenInventory() {
   const navigate = useNavigate()
@@ -56,7 +57,7 @@ export default function LinenInventory() {
     const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n')
     const blob = new Blob([csv], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
-    const a = document.createElement('a'); a.href = url; a.download = `linen-inventory-${new Date().toISOString().slice(0, 10)}.csv`; a.click()
+    const a = document.createElement('a'); a.href = url; a.download = `linen-inventory-${todayISO()}.csv`; a.click()
     URL.revokeObjectURL(url)
   }
 

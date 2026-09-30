@@ -37,6 +37,7 @@ const NAV_ITEMS: NavTarget[] = [
   { label: 'Reports', keywords: 'reports export sales', path: '/reports' },
   { label: 'Users', keywords: 'users staff accounts', path: '/users' },
   { label: 'Shop Bills', keywords: 'shop bills cash', path: '/shop-bills' },
+  { label: 'Shop Analytics', keywords: 'shop bills dashboard analytics summary', path: '/shop-bills/dashboard' },
   { label: 'Create Shop Bill', keywords: 'shop bill create new', path: '/shop-bills/new' },
   { label: 'Staff Management', keywords: 'workers staff employees', path: '/workers' },
   { label: 'Daily Tasks', keywords: 'daily tasks work', path: '/workers/daily-tasks' },

@@ -1,6 +1,7 @@
 import React from 'react'
 import { type Quotation } from '../../../types/quotation'
 import { COMPANY } from '../../../config/company'
+import { formatCalendarDate } from '../../../lib/time'
 
 interface QuotationPrintTemplateProps {
   quotation: Quotation
@@ -461,7 +462,7 @@ export const QuotationPrintTemplate = React.forwardRef<HTMLDivElement, Quotation
                       <div className="details-right">
                         <div className="detail-row">
                           <span className="detail-label">Date:</span>
-                          <span className="detail-value">{quotation.created_at ? new Date(quotation.created_at).toLocaleDateString() : ''}</span>
+                          <span className="detail-value">{formatCalendarDate(quotation.created_at)}</span>
                         </div>
                         <div className="detail-row">
                           <span className="detail-label">Quotation #:</span>

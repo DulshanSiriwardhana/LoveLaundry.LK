@@ -30,7 +30,7 @@ const TONE: Record<BadgeTone, string> = {
   warning: 'border-[var(--warning-border)] bg-[var(--warning-soft)] text-[var(--warning-text)]',
   danger: 'border-[var(--danger-border)] bg-[var(--danger-soft)] text-[var(--danger-text)]',
   info: 'border-[var(--info-border)] bg-[var(--info-soft)] text-[var(--info-text)]',
-  purple: 'border-violet-200 bg-violet-50 text-violet-700',
+  accent: 'border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent-text)]',
 }
 
 const DOT: Record<BadgeTone, string> = {
@@ -40,13 +40,16 @@ const DOT: Record<BadgeTone, string> = {
   warning: 'bg-[var(--warning-text)]',
   danger: 'bg-[var(--danger-text)]',
   info: 'bg-[var(--info-text)]',
-  purple: 'bg-violet-500',
+  accent: 'bg-[var(--accent-text)]',
 }
 
 /** Pre-rename names mapped onto the current tones. */
 const ALIASES: Record<string, BadgeTone> = {
   default: 'brand',
   secondary: 'neutral',
+  // `purple` predates the accent token family and is still passed by callers
+  // that were never renamed.
+  purple: 'accent',
 }
 
 /**
@@ -68,7 +71,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        'inline-flex max-w-full items-center rounded-[4px] border whitespace-nowrap',
+        'inline-flex max-w-full items-center rounded-sm border whitespace-nowrap',
         size === 'xs'
           ? 'gap-1 px-1.5 py-px text-[10.5px] leading-[1.5]'
           : 'gap-1.5 px-1.5 py-0.5 text-[11.5px] leading-[1.45]',

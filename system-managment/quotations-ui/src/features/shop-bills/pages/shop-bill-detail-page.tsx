@@ -12,6 +12,7 @@ import { ConfirmDialog } from '../../../components/ui/confirm-dialog'
 import { formatDate } from '../../../lib/utils'
 import { useShopBill, useUpdateShopBill, useDeleteShopBill, useRecordShopBillPayment, useDuplicateShopBill, useSplitShopBill, useMakeRecurring } from '../hooks/useShopBills'
 import { shopBillService } from '../services/shop-bill.service'
+import { todayISO } from '../../../lib/time'
 
 const STATUS_COLORS: Record<string, string> = {
   PENDING: 'bg-amber-50 text-amber-700 border border-amber-200',
@@ -35,7 +36,7 @@ function RecordPaymentModal({ isOpen, onClose, billId, outstanding }: { isOpen: 
   const recordPayment = useRecordShopBillPayment()
   const [amount, setAmount] = useState<number | ''>(outstanding)
   const [method, setMethod] = useState('Cash')
-  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0])
+  const [date, setDate] = useState(() => todayISO())
   const [reference, setReference] = useState('')
   const [notes, setNotes] = useState('')
   const isValid = amount !== '' && amount > 0 && method && date
@@ -45,7 +46,7 @@ function RecordPaymentModal({ isOpen, onClose, billId, outstanding }: { isOpen: 
     if (!isValid) return
     recordPayment.mutate(
       { id: billId, payload: { amount: Number(amount), payment_method: method, payment_date: date, reference, notes } },
-      { onSuccess: () => { onClose(); setAmount(''); setReference(''); setNotes(''); setDate(new Date().toISOString().split('T')[0]); setMethod('Cash'); } }
+      { onSuccess: () => { onClose(); setAmount(''); setReference(''); setNotes(''); setDate(todayISO()); setMethod('Cash'); } }
     )
   }
 

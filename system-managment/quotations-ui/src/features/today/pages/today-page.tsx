@@ -8,6 +8,7 @@ import {
   FileText, Pulse,
 } from '@phosphor-icons/react'
 import { cn } from '../../../lib/utils'
+import { addDaysISO, TIME_ZONE, todayISO } from '../../../lib/time'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card'
 import { Button } from '../../../components/ui/button'
 import { Skeleton } from '../../../components/ui/skeleton'
@@ -31,20 +32,14 @@ import {
 import { opsKeys } from '../hooks/useDailyOps'
 import type { Adjustment, DayCloseTotals } from '../services/ops.service'
 
-// ── Date helpers (local calendar day, no timezone drift) ──────────────────────
+// ── Date helpers (Sri Lankan calendar day, no timezone drift) ─────────────────
 
-function localISO(d = new Date()): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
+function localISO(): string {
+  return todayISO()
 }
 
 function shiftISO(iso: string, days: number): string {
-  const [y, m, d] = iso.split('-').map(Number)
-  const dt = new Date(y, m - 1, d)
-  dt.setDate(dt.getDate() + days)
-  return localISO(dt)
+  return addDaysISO(iso, days)
 }
 
 function dayOf(iso?: string | null): string {
@@ -53,15 +48,25 @@ function dayOf(iso?: string | null): string {
 
 function fmtDay(iso: string): string {
   const [y, m, d] = iso.split('-').map(Number)
-  const dt = new Date(y, m - 1, d)
-  return dt.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  if (!y || !m || !d) return ''
+  return new Intl.DateTimeFormat('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(Date.UTC(y, m - 1, d)))
 }
 
 function fmtTime(ts?: string): string {
   if (!ts) return ''
   const dt = new Date(ts)
   if (Number.isNaN(dt.getTime())) return ''
-  return dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+  return new Intl.DateTimeFormat('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: TIME_ZONE,
+  }).format(dt)
 }
 
 function fmtMoney(n: number): string {

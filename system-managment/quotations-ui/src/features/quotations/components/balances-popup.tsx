@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Search, ChevronDown } from 'lucide-react'
 import type { ClientWiseEntry } from '../hooks/useBusinessDashboard'
 import type { OutstandingAging } from '../services/dashboard.service'
+import { formatCalendarDate } from '../../../lib/time'
 import { Avatar } from '../../../components/ui/avatar'
 import { Badge } from '../../../components/ui/badge'
 import { Button } from '../../../components/ui/button'
@@ -34,8 +35,7 @@ const AGING_BUCKETS: { key: keyof OutstandingAging; label: string }[] = [
 
 function formatDate(dateStr: string) {
   if (!dateStr) return '-'
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+  return formatCalendarDate(dateStr)
 }
 
 function lkr(n: number) {
@@ -215,7 +215,7 @@ export function BalancesPopup({
                         id={detailId}
                         className="border-t border-[var(--border)] bg-[var(--surface-2)] px-4 py-3 sm:px-5"
                       >
-                        <dl className="mb-3 grid grid-cols-3 gap-px overflow-hidden rounded-[6px] border border-[var(--border)] bg-[var(--border)]">
+                        <dl className="mb-3 grid grid-cols-1 sm:grid-cols-3 gap-px overflow-hidden rounded-[6px] border border-[var(--border)] bg-[var(--border)]">
                           {[
                             { label: 'Billed', value: client.total_billed },
                             { label: 'Paid', value: client.paid_amount },

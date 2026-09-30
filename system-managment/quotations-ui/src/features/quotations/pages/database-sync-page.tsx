@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { RiDatabase2Line, RiRefreshLine, RiCheckLine, RiErrorWarningLine, RiTimeLine } from 'react-icons/ri'
+import { formatTimestamp } from '../../../lib/time'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card'
 import { Breadcrumb } from '../../../components/ui/breadcrumb'
 import { Button } from '../../../components/ui/button'
 import { Skeleton } from '../../../components/ui/skeleton'
 import billsApi from '../../../api/bills-api'
+import { invalidateResource } from '../../../cache/invalidation'
 
 interface DatabaseStatus {
   main: { status: string }
@@ -41,7 +43,7 @@ function StatusDot({ online }: { online: boolean }) {
 function formatDate(value?: string | null) {
   if (!value) return 'Never'
   try {
-    return new Date(value).toLocaleString()
+    return formatTimestamp(value)
   } catch {
     return value
   }
@@ -71,8 +73,9 @@ export default function DatabaseSyncPage() {
       }
     },
     onSuccess: (report) => {
-      qc.invalidateQueries({ queryKey: ['database-status'] })
+      invalidateResource(qc, 'database')
       if (report.status === 'SUCCESS') {
+        invalidateResource(qc, 'quotations', 'gatepasses', 'bills', 'workers', 'linen')
         toast.success('Local database synchronized')
       } else {
         toast.warning('Local sync completed with errors')
@@ -87,7 +90,7 @@ export default function DatabaseSyncPage() {
       return res.data
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['database-status'] })
+      invalidateResource(qc, 'database', 'quotations', 'gatepasses', 'bills', 'workers', 'linen')
       toast.success('Secondary sync triggered')
     },
     onError: () => toast.error('Failed to trigger secondary sync'),

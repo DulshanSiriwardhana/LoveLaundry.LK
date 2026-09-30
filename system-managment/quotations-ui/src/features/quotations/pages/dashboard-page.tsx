@@ -443,7 +443,7 @@ function BalancesOverview({ data, onShowDetails }: { data: DashboardOverviewData
               {totalOutstanding.toLocaleString('en', { maximumFractionDigits: 0 })}
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
             {[
               { label: 'Collected', value: `LKR ${fmt(totalCollected)}`, sub: `${collectedPct.toFixed(0)}%` },
               { label: 'Pending', value: `LKR ${fmt(totalOutstanding)}`, sub: `${outstandingPct.toFixed(0)}%` },

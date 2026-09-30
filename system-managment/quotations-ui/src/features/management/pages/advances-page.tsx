@@ -10,6 +10,7 @@ import { ConfirmDialog } from '../../../components/ui/confirm-dialog'
 import { useEnterFlow } from '../../../hooks/use-enter-flow'
 import { useEscape } from '../../../hooks/use-escape'
 import { todayISO } from '../../../lib/date'
+import { invalidateResource } from '../../../cache/invalidation'
 
 const PAGE_SIZE = 20
 
@@ -50,7 +51,7 @@ export default function AdvancesPage() {
     onSuccess: () => {
       toast.success('Advance recorded')
       setShowForm(false)
-      qc.invalidateQueries({ queryKey: ['advances'] })
+      invalidateResource(qc, 'advances')
     },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })
@@ -60,7 +61,7 @@ export default function AdvancesPage() {
     onSuccess: () => {
       toast.success('Advance cancelled')
       setCancelTarget(null)
-      qc.invalidateQueries({ queryKey: ['advances'] })
+      invalidateResource(qc, 'advances')
     },
     onError: (e: any) => toast.error(e.response?.data?.detail || 'Failed'),
   })

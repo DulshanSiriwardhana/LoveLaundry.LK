@@ -5,6 +5,7 @@ import { Button } from '../../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card'
 import { EmptyState } from '../../../components/ui/empty-state'
 import { ErrorState } from '../../../components/ui/error-state'
+import { PrintTarget } from '../../../components/ui/print-target'
 import { Skeleton } from '../../../components/ui/skeleton'
 import { Breadcrumb } from '../../../components/ui/breadcrumb'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter } from '../../../components/ui/dialog'
@@ -16,6 +17,8 @@ import { useReactToPrint } from 'react-to-print'
 import { BillPrintTemplate } from '../components/bill-print-template'
 import { BillStatusBadge } from '../../../components/ui/bill-status-badge'
 import { useRef } from 'react'
+import { formatCalendarDate } from '../../../lib/time'
+import { todayISO } from '../../../lib/time'
 
 function RecordPaymentModal({
   isOpen,
@@ -31,7 +34,7 @@ function RecordPaymentModal({
   const createPayment = useCreatePayment()
   const [amount, setAmount] = useState<number | ''>(suggestedAmount)
   const [method, setMethod] = useState('Cash')
-  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0])
+  const [date, setDate] = useState(() => todayISO())
   const [reference, setReference] = useState('')
   const [notes, setNotes] = useState('')
 
@@ -286,14 +289,18 @@ export default function BillDetailPage() {
             </CardHeader>
 
             <CardContent className="pt-4">
+{/* The money columns carry fixed widths (24+28+32 = 84rem of
+                  column), so on a phone they cannot fit. `overflow-hidden`
+                  clipped the amounts off with no way to reach them — the
+                  item column now yields and the frame scrolls. */}
               <div className="overflow-x-auto rounded-[10px] border border-[var(--border)]">
-                <table className="w-full min-w-[520px] text-left text-[13px]">
+                <table className="w-full min-w-[420px] text-left text-[13px]">
                   <thead className="border-b border-[var(--border)] bg-[var(--surface-2)] text-[11px] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
                     <tr>
                       <th className="px-4 py-2.5">Item</th>
-                      <th className="px-4 py-2.5 text-right w-24">Qty</th>
-                      <th className="px-4 py-2.5 text-right w-28">Rate</th>
-                      <th className="px-4 py-2.5 text-right w-32">Total</th>
+                      <th className="px-4 py-2.5 text-right w-20">Qty</th>
+                      <th className="px-4 py-2.5 text-right w-24">Rate</th>
+                      <th className="px-4 py-2.5 text-right w-28">Total</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#F2F4F7] bg-white">
@@ -310,7 +317,7 @@ export default function BillDetailPage() {
               </div>
 
               <div className="mt-6 flex justify-end">
-                <div className="w-72 space-y-3 pt-4 border-t border-[#E4E7EC]">
+                <div className="w-full max-w-72 space-y-3 pt-4 border-t border-[#E4E7EC]">
                   <div className="flex items-center justify-between text-[13px] text-[#6B7280]">
                     <span>Total Quantity</span>
                     <span className="font-medium text-[#374151]">{bill.total_quantity} pcs</span>
@@ -328,7 +335,7 @@ export default function BillDetailPage() {
           <div className="w-full md:w-80 space-y-5 flex-shrink-0">
             {/* Payment Summary */}
             <Card>
-              <CardHeader className="border-b border-[#F2F4F7] pb-3 bg-[#F9FAFB] rounded-t-xl">
+              <CardHeader className="border-b border-[#F2F4F7] pb-3 bg-[#F9FAFB] rounded-t-lg">
                 <CardTitle className="flex items-center gap-2 text-[14px]">
                   <Wallet className="h-4 w-4 text-[#6B7280]" /> Payment Summary
                 </CardTitle>
@@ -439,7 +446,7 @@ export default function BillDetailPage() {
                           <div className="text-[11px] text-[#6B7280] flex items-center gap-1.5 mt-0.5">
                             <span className="font-medium text-[#374151]">{p.payment_method}</span>
                             <span>•</span>
-                            <span>{new Date(p.payment_date).toLocaleDateString()}</span>
+                            <span>{formatCalendarDate(p.payment_date)}</span>
                           </div>
                         </div>
                         {p.reference && (
@@ -468,7 +475,7 @@ export default function BillDetailPage() {
       
       {/* Hidden Print Template */}
       {bill && (
-        <div style={{ display: 'none' }}>
+        <PrintTarget>
           <BillPrintTemplate
             ref={printRef}
             bill={bill}
@@ -478,7 +485,7 @@ export default function BillDetailPage() {
             deliveryDate=""
             gatePass=""
           />
-        </div>
+        </PrintTarget>
       )}
 
       {/* Delete Confirmation */}

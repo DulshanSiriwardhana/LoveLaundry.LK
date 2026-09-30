@@ -514,7 +514,7 @@ export default function BusinessDashboardPage() {
             <CardTitle>Sales Pipeline</CardTitle>
           </CardHeader>
           <CardContent className="pt-4 space-y-4">
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {pipeline.map((p) => (
                 <div key={p.name} className="rounded-xl border border-[#E4E7EC] p-3 text-center">
                   <p className="text-[22px] font-bold text-[#101828]">{p.value}</p>

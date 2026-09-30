@@ -19,6 +19,7 @@ import {
 import { Button } from '../../../components/ui/button'
 import { EmptyState } from '../../../components/ui/empty-state'
 import { ErrorState } from '../../../components/ui/error-state'
+import { PrintTarget } from '../../../components/ui/print-target'
 import { Skeleton } from '../../../components/ui/skeleton'
 import { Breadcrumb } from '../../../components/ui/breadcrumb'
 import { SyncStatusBar } from '../../../components/ui/sync-status-bar'
@@ -477,13 +478,13 @@ export default function DeliveriesPage() {
 
             {/* Hidden print sheet */}
             {printTarget && (
-                <div style={{ display: 'none' }}>
+                <PrintTarget>
                     <DeliveryPrintSheet
                         ref={printRef}
                         delivery={printTarget}
                         gp={gpMap.get(printTarget.gate_pass_id)}
                     />
-                </div>
+                </PrintTarget>
             )}
         </div>
     )

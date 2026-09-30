@@ -38,10 +38,10 @@ import type {
   SalarySlipRecord,
   ShopBillRecord,
 } from './types'
+import { monthName as monthNameOf } from '../../lib/time'
 
 function monthName(period: string): string {
-  const [y, m] = period.split('-').map(Number)
-  return new Date(y, (m || 1) - 1, 1).toLocaleString('en-GB', { month: 'long' })
+  return monthNameOf(period)
 }
 
 async function fetchMonthIncome(period: string): Promise<SourceOutput<IncomeRecord> & { total: number }> {

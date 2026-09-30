@@ -2,6 +2,7 @@ import billsApi from '../../../api/bills-api'
 import { idempotencyKey } from '../../../lib/idempotency'
 import type { Payment, PaymentCreate } from '../../../types/operations'
 import type { ClientSummary, LinenFlowResponse } from '../../../types/operations'
+import { todayISO } from '../../../lib/time'
 
 export const reports = {
     /**
@@ -44,7 +45,7 @@ export const reports = {
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = `${type}-${new Date().toISOString().slice(0, 10)}.csv`
+        a.download = `${type}-${todayISO()}.csv`
         document.body.appendChild(a)
         a.click()
         window.URL.revokeObjectURL(url)
@@ -60,7 +61,7 @@ export const reports = {
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = `${type}-${new Date().toISOString().slice(0, 10)}.xlsx`
+        a.download = `${type}-${todayISO()}.xlsx`
         document.body.appendChild(a)
         a.click()
         window.URL.revokeObjectURL(url)

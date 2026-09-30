@@ -1,6 +1,7 @@
 import billsApi from '../../../api/bills-api'
 import { idempotencyKey } from '../../../lib/idempotency'
 import { withItems } from '../../../lib/api-normalise'
+import { dateToStartOfDayISO } from '../../../lib/time'
 import type {
     AvailabilityResponse,
     Delivery,
@@ -13,8 +14,8 @@ import type {
 function toISODatetime(dateStr: string): string {
     // If already a full datetime string, return as-is
     if (dateStr.includes('T')) return dateStr
-    // Convert plain date "YYYY-MM-DD" → "YYYY-MM-DDT00:00:00"
-    return `${dateStr}T00:00:00`
+    // Plain date "YYYY-MM-DD" means *our* midnight, not UTC midnight.
+    return dateToStartOfDayISO(dateStr)
 }
 
 export interface PendingGatePassItem {

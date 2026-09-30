@@ -1,5 +1,6 @@
 import React from 'react'
 import type { Delivery, GatePass } from '../../../types/operations'
+import { formatCalendarDate } from '../../../lib/time'
 
 const deliveryPrintStyles = `
   @media print {
@@ -225,7 +226,7 @@ export const DeliveryPrintSheet = React.forwardRef<HTMLDivElement, { delivery: D
                         <div className="dls-detail-right">
                             <div className="dls-detail-line">
                                 <span className="dls-detail-label">Delivery Date:</span>
-                                <span className="dls-detail-value">{delivery.delivery_date ? new Date(delivery.delivery_date).toLocaleDateString() : ''}</span>
+                                <span className="dls-detail-value">{formatCalendarDate(delivery.delivery_date)}</span>
                             </div>
                             <div className="dls-detail-line">
                                 <span className="dls-detail-label">Item Types:</span>

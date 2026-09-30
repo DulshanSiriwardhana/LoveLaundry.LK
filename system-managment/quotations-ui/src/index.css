@@ -6,11 +6,11 @@
    Layer 1  @theme            semantic Tailwind utilities (bg-surface, …)
    Layer 2  base              reset, typography, focus, form controls, scrollbars
    Layer 3  theme presets     the 9 selectable palettes, all built from the same
-                             semantic contract so no page can drift
+                              semantic contract so no page can drift
    Layer 4  legacy remap      normalises the hard-coded hex utilities that were
-                             written before the token layer existed, so every
-                             module resolves to the same surface / border / text
-                             token regardless of theme
+                              written before the token layer existed, so every
+                              module resolves to the same surface / border / text
+                              token regardless of theme
    Layer 5  print             document output is never re-skinned
 
    Rules the system enforces:
@@ -19,6 +19,25 @@
    · Hairline borders separate surfaces; shadows only for overlays.
    · Nothing animates for decoration — only state changes.
 ════════════════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────────────────────────────────────
+   0 · DARK VARIANT
+   Tailwind's stock `dark:` compiles to `@media (prefers-color-scheme: dark)`,
+   which tracks the *operating system*, not the preset the user picked. A user
+   who selects "nightblue" on a light laptop would have lost every `dark:` rule.
+   Binding the variant to the app's own theme attribute makes the two agree:
+   the UI is dark exactly when the user asked for a dark palette.
+   The attribute is written to <html> before first paint (see index.html) so
+   there is no flash of the wrong palette.
+─────────────────────────────────────────────────────────────────────────── */
+@custom-variant dark (&:where(
+  [data-theme='dark'],
+  [data-theme='nightblue'],
+  [data-theme='contrast-dark'],
+  [data-theme='dark'] *,
+  [data-theme='nightblue'] *,
+  [data-theme='contrast-dark'] *
+));
 
 /* ───────────────────────────────────────────────────────────────────────────
    1 · SEMANTIC UTILITIES
@@ -67,6 +86,9 @@
   --color-info: var(--info-text);
   --color-info-soft: var(--info-soft);
   --color-info-border: var(--info-border);
+  --color-accent: var(--accent-text);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-border: var(--accent-border);
 
   /* Type scale — one role per step. The document base is 14px, but the workhorse
      for tables, forms and controls is 13px, so the scale is centred there and
@@ -283,6 +305,9 @@
   --info-text: #175cd3;
   --info-soft: #eff8ff;
   --info-border: #b2ddff;
+  --accent-text: #5925dc;
+  --accent-soft: #f4f3ff;
+  --accent-border: #d9d6fe;
 
   --ring: #2563eb;
   --ring-offset: #ffffff;
@@ -357,6 +382,9 @@
   --info-text: #14459e;
   --info-soft: #eff8ff;
   --info-border: #84caff;
+  --accent-text: #5925dc;
+  --accent-soft: #f4f3ff;
+  --accent-border: #b9b3f8;
 
   --ring: #14459e;
   --ring-offset: #ffffff;
@@ -428,6 +456,9 @@
   --info-text: #0e7490;
   --info-soft: #ecfeff;
   --info-border: #a5f3fc;
+  --accent-text: #155e75;
+  --accent-soft: #ecfeff;
+  --accent-border: #a5f3fc;
 
   --ring: #1d4ed8;
   --ring-offset: #ffffff;
@@ -499,6 +530,9 @@
   --info-text: #0e7490;
   --info-soft: #ecfeff;
   --info-border: #a5f3fc;
+  --accent-text: #155e75;
+  --accent-soft: #ecfeff;
+  --accent-border: #a5f3fc;
 
   --ring: #15803d;
   --ring-offset: #ffffff;
@@ -570,6 +604,9 @@
   --info-text: #1e4d8f;
   --info-soft: #f0f6ff;
   --info-border: #c3dafe;
+  --accent-text: #1e4d8f;
+  --accent-soft: #f0f6ff;
+  --accent-border: #c3dafe;
 
   --ring: #b4440a;
   --ring-offset: #fffdfa;
@@ -641,6 +678,9 @@
   --info-text: #1d4ed8;
   --info-soft: #eef3fd;
   --info-border: #b6cbf5;
+  --accent-text: #1d4ed8;
+  --accent-soft: #eef3fd;
+  --accent-border: #b6cbf5;
 
   --ring: #1d4ed8;
   --ring-offset: #ffffff;
@@ -712,6 +752,9 @@
   --info-text: #84caff;
   --info-soft: #0c1b28;
   --info-border: #1b3a52;
+  --accent-text: #c4b5fd;
+  --accent-soft: #1b1533;
+  --accent-border: #3b2f6b;
 
   --ring: #7aa2ff;
   --ring-offset: #0b0e17;
@@ -783,6 +826,9 @@
   --info-text: #84caff;
   --info-soft: #0c1b28;
   --info-border: #1b3a52;
+  --accent-text: #c4b5fd;
+  --accent-soft: #1b1533;
+  --accent-border: #3b2f6b;
 
   --ring: #7aa2ff;
   --ring-offset: #0d1016;
@@ -854,6 +900,9 @@
   --info-text: #7cc4ff;
   --info-soft: #06202e;
   --info-border: #1c4a66;
+  --accent-text: #ddd6fe;
+  --accent-soft: #241a4d;
+  --accent-border: #5b4a9e;
 
   --ring: #7cc4ff;
   --ring-offset: #000000;
@@ -1151,6 +1200,41 @@
    Small, composable classes for the patterns that recur on every screen.
 ════════════════════════════════════════════════════════════════════════════ */
 
+/* ── Status · accent ──────────────────────────────────────────────────────────
+   The one non-semantic status tone. It used to be hard-coded Tailwind violet,
+   which meant it rendered identically in all nine palettes and was
+   light-on-light in the dark ones. It now resolves like every other tone. */
+:root .text-\[\#7C3AED\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-\[\#6D28D9\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-\[\#5B21B6\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-violet-600:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-violet-700:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  color: var(--accent-text);
+}
+:root .text-\[\#8B5CF6\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-\[\#A78BFA\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-violet-500:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  color: var(--accent-text);
+}
+:root .bg-\[\#F5F3FF\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-\[\#F3F0FF\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-violet-50:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-purple-50:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  background-color: var(--accent-soft);
+}
+:root .bg-violet-900\/20:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-purple-900\/20:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  background-color: var(--accent-soft);
+}
+:root .border-violet-200:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .border-purple-200:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  border-color: var(--accent-border);
+}
+:root .bg-violet-500:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-purple-500:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  background-color: var(--accent-text);
+}
+
 /* Panel — the single container for a block of related content. */
 .panel {
   background: var(--surface);
@@ -1406,6 +1490,12 @@
   :where(button, a, [role='button'], input[type='checkbox'], input[type='radio']) {
     min-height: 40px;
   }
+  /* A control whose only content is a glyph has no intrinsic width, so the
+     width floor is unconditional. Labelled controls keep their measured size
+     because a long label already supplies the hit area. */
+  :where(button, [role='button']) {
+    min-width: 40px;
+  }
   :where(button[aria-label], a[aria-label], [role='button'][aria-label]) {
     min-width: 40px;
   }
@@ -1415,6 +1505,9 @@
     font-size: 16px; /* prevents iOS zoom-on-focus */
   }
   :where(input[type='checkbox'], input[type='radio']) { min-height: 20px; min-width: 20px; }
+  /* The coarse-pointer floor is 40px; the comfortable target is 44px. Rows
+     that are the primary tap target of a list get the larger one. */
+  :where(tr[data-href], li[data-href]) { min-height: 44px; }
 }
 
 /* The desktop sidebar is the only nav; below `lg` the drawer takes over. */
@@ -1425,10 +1518,22 @@
   .ledger-responsive tbody td { padding: 8px 10px; }
 }
 
-/* Overlays must always fit the viewport. */
+/* Overlays must always fit the viewport. The navigation drawer is excluded:
+   it is a full-bleed surface pinned to the viewport edges, so capping it would
+   leave a strip of backdrop showing underneath on every phone. */
 @media (max-width: 640px) {
-  :where([role='dialog'], [role='alertdialog']) {
+  :where([role='dialog'], [role='alertdialog']):not(.nav-drawer) {
     max-height: calc(100dvh - 32px);
+  }
+}
+
+/* Long identifiers (gate-pass numbers, tracking tokens, emails) must wrap
+   rather than widen their container. Applied globally because the root clips
+   horizontal overflow — an unbreakable string would otherwise be unreadable
+   rather than merely wide. */
+@media (max-width: 1023.98px) {
+  :where(td, th, dd, dt, p, span, div, a, code) {
+    overflow-wrap: anywhere;
   }
 }
 
@@ -1443,11 +1548,16 @@
    Any mounted full-screen overlay locks page scroll. Overlays only mount while
    open, so presence in the DOM == a dialog is open. `:has()` is the modern
    path; main.tsx installs a MutationObserver fallback for older engines.
+
+   The matcher is deliberately broad: `.overlay-root`/`.overlay-backdrop` are
+   the shared components' classes, and `.fixed.inset-0` catches the legacy
+   hand-rolled overlays that predate the Dialog component. Both render nested
+   several levels deep, so the selector must look through descendants rather
+   than stop at direct children.
 ════════════════════════════════════════════════════════════════════════════ */
 body:has(.overlay-root),
 body:has(.overlay-backdrop),
-body:has(> .fixed.inset-0),
-body:has(> div > .fixed.inset-0) { overflow: hidden; }
+body:has(.fixed.inset-0) { overflow: hidden; }
 
 /* An overlay backdrop dims; it does not frosted-glass the page behind it. */
 .overlay-backdrop { background: rgb(16 24 40 / 0.45); }
