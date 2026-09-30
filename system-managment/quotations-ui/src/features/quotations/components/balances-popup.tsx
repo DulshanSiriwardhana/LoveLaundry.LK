@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Search, ChevronDown, ChevronRight } from 'lucide-react'
+import { Search, ChevronDown } from 'lucide-react'
 import type { ClientWiseEntry } from '../hooks/useBusinessDashboard'
 import type { OutstandingAging } from '../services/dashboard.service'
 import { Avatar } from '../../../components/ui/avatar'
@@ -26,14 +26,14 @@ type SortKey = 'outstanding' | 'name'
 
 const AGING_BUCKETS: { key: keyof OutstandingAging; label: string }[] = [
   { key: 'current', label: 'Current' },
-  { key: '30_day', label: '1–30 d' },
-  { key: '60_day', label: '31–60 d' },
-  { key: '90_day', label: '61–90 d' },
+  { key: '30_day', label: '1-30 d' },
+  { key: '60_day', label: '31-60 d' },
+  { key: '90_day', label: '61-90 d' },
   { key: 'over_90', label: '90+ d' },
 ]
 
 function formatDate(dateStr: string) {
-  if (!dateStr) return '—'
+  if (!dateStr) return '-'
   const d = new Date(dateStr)
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 }
@@ -43,7 +43,7 @@ function lkr(n: number) {
 }
 
 /**
- * BalancesPopup — the receivables ledger behind the dashboard's outstanding
+ * BalancesPopup - the receivables ledger behind the dashboard's outstanding
  * total. Each client expands into its gate passes, so a single unpaid client
  * can be traced to the delivery that caused it without leaving the dialog.
  */
@@ -72,7 +72,7 @@ export function BalancesPopup({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent size="xl" className="max-h-[92dvh]">
+      <DialogContent size="xl">
         <DialogHeader>
           <div className="min-w-0">
             <DialogTitle>Outstanding balances</DialogTitle>
@@ -84,7 +84,7 @@ export function BalancesPopup({
         </DialogHeader>
 
         <DialogBody className="space-y-4 p-0 sm:p-0">
-          {/* ── Totals ────────────────────────────────────────────────────── */}
+          {/* Totals */}
           <div className="border-b border-[var(--border)] bg-[var(--surface-2)] px-4 py-4 sm:px-5">
             <p className="section-label">Total outstanding</p>
             <p className="mt-1 text-[26px] font-bold leading-none tabular-nums tracking-tight sm:text-[30px]">
@@ -113,27 +113,30 @@ export function BalancesPopup({
             </dl>
           </div>
 
-          {/* ── Search & sort ─────────────────────────────────────────────── */}
+          {/* Search & sort */}
           <div className="flex flex-wrap items-center gap-2 px-4 sm:px-5">
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search clients…"
-              aria-label="Search clients"
-              className="min-w-[180px] flex-1"
-              startAdornment={<Search aria-hidden />}
-            />
+            <div className="relative min-w-[180px] flex-1">
+              <Search
+                aria-hidden
+                className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--text-faint)]"
+              />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search clients..."
+                aria-label="Search clients"
+                hasPrefix
+              />
+            </div>
             <div
               role="group"
               aria-label="Sort clients"
               className="flex gap-0.5 rounded-[6px] border border-[var(--border)] bg-[var(--surface-2)] p-0.5"
             >
-              {(
-                [
-                  { key: 'outstanding' as const, label: 'Amount' },
-                  { key: 'name' as const, label: 'Name' },
-                ]
-              ).map((s) => (
+              {([
+                { key: 'outstanding' as const, label: 'Amount' },
+                { key: 'name' as const, label: 'Name' },
+              ]).map((s) => (
                 <button
                   key={s.key}
                   type="button"
@@ -151,13 +154,13 @@ export function BalancesPopup({
             </div>
           </div>
 
-          {/* ── Client ledger ─────────────────────────────────────────────── */}
+          {/* Client ledger */}
           {sorted.length === 0 ? (
             <EmptyState
               title={query ? 'No matching clients' : 'Nothing outstanding'}
               description={
                 query
-                  ? `No client name matches “${search.trim()}”.`
+                  ? `No client name matches "${search.trim()}".`
                   : 'Every client is settled up for this period.'
               }
               className="py-10"
@@ -208,7 +211,10 @@ export function BalancesPopup({
                     </button>
 
                     {isOpen && (
-                      <div id={detailId} className="border-t border-[var(--border)] bg-[var(--surface-2)] px-4 py-3 sm:px-5">
+                      <div
+                        id={detailId}
+                        className="border-t border-[var(--border)] bg-[var(--surface-2)] px-4 py-3 sm:px-5"
+                      >
                         <dl className="mb-3 grid grid-cols-3 gap-px overflow-hidden rounded-[6px] border border-[var(--border)] bg-[var(--border)]">
                           {[
                             { label: 'Billed', value: client.total_billed },
@@ -242,14 +248,14 @@ export function BalancesPopup({
                                       #{gp.gate_pass_number}
                                     </span>
                                     <span aria-hidden className="text-[var(--text-faint)]">
-                                      ·
+                                      .
                                     </span>
                                     <span className="text-[11.5px] text-[var(--text-muted)] tabular-nums">
                                       {formatDate(gp.receiving_date)}
                                     </span>
                                   </div>
                                   <ul className="mt-1.5 flex flex-wrap gap-1">
-                                    {gp.items.map((item) => (
+                                    {(gp.items ?? []).map((item) => (
                                       <li
                                         key={`${item.item_name}-${item.specification}`}
                                         className="inline-flex items-center gap-1.5 rounded-[4px] border border-[var(--border-2)] bg-[var(--surface-2)] px-1.5 py-0.5 text-[11px]"
@@ -261,7 +267,7 @@ export function BalancesPopup({
                                           </Badge>
                                         )}
                                         <span className="text-[var(--text-muted)] tabular-nums">
-                                          ×{item.received}
+                                          x{item.received}
                                         </span>
                                       </li>
                                     ))}
@@ -276,7 +282,7 @@ export function BalancesPopup({
                           <div>
                             <p className="section-label mb-1.5">Pending items</p>
                             <ul className="divide-y divide-[var(--border)] rounded-[6px] border border-[var(--border)] bg-[var(--surface)]">
-                              {client.items.map((item) => (
+                              {(client.items ?? []).map((item) => (
                                 <li
                                   key={`${item.item_name}-${item.specification}`}
                                   className="flex items-center justify-between gap-3 px-2.5 py-1.5"
@@ -315,7 +321,7 @@ export function BalancesPopup({
 
         <DialogFooter className="items-center justify-between sm:justify-between">
           <p className="text-[12px] text-[var(--text-muted)] tabular-nums">
-            {sorted.length} client{sorted.length !== 1 ? 's' : ''} · LKR {lkr(totalOutstanding)}
+            {sorted.length} client{sorted.length !== 1 ? 's' : ''} . LKR {lkr(totalOutstanding)}
           </p>
           <DialogClose asChild>
             <Button variant="secondary" size="sm">

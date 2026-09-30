@@ -1,0 +1,1527 @@
+@import 'tailwindcss';
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LOVE LAUNDRY — DESIGN SYSTEM
+   ───────────────────────────────────────────────────────────────────────────
+   Layer 1  @theme            semantic Tailwind utilities (bg-surface, …)
+   Layer 2  base              reset, typography, focus, form controls, scrollbars
+   Layer 3  theme presets     the 9 selectable palettes, all built from the same
+                             semantic contract so no page can drift
+   Layer 4  legacy remap      normalises the hard-coded hex utilities that were
+                             written before the token layer existed, so every
+                             module resolves to the same surface / border / text
+                             token regardless of theme
+   Layer 5  print             document output is never re-skinned
+
+   Rules the system enforces:
+   · Colour carries meaning (status), never decoration.
+   · One radius scale, one shadow scale, one motion scale.
+   · Hairline borders separate surfaces; shadows only for overlays.
+   · Nothing animates for decoration — only state changes.
+════════════════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────────────────────────────────────
+   1 · SEMANTIC UTILITIES
+   `inline` resolves the token at use-site, so a theme swap re-skins every
+   generated utility without regenerating the theme block.
+─────────────────────────────────────────────────────────────────────────── */
+@theme inline {
+  --font-sans: 'Inter var', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', ui-monospace,
+    SFMono-Regular, Menlo, Consolas, monospace;
+
+  --color-canvas: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-hover: var(--surface-hover);
+  --color-line: var(--border);
+  --color-line-2: var(--border-2);
+  --color-line-strong: var(--border-strong);
+
+  --color-fg: var(--text-primary);
+  --color-fg-2: var(--text-secondary);
+  --color-fg-3: var(--text-tertiary);
+  --color-fg-muted: var(--text-muted);
+  --color-fg-faint: var(--text-faint);
+  --color-fg-placeholder: var(--text-placeholder);
+
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-active: var(--brand-active);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-border: var(--brand-border);
+  --color-brand-text: var(--brand-text);
+
+  --color-success: var(--success-text);
+  --color-success-soft: var(--success-soft);
+  --color-success-border: var(--success-border);
+  --color-warning: var(--warning-text);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-border: var(--warning-border);
+  --color-danger: var(--danger-text);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-border: var(--danger-border);
+  --color-info: var(--info-text);
+  --color-info-soft: var(--info-soft);
+  --color-info-border: var(--info-border);
+
+  /* Type scale — one role per step. The document base is 14px, but the workhorse
+     for tables, forms and controls is 13px, so the scale is centred there and
+     the small steps carry metadata. Declared here so the role is explicit even
+     though most call sites still address it by pixel value (see the type
+     normalisation in layer 4). */
+  --text-micro: 10px;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-md: 14px;
+  --text-lg: 15px;
+  --text-xl: 16px;
+
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-DEFAULT: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+
+  --shadow-xs: 0 1px 2px 0 rgb(16 24 40 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(16 24 40 / 0.08), 0 1px 2px -1px rgb(16 24 40 / 0.06);
+  --shadow-md: 0 4px 8px -2px rgb(16 24 40 / 0.08), 0 2px 4px -2px rgb(16 24 40 / 0.05);
+  --shadow-lg: 0 14px 24px -8px rgb(16 24 40 / 0.12), 0 4px 8px -4px rgb(16 24 40 / 0.06);
+  --shadow-pop: 0 10px 32px -8px rgb(16 24 40 / 0.18), 0 2px 6px -2px rgb(16 24 40 / 0.08);
+
+  --animate-fade-in: fade-in 120ms ease-out;
+  --animate-slide-up: slide-up 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   1b · PENDING SPINNER FOR <Button asChild>
+   `<Button asChild>` renders a Radix <Slot>, which accepts exactly one child
+   element and throws "Slot failed to slot onto its children" otherwise — so the
+   pending spinner cannot be a sibling element there. It is painted as a
+   pseudo-element on the slotted child instead. The plain <button> path still
+   uses the inline <svg> spinner.
+─────────────────────────────────────────────────────────────────────────── */
+@layer components {
+  .btn-pending::before {
+    content: "";
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    animation: spin 0.6s linear infinite;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   2 · BASE
+─────────────────────────────────────────────────────────────────────────── */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--body-font-size, 14px);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'tnum' 0;
+    /* The shell owns horizontal containment — a stray wide child must never
+       produce a page-level sideways scroll. */
+    overflow-x: hidden;
+  }
+
+  #root {
+    zoom: var(--body-font-zoom, 1);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+    letter-spacing: -0.014em;
+  }
+
+  button, input, select, textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  button { cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+
+  /* Numbers align vertically in ledgers, totals and quantity columns. */
+  .tabular-nums, table, [data-numeric] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* One focus treatment for the whole application. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+  :focus:not(:focus-visible) { outline: none; }
+
+  /* Icon-only controls need a hit area, not a bigger glyph. */
+  :where(button, a, [role='button']) { -webkit-tap-highlight-color: transparent; }
+
+  img, svg, video, canvas { display: block; max-width: 100%; }
+
+  ::selection {
+    background: color-mix(in srgb, var(--brand) 18%, transparent);
+    color: var(--text-primary);
+  }
+
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--brand) 52%, var(--text-faint) 48%) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--brand) 52%, var(--text-faint) 48%);
+    border: 2px solid transparent;
+    background-clip: content-box;
+    border-radius: 999px;
+    min-height: 40px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--brand) 68%, var(--text-faint) 32%);
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   3 · THEME PRESETS
+   Every preset satisfies the same contract:
+     bg · surface · surface-2/3 · surface-hover · surface-sunken
+     border · border-2 · border-strong
+     text-primary/secondary/tertiary/muted/faint/placeholder
+     brand family · success / warning / danger / info family
+     sidebar family · shadow family · skeleton family
+─────────────────────────────────────────────────────────────────────────── */
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #f7f8fa;
+  --surface-3: #f0f2f5;
+  --surface-hover: #f2f4f7;
+  --surface-sunken: #fafbfc;
+
+  --border: #e3e7ed;
+  --border-2: #d3d9e1;
+  --border-strong: #b8c1cd;
+
+  --text-primary: #0f172a;
+  --text-secondary: #26313f;
+  --text-tertiary: #475467;
+  --text-muted: #5b6879;
+  --text-faint: #8592a3;
+  --text-placeholder: #a3aebd;
+
+  --brand: #d92d20;
+  --brand-hover: #b42318;
+  --brand-active: #912018;
+  --brand-soft: #fef3f2;
+  --brand-border: #fecdc9;
+  --brand-text: #b42318;
+
+  --success-text: #067647;
+  --success-soft: #ecfdf3;
+  --success-border: #a9e5c3;
+  --warning-text: #b54708;
+  --warning-soft: #fffaeb;
+  --warning-border: #fedf89;
+  --danger-text: #b42318;
+  --danger-soft: #fef3f2;
+  --danger-border: #fecdc9;
+  --info-text: #175cd3;
+  --info-soft: #eff8ff;
+  --info-border: #b2ddff;
+
+  --ring: #2563eb;
+  --ring-offset: #ffffff;
+
+  --body-font-size: 14px;
+
+  --sidebar-bg: #101828;
+  --sidebar-border: #1d2939;
+  --sidebar-text: #c3cbd6;
+  --sidebar-label: #7c8aa0;
+  --sidebar-active: #ffffff;
+  --sidebar-hover-bg: #1d2939;
+  --sidebar-hover-text: #ffffff;
+  --sidebar-indicator: #f04438;
+
+  --skeleton-from: #eef0f4;
+  --skeleton-via: #e3e7ed;
+  --skeleton-to: #eef0f4;
+
+  --shadow-xs: 0 1px 2px 0 rgb(16 24 40 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(16 24 40 / 0.08), 0 1px 2px -1px rgb(16 24 40 / 0.06);
+  --shadow-md: 0 4px 8px -2px rgb(16 24 40 / 0.08), 0 2px 4px -2px rgb(16 24 40 / 0.05);
+  --shadow-lg: 0 14px 24px -8px rgb(16 24 40 / 0.12), 0 4px 8px -4px rgb(16 24 40 / 0.06);
+  --shadow-pop: 0 10px 32px -8px rgb(16 24 40 / 0.18), 0 2px 6px -2px rgb(16 24 40 / 0.08);
+
+  /* Legacy aliases — pre-token code still references these names. */
+  --red-50: #fef3f2;
+  --red-100: #fee4e2;
+  --red-500: #f04438;
+  --red-600: #d92d20;
+  --red-700: #b42318;
+}
+
+/* High-contrast light: stronger borders, darker text. */
+[data-theme='contrast'] {
+  color-scheme: light;
+
+  --bg: #eef0f3;
+  --surface: #ffffff;
+  --surface-2: #f6f7f9;
+  --surface-3: #e9ecf0;
+  --surface-hover: #e4e8ed;
+  --surface-sunken: #f0f2f5;
+
+  --border: #c3cbd6;
+  --border-2: #94a1b2;
+  --border-strong: #66748a;
+
+  --text-primary: #05080d;
+  --text-secondary: #101828;
+  --text-tertiary: #1d2939;
+  --text-muted: #344054;
+  --text-faint: #526174;
+  --text-placeholder: #6b7a8e;
+
+  --brand: #c1121f;
+  --brand-hover: #9f0f1a;
+  --brand-active: #7a0c15;
+  --brand-soft: #fdecec;
+  --brand-border: #f4b9b9;
+  --brand-text: #9f0f1a;
+
+  --success-text: #05603a;
+  --success-soft: #ecfdf3;
+  --success-border: #86e0ac;
+  --warning-text: #93370d;
+  --warning-soft: #fffaeb;
+  --warning-border: #fcd34d;
+  --danger-text: #9f0f1a;
+  --danger-soft: #fdecec;
+  --danger-border: #f4b9b9;
+  --info-text: #14459e;
+  --info-soft: #eff8ff;
+  --info-border: #84caff;
+
+  --ring: #14459e;
+  --ring-offset: #ffffff;
+
+  --sidebar-bg: #0b1220;
+  --sidebar-border: #1d2939;
+  --sidebar-text: #d0d7e2;
+  --sidebar-label: #8d9aad;
+  --sidebar-active: #ffffff;
+  --sidebar-hover-bg: #1d2939;
+  --sidebar-hover-text: #ffffff;
+  --sidebar-indicator: #f04438;
+
+  --skeleton-from: #e4e8ed;
+  --skeleton-via: #c3cbd6;
+  --skeleton-to: #e4e8ed;
+
+  --shadow-xs: 0 1px 2px 0 rgb(16 24 40 / 0.09);
+  --shadow-sm: 0 1px 3px 0 rgb(16 24 40 / 0.12), 0 1px 2px -1px rgb(16 24 40 / 0.08);
+  --shadow-md: 0 4px 8px -2px rgb(16 24 40 / 0.14), 0 2px 4px -2px rgb(16 24 40 / 0.08);
+  --shadow-lg: 0 14px 24px -8px rgb(16 24 40 / 0.18), 0 4px 8px -4px rgb(16 24 40 / 0.1);
+  --shadow-pop: 0 10px 32px -8px rgb(16 24 40 / 0.22), 0 2px 6px -2px rgb(16 24 40 / 0.1);
+
+  --red-50: #fdecec;
+  --red-100: #f8d4d4;
+  --red-500: #c1121f;
+  --red-600: #b01120;
+  --red-700: #9f0f1a;
+}
+
+/* Ocean: cool blue-tinted light, for operators who prefer a cooler canvas. */
+[data-theme='ocean'] {
+  color-scheme: light;
+
+  --bg: #f2f6fc;
+  --surface: #ffffff;
+  --surface-2: #f5f8fd;
+  --surface-3: #eaf0fa;
+  --surface-hover: #edf3fb;
+  --surface-sunken: #f7fafe;
+
+  --border: #d9e2f0;
+  --border-2: #c2d0e5;
+  --border-strong: #9db1cf;
+
+  --text-primary: #0c1b2e;
+  --text-secondary: #1d3049;
+  --text-tertiary: #37506e;
+  --text-muted: #4a6485;
+  --text-faint: #7d97b4;
+  --text-placeholder: #9ab0c9;
+
+  --brand: #1d4ed8;
+  --brand-hover: #1e40af;
+  --brand-active: #1e3a8a;
+  --brand-soft: #eff6ff;
+  --brand-border: #bfdbfe;
+  --brand-text: #1d4ed8;
+
+  --success-text: #05603a;
+  --success-soft: #ecfdf3;
+  --success-border: #a9e5c3;
+  --warning-text: #93370d;
+  --warning-soft: #fffaeb;
+  --warning-border: #fedf89;
+  --danger-text: #b42318;
+  --danger-soft: #fef3f2;
+  --danger-border: #fecdc9;
+  --info-text: #0e7490;
+  --info-soft: #ecfeff;
+  --info-border: #a5f3fc;
+
+  --ring: #1d4ed8;
+  --ring-offset: #ffffff;
+
+  --sidebar-bg: #0d1c33;
+  --sidebar-border: #1a2c49;
+  --sidebar-text: #b3c4da;
+  --sidebar-label: #7d93b1;
+  --sidebar-active: #ffffff;
+  --sidebar-hover-bg: #1a2c49;
+  --sidebar-hover-text: #ffffff;
+  --sidebar-indicator: #60a5fa;
+
+  --skeleton-from: #e9f0fa;
+  --skeleton-via: #d9e2f0;
+  --skeleton-to: #e9f0fa;
+
+  --shadow-xs: 0 1px 2px 0 rgb(12 27 46 / 0.06);
+  --shadow-sm: 0 1px 3px 0 rgb(12 27 46 / 0.09), 0 1px 2px -1px rgb(12 27 46 / 0.06);
+  --shadow-md: 0 4px 8px -2px rgb(12 27 46 / 0.09), 0 2px 4px -2px rgb(12 27 46 / 0.05);
+  --shadow-lg: 0 14px 24px -8px rgb(12 27 46 / 0.14), 0 4px 8px -4px rgb(12 27 46 / 0.07);
+  --shadow-pop: 0 10px 32px -8px rgb(12 27 46 / 0.2), 0 2px 6px -2px rgb(12 27 46 / 0.08);
+
+  --red-50: #eff6ff;
+  --red-100: #dbeafe;
+  --red-500: #3b82f6;
+  --red-600: #1d4ed8;
+  --red-700: #1e40af;
+}
+
+/* Forest: green-tinted light. */
+[data-theme='forest'] {
+  color-scheme: light;
+
+  --bg: #f1f8f3;
+  --surface: #ffffff;
+  --surface-2: #f5faf6;
+  --surface-3: #e9f4ec;
+  --surface-hover: #ecf5ef;
+  --surface-sunken: #f8fbf9;
+
+  --border: #d7e6db;
+  --border-2: #bcd7c2;
+  --border-strong: #93b89d;
+
+  --text-primary: #0a1f12;
+  --text-secondary: #16301d;
+  --text-tertiary: #2b4a33;
+  --text-muted: #3d6449;
+  --text-faint: #6b8f78;
+  --text-placeholder: #8aa895;
+
+  --brand: #15803d;
+  --brand-hover: #166534;
+  --brand-active: #14532d;
+  --brand-soft: #f0fdf4;
+  --brand-border: #bbf7d0;
+  --brand-text: #15803d;
+
+  --success-text: #15803d;
+  --success-soft: #f0fdf4;
+  --success-border: #bbf7d0;
+  --warning-text: #93370d;
+  --warning-soft: #fffaeb;
+  --warning-border: #fedf89;
+  --danger-text: #b42318;
+  --danger-soft: #fef3f2;
+  --danger-border: #fecdc9;
+  --info-text: #0e7490;
+  --info-soft: #ecfeff;
+  --info-border: #a5f3fc;
+
+  --ring: #15803d;
+  --ring-offset: #ffffff;
+
+  --sidebar-bg: #0c2116;
+  --sidebar-border: #17351f;
+  --sidebar-text: #b3cdbb;
+  --sidebar-label: #75957f;
+  --sidebar-active: #ffffff;
+  --sidebar-hover-bg: #17351f;
+  --sidebar-hover-text: #ffffff;
+  --sidebar-indicator: #4ade80;
+
+  --skeleton-from: #e9f4ec;
+  --skeleton-via: #d7e6db;
+  --skeleton-to: #e9f4ec;
+
+  --shadow-xs: 0 1px 2px 0 rgb(10 31 18 / 0.06);
+  --shadow-sm: 0 1px 3px 0 rgb(10 31 18 / 0.09), 0 1px 2px -1px rgb(10 31 18 / 0.06);
+  --shadow-md: 0 4px 8px -2px rgb(10 31 18 / 0.09), 0 2px 4px -2px rgb(10 31 18 / 0.05);
+  --shadow-lg: 0 14px 24px -8px rgb(10 31 18 / 0.14), 0 4px 8px -4px rgb(10 31 18 / 0.07);
+  --shadow-pop: 0 10px 32px -8px rgb(10 31 18 / 0.2), 0 2px 6px -2px rgb(10 31 18 / 0.08);
+
+  --red-50: #f0fdf4;
+  --red-100: #dcfce7;
+  --red-500: #22c55e;
+  --red-600: #15803d;
+  --red-700: #166534;
+}
+
+/* Sepia: warm paper tone. */
+[data-theme='sepia'] {
+  color-scheme: light;
+
+  --bg: #f8f5f0;
+  --surface: #fffdfa;
+  --surface-2: #f7f3ec;
+  --surface-3: #efe9df;
+  --surface-hover: #f1ebe1;
+  --surface-sunken: #fbf8f2;
+
+  --border: #e2dbcd;
+  --border-2: #cdc3b0;
+  --border-strong: #a99c84;
+
+  --text-primary: #2a2317;
+  --text-secondary: #3b3222;
+  --text-tertiary: #524733;
+  --text-muted: #6a5c42;
+  --text-faint: #978a72;
+  --text-placeholder: #a89c85;
+
+  --brand: #b4440a;
+  --brand-hover: #973808;
+  --brand-active: #7a2f07;
+  --brand-soft: #fdf3ec;
+  --brand-border: #f7d3ba;
+  --brand-text: #9a3a09;
+
+  --success-text: #3f6212;
+  --success-soft: #f7fee7;
+  --success-border: #d9f99d;
+  --warning-text: #93370d;
+  --warning-soft: #fffaeb;
+  --warning-border: #fde68a;
+  --danger-text: #a1291b;
+  --danger-soft: #fdf0ee;
+  --danger-border: #f6c7bf;
+  --info-text: #1e4d8f;
+  --info-soft: #f0f6ff;
+  --info-border: #c3dafe;
+
+  --ring: #b4440a;
+  --ring-offset: #fffdfa;
+
+  --sidebar-bg: #2a2317;
+  --sidebar-border: #3b3222;
+  --sidebar-text: #cdc0aa;
+  --sidebar-label: #8e8168;
+  --sidebar-active: #fffdfa;
+  --sidebar-hover-bg: #3b3222;
+  --sidebar-hover-text: #fffdfa;
+  --sidebar-indicator: #ea8a4a;
+
+  --skeleton-from: #efe9df;
+  --skeleton-via: #e2dbcd;
+  --skeleton-to: #efe9df;
+
+  --shadow-xs: 0 1px 2px 0 rgb(42 35 23 / 0.06);
+  --shadow-sm: 0 1px 3px 0 rgb(42 35 23 / 0.09), 0 1px 2px -1px rgb(42 35 23 / 0.06);
+  --shadow-md: 0 4px 8px -2px rgb(42 35 23 / 0.09), 0 2px 4px -2px rgb(42 35 23 / 0.05);
+  --shadow-lg: 0 14px 24px -8px rgb(42 35 23 / 0.14), 0 4px 8px -4px rgb(42 35 23 / 0.07);
+  --shadow-pop: 0 10px 32px -8px rgb(42 35 23 / 0.2), 0 2px 6px -2px rgb(42 35 23 / 0.08);
+
+  --red-50: #fdf3ec;
+  --red-100: #f9ddc9;
+  --red-500: #ea580c;
+  --red-600: #b4440a;
+  --red-700: #973808;
+}
+
+/* Slate: balanced grey. */
+[data-theme='slate'] {
+  color-scheme: light;
+
+  --bg: #eceff3;
+  --surface: #ffffff;
+  --surface-2: #f3f5f8;
+  --surface-3: #e6eaef;
+  --surface-hover: #e9edf2;
+  --surface-sunken: #f5f7fa;
+
+  --border: #cbd2dc;
+  --border-2: #aeb8c6;
+  --border-strong: #8592a3;
+
+  --text-primary: #0f172a;
+  --text-secondary: #1e293b;
+  --text-tertiary: #334155;
+  --text-muted: #475569;
+  --text-faint: #6b7a90;
+  --text-placeholder: #8b98aa;
+
+  --brand: #c1121f;
+  --brand-hover: #a10f1a;
+  --brand-active: #820c15;
+  --brand-soft: #fdecec;
+  --brand-border: #f4bcbc;
+  --brand-text: #a10f1a;
+
+  --success-text: #0a6b45;
+  --success-soft: #edf9f2;
+  --success-border: #9ddcbb;
+  --warning-text: #8f5209;
+  --warning-soft: #fdf8ee;
+  --warning-border: #f0d09a;
+  --danger-text: #a10f1a;
+  --danger-soft: #fdecec;
+  --danger-border: #f4bcbc;
+  --info-text: #1d4ed8;
+  --info-soft: #eef3fd;
+  --info-border: #b6cbf5;
+
+  --ring: #1d4ed8;
+  --ring-offset: #ffffff;
+
+  --sidebar-bg: #1a2331;
+  --sidebar-border: #2a3547;
+  --sidebar-text: #b8c2d1;
+  --sidebar-label: #7b8aa0;
+  --sidebar-active: #ffffff;
+  --sidebar-hover-bg: #2a3547;
+  --sidebar-hover-text: #ffffff;
+  --sidebar-indicator: #f04438;
+
+  --skeleton-from: #e6eaef;
+  --skeleton-via: #cbd2dc;
+  --skeleton-to: #e6eaef;
+
+  --shadow-xs: 0 1px 2px 0 rgb(15 23 42 / 0.07);
+  --shadow-sm: 0 1px 3px 0 rgb(15 23 42 / 0.1), 0 1px 2px -1px rgb(15 23 42 / 0.06);
+  --shadow-md: 0 4px 8px -2px rgb(15 23 42 / 0.1), 0 2px 4px -2px rgb(15 23 42 / 0.06);
+  --shadow-lg: 0 14px 24px -8px rgb(15 23 42 / 0.15), 0 4px 8px -4px rgb(15 23 42 / 0.07);
+  --shadow-pop: 0 10px 32px -8px rgb(15 23 42 / 0.22), 0 2px 6px -2px rgb(15 23 42 / 0.08);
+
+  --red-50: #fdecec;
+  --red-100: #f8d4d4;
+  --red-500: #dc2626;
+  --red-600: #c1121f;
+  --red-700: #a10f1a;
+}
+
+/* Night Blue: deep blue dark. */
+[data-theme='nightblue'] {
+  color-scheme: dark;
+
+  --bg: #0b0e17;
+  --surface: #121722;
+  --surface-2: #171e2b;
+  --surface-3: #1d2635;
+  --surface-hover: #1c2534;
+  --surface-sunken: #0f141d;
+
+  --border: #232c3d;
+  --border-2: #2f3a4f;
+  --border-strong: #3d4a63;
+
+  --text-primary: #eef2f8;
+  --text-secondary: #ccd5e3;
+  --text-tertiary: #a9b4c6;
+  --text-muted: #8a96a8;
+  --text-faint: #6d798b;
+  --text-placeholder: #5b6675;
+
+  --brand: #f97066;
+  --brand-hover: #fda29b;
+  --brand-active: #fecdc9;
+  --brand-soft: #2a1618;
+  --brand-border: #4d2325;
+  --brand-text: #fda29b;
+
+  --success-text: #6ce9a6;
+  --success-soft: #0d2019;
+  --success-border: #1e4436;
+  --warning-text: #fdb022;
+  --warning-soft: #241b0c;
+  --warning-border: #4a3416;
+  --danger-text: #f97066;
+  --danger-soft: #2a1618;
+  --danger-border: #4d2325;
+  --info-text: #84caff;
+  --info-soft: #0c1b28;
+  --info-border: #1b3a52;
+
+  --ring: #7aa2ff;
+  --ring-offset: #0b0e17;
+
+  --sidebar-bg: #070a11;
+  --sidebar-border: #182031;
+  --sidebar-text: #a3b0c4;
+  --sidebar-label: #6d798b;
+  --sidebar-active: #ffffff;
+  --sidebar-hover-bg: #182031;
+  --sidebar-hover-text: #ffffff;
+  --sidebar-indicator: #f97066;
+
+  --skeleton-from: #171e2b;
+  --skeleton-via: #232c3d;
+  --skeleton-to: #171e2b;
+
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.55);
+  --shadow-lg: 0 14px 24px -8px rgb(0 0 0 / 0.6);
+  --shadow-pop: 0 10px 32px -8px rgb(0 0 0 / 0.7), 0 2px 6px -2px rgb(0 0 0 / 0.5);
+
+  --red-50: #2a1618;
+  --red-100: #4d2325;
+  --red-500: #f97066;
+  --red-600: #fda29b;
+  --red-700: #fecdc9;
+}
+
+/* Midnight: neutral dark. */
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0d1016;
+  --surface: #151a22;
+  --surface-2: #1a2029;
+  --surface-3: #212934;
+  --surface-hover: #1f2731;
+  --surface-sunken: #11161d;
+
+  --border: #262e3a;
+  --border-2: #333d4c;
+  --border-strong: #435064;
+
+  --text-primary: #f2f5f9;
+  --text-secondary: #d3dae4;
+  --text-tertiary: #b0bac8;
+  --text-muted: #8c98a8;
+  --text-faint: #6f7c8d;
+  --text-placeholder: #5d6979;
+
+  --brand: #f04438;
+  --brand-hover: #f97066;
+  --brand-active: #fda29b;
+  --brand-soft: #2a1518;
+  --brand-border: #4a2022;
+  --brand-text: #f97066;
+
+  --success-text: #6ce9a6;
+  --success-soft: #0d2019;
+  --success-border: #1e4436;
+  --warning-text: #fdb022;
+  --warning-soft: #241b0c;
+  --warning-border: #4a3416;
+  --danger-text: #f97066;
+  --danger-soft: #2a1518;
+  --danger-border: #4a2022;
+  --info-text: #84caff;
+  --info-soft: #0c1b28;
+  --info-border: #1b3a52;
+
+  --ring: #7aa2ff;
+  --ring-offset: #0d1016;
+
+  --sidebar-bg: #090c11;
+  --sidebar-border: #1a212b;
+  --sidebar-text: #a2adbc;
+  --sidebar-label: #6f7c8d;
+  --sidebar-active: #ffffff;
+  --sidebar-hover-bg: #1a212b;
+  --sidebar-hover-text: #ffffff;
+  --sidebar-indicator: #f04438;
+
+  --skeleton-from: #1a2029;
+  --skeleton-via: #262e3a;
+  --skeleton-to: #1a2029;
+
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.55);
+  --shadow-lg: 0 14px 24px -8px rgb(0 0 0 / 0.6);
+  --shadow-pop: 0 10px 32px -8px rgb(0 0 0 / 0.7), 0 2px 6px -2px rgb(0 0 0 / 0.5);
+
+  --red-50: #2a1518;
+  --red-100: #4a2022;
+  --red-500: #f04438;
+  --red-600: #f97066;
+  --red-700: #fda29b;
+}
+
+/* High Contrast Dark. */
+[data-theme='contrast-dark'] {
+  color-scheme: dark;
+
+  --bg: #000000;
+  --surface: #0c0c0c;
+  --surface-2: #131313;
+  --surface-3: #1c1c1c;
+  --surface-hover: #1a1a1a;
+  --surface-sunken: #070707;
+
+  --border: #3d3d3d;
+  --border-2: #5c5c5c;
+  --border-strong: #7a7a7a;
+
+  --text-primary: #ffffff;
+  --text-secondary: #ededed;
+  --text-tertiary: #d0d0d0;
+  --text-muted: #b0b0b0;
+  --text-faint: #8c8c8c;
+  --text-placeholder: #767676;
+
+  --brand: #ff6b6b;
+  --brand-hover: #ff8f8f;
+  --brand-active: #ffb0b0;
+  --brand-soft: #2a0d0d;
+  --brand-border: #5c1f1f;
+  --brand-text: #ff8f8f;
+
+  --success-text: #5ce89a;
+  --success-soft: #06210f;
+  --success-border: #1c5c38;
+  --warning-text: #ffc44d;
+  --warning-soft: #241a05;
+  --warning-border: #5c4413;
+  --danger-text: #ff6b6b;
+  --danger-soft: #2a0d0d;
+  --danger-border: #5c1f1f;
+  --info-text: #7cc4ff;
+  --info-soft: #06202e;
+  --info-border: #1c4a66;
+
+  --ring: #7cc4ff;
+  --ring-offset: #000000;
+
+  --sidebar-bg: #000000;
+  --sidebar-border: #2f2f2f;
+  --sidebar-text: #d0d0d0;
+  --sidebar-label: #969696;
+  --sidebar-active: #ffffff;
+  --sidebar-hover-bg: #1a1a1a;
+  --sidebar-hover-text: #ffffff;
+  --sidebar-indicator: #ff6b6b;
+
+  --skeleton-from: #131313;
+  --skeleton-via: #2b2b2b;
+  --skeleton-to: #131313;
+
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.8);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.9);
+  --shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.9);
+  --shadow-lg: 0 14px 24px -8px rgb(0 0 0 / 0.95);
+  --shadow-pop: 0 10px 32px -8px rgb(0 0 0 / 0.95), 0 2px 6px -2px rgb(0 0 0 / 0.8);
+
+  --red-50: #2a0d0d;
+  --red-100: #5c1f1f;
+  --red-500: #ff6b6b;
+  --red-600: #ff8f8f;
+  --red-700: #ffb0b0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4 · LEGACY HEX NORMALISATION
+   ───────────────────────────────────────────────────────────────────────────
+   The app predates the token layer, so ~3,500 hard-coded hex utilities still
+   exist across the feature modules. Rather than leaving nine themes to fight
+   over them, every hex used for a *chrome* role is resolved here to its token
+   equivalent. This is what guarantees a single surface / border / text colour
+   per role, in every preset, on every page.
+
+   Print documents (`.quotation-print-page`, `.bill-print-page`, `.dls-page`,
+   `.gp-page-bg`, `.gps-page`, `.slip-container`, `#printable-receipt`) are
+   excluded — their output must stay on paper.
+════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Document roots that the hex normalisation below must never touch —
+     their output is printed on paper, not rendered as UI. */
+  --print-roots: .quotation-print-page, .bill-print-page, .dls-page,
+    .gp-page-bg, .gps-page, .slip-container, #printable-receipt, .page-sheet;
+}
+
+/* ── Surfaces ──────────────────────────────────────────────────────────────── */
+:root .bg-white:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *, .page-sheet *)),
+:root .bg-white\/80:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-white\/90:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  background-color: var(--surface);
+}
+
+:root .bg-\[\#F9FAFB\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-\[\#FAFAFA\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-\[\#FCFCFD\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-\[\#F7F8FA\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-\[\#F8F9FB\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-\[\#F3F4F6\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-\[\#F2F4F7\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-\[\#F4F4F5\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-\[\#EAECF0\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-\[\#F5F5F5\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  background-color: var(--surface-2);
+}
+
+:root .bg-\[\#E5E7EB\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-\[\#E4E7EC\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  background-color: var(--surface-3);
+}
+
+/* ── Off-scale type sizes ─────────────────────────────────────────────────────
+   The app addresses font size directly (text-[13px] and friends — ~1,440 call
+   sites), which is fine, but a handful of half-pixel values crept in. At 11–13px
+   a 0.5px step is invisible yet it fragments the scale, so each is pulled onto
+   the nearest whole step. Applied with the same `:root`-prefixed specificity
+   trick the colour normalisation above relies on. */
+:root .text-\[10\.5px\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  font-size: var(--text-micro);
+}
+:root .text-\[11\.5px\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  font-size: var(--text-xs);
+}
+:root .text-\[12\.5px\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  font-size: var(--text-sm);
+}
+:root .text-\[13\.5px\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  font-size: var(--text-base);
+}
+
+/* ── Hover / active surfaces ───────────────────────────────────────────────── */
+:root .hover\:bg-\[\#F9FAFB\]:hover:not(:is(.quotation-print-page *, .bill-print-page *, #printable-receipt *)),
+:root .hover\:bg-\[\#FAFAFA\]:hover:not(:is(.quotation-print-page *, .bill-print-page *, #printable-receipt *)),
+:root .hover\:bg-\[\#F3F4F6\]:hover:not(:is(.quotation-print-page *, .bill-print-page *, #printable-receipt *)),
+:root .hover\:bg-\[\#F2F4F7\]:hover:not(:is(.quotation-print-page *, .bill-print-page *, #printable-receipt *)),
+:root .hover\:bg-\[\#EAECF0\]:hover:not(:is(.quotation-print-page *, .bill-print-page *, #printable-receipt *)),
+:root .hover\:bg-\[\#F7F8FA\]:hover:not(:is(.quotation-print-page *, .bill-print-page *, #printable-receipt *)) {
+  background-color: var(--surface-hover);
+}
+
+/* ── Borders ───────────────────────────────────────────────────────────────── */
+:root .border-\[\#E4E7EC\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .border-\[\#E5E7EB\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .border-\[\#EAECF0\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .border-\[\#F2F4F7\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .border-\[\#F3F4F6\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .border-gray-200:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .border-gray-300:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  border-color: var(--border);
+}
+
+:root .border-\[\#D1D5DB\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .border-\[\#D0D5DD\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .border-\[\#DADDE3\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  border-color: var(--border-2);
+}
+
+:root .divide-\[\#F2F4F7\] > :not([hidden]) ~ :not([hidden]),
+:root .divide-\[\#E5E7EB\] > :not([hidden]) ~ :not([hidden]),
+:root .divide-gray-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border);
+}
+
+:root .ring-\[\#E5E7EB\]:not(:is(.quotation-print-page *, #printable-receipt *)),
+:root .ring-\[\#E4E7EC\]:not(:is(.quotation-print-page *, #printable-receipt *)) {
+  --tw-ring-color: var(--border);
+}
+
+:root .focus-within\:border-\[\#DC2626\]:focus-within,
+:root .focus-within\:ring-\[\#FEE2E2\]:focus-within {
+  --tw-ring-color: var(--brand-border);
+}
+
+/* ── Text ──────────────────────────────────────────────────────────────────── */
+:root .text-\[\#101828\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-\[\#111827\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-\[\#0F172A\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-slate-900:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  color: var(--text-primary);
+}
+
+:root .text-\[\#1D2939\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-\[\#344054\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-\[\#374151\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-slate-800:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  color: var(--text-secondary);
+}
+
+:root .text-\[\#475467\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-\[\#4B5563\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-slate-600:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  color: var(--text-tertiary);
+}
+
+:root .text-\[\#667085\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-\[\#6B7280\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+/* gray-400 / #98A2B3 / #9CA3AF / slate-500 land on --text-muted, not on
+   --text-faint. These ~115 call sites are readable copy — form labels, helper
+   text, table metadata — not decoration. --text-faint measures 3.16:1 on a
+   white surface, which fails WCAG AA (4.5:1) for body text; --text-muted
+   measures 5.67:1. A deliberate one-step loss of granularity between gray-400
+   and gray-500 is the price for making all of that text legible. */
+:root .text-\[\#98A2B3\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-\[\#9CA3AF\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-gray-400:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-slate-500:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  color: var(--text-muted);
+}
+
+:root .placeholder\:text-\[\#98A2B3\]::placeholder,
+:root .placeholder\:text-\[\#9CA3AF\]::placeholder,
+:root .placeholder\:text-gray-400::placeholder {
+  color: var(--text-placeholder);
+}
+
+:root .hover\:text-\[\#111827\]:hover:not(:is(.quotation-print-page *, #printable-receipt *)),
+:root .hover\:text-\[\#374151\]:hover:not(:is(.quotation-print-page *, #printable-receipt *)) {
+  color: var(--text-primary);
+}
+:root .hover\:text-\[\#101828\]:hover:not(:is(.quotation-print-page *, #printable-receipt *)) {
+  color: var(--text-primary);
+}
+
+/* ── Brand ─────────────────────────────────────────────────────────────────── */
+:root .text-\[\#DC2626\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-\[\#E01E31\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-red-600:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  color: var(--brand-text);
+}
+
+:root .bg-\[\#DC2626\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-\[\#E01E31\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-red-600:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  background-color: var(--brand);
+}
+
+:root .bg-\[\#FEF2F2\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-\[\#FFF1F1\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-red-50:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  background-color: var(--brand-soft);
+}
+
+:root .border-\[\#FECACA\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .border-\[\#FEE2E2\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .border-red-200:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  border-color: var(--brand-border);
+}
+
+:root .hover\:bg-\[\#B91C1C\]:hover,
+:root .hover\:bg-red-700:hover { background-color: var(--brand-hover); }
+:root .hover\:text-\[\#B91C1C\]:hover { color: var(--brand-hover); }
+
+/* ── Status · success ──────────────────────────────────────────────────────── */
+:root .text-\[\#16A34A\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-emerald-600:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  color: var(--success-text);
+}
+:root .text-\[\#15803D\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-emerald-700:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  color: var(--success-text);
+}
+:root .text-emerald-800:not(:is(.quotation-print-page *, .bill-print-page *, #printable-receipt *)) {
+  color: var(--success-text);
+}
+:root .bg-\[\#F0FDF4\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-emerald-50:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  background-color: var(--success-soft);
+}
+:root .border-\[\#BBF7D0\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .border-emerald-200:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  border-color: var(--success-border);
+}
+:root .border-emerald-100:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  border-color: var(--success-border);
+}
+:root .bg-\[\#16A34A\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  background-color: var(--success-text);
+}
+
+/* ── Status · warning ──────────────────────────────────────────────────────── */
+:root .text-\[\#D97706\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-amber-600:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  color: var(--warning-text);
+}
+:root .text-\[\#B45309\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-\[\#EA580C\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-\[\#C2410C\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-orange-600:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-amber-700:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  color: var(--warning-text);
+}
+:root .bg-\[\#FEF3C7\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-\[\#FFFBEB\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-\[\#FFF7ED\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-amber-50:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-orange-50:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  background-color: var(--warning-soft);
+}
+:root .border-\[\#FDE68A\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .border-\[\#FED7AA\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .border-amber-200:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .border-amber-300:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .border-orange-200:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  border-color: var(--warning-border);
+}
+:root .text-\[\#F59E0B\]:not(:is(.quotation-print-page *, .bill-print-page *, #printable-receipt *)) {
+  color: var(--warning-text);
+}
+
+/* ── Status · info ─────────────────────────────────────────────────────────── */
+:root .text-\[\#2563EB\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-blue-600:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  color: var(--info-text);
+}
+:root .text-\[\#1D4ED8\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .text-blue-700:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  color: var(--info-text);
+}
+:root .bg-\[\#EFF6FF\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .bg-blue-50:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  background-color: var(--info-soft);
+}
+:root .border-\[\#BFDBFE\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
+:root .border-blue-200:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+  border-color: var(--info-border);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   5 · SHARED APPLICATION PATTERNS
+   Small, composable classes for the patterns that recur on every screen.
+════════════════════════════════════════════════════════════════════════════ */
+
+/* Panel — the single container for a block of related content. */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  min-height: 48px;
+}
+.panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.006em;
+}
+.panel-body { padding: 16px; }
+
+/* Section label — the small caption above a group inside a panel. */
+.section-label {
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+/* Toolbar — search, filters and page actions on one line. */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Ledger — the data table. Hairline rules, sticky head, no zebra. */
+.ledger-wrap {
+  position: relative;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.ledger {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+}
+.ledger thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  padding: 9px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.ledger tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+.ledger tbody tr:last-child td { border-bottom: 0; }
+.ledger tbody tr { background: var(--surface); }
+.ledger tbody tr:hover { background: var(--surface-hover); }
+.ledger tbody tr[data-selected='true'] { background: var(--brand-soft); }
+
+/* Compact density for line-item / entry grids. */
+.ledger-dense tbody td { padding: 6px 10px; font-size: 12.5px; }
+.ledger-dense thead th { padding: 7px 10px; }
+
+/* Numeric alignment for money and quantity columns. */
+.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Label / value pair used across detail screens. */
+.kv { display: grid; grid-template-columns: minmax(120px, 34%) 1fr; gap: 6px 16px; }
+.kv dt { color: var(--text-muted); font-size: 12.5px; }
+.kv dd { color: var(--text-primary); font-size: 13px; min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 420px) {
+  .kv { grid-template-columns: 1fr; gap: 2px 0; }
+  .kv dd { margin-bottom: 8px; }
+}
+
+/* Status dot — colour plus a shape cue so meaning survives a colour-blind reader. */
+.status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  flex: none;
+}
+
+/* Scroll shadow on a scroll region: signals there is more content. */
+.scroll-fade {
+  background:
+    linear-gradient(to right, var(--surface) 30%, transparent) left / 32px 100% no-repeat,
+    linear-gradient(to left, var(--surface) 30%, transparent) right / 32px 100% no-repeat,
+    linear-gradient(to right, rgb(0 0 0 / 0.07), transparent) left / 12px 100% no-repeat,
+    linear-gradient(to left, rgb(0 0 0 / 0.07), transparent) right / 12px 100% no-repeat;
+  background-attachment: local, local, scroll, scroll;
+}
+
+/* Sidebar — flat, hairline separated, no shadow (it is flush to the canvas). */
+.sidebar-dark {
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+}
+
+.card-surface {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.card-interactive {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+.card-interactive:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+}
+/* Back-compat alias for the pre-rename class. */
+.luxury-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+.luxury-card:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+}
+
+.focus-ring { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent); }
+.focus-ring-inset { outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--brand) 28%, transparent); }
+
+/* ── Type scale
+   One role → one size, enforced. The class names are legacy but the values are
+   the system: page title, section title, card title, body, label, table head. */
+.text-dashboard-title,
+.text-dashboard {
+  font-size: 22px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.021em !important;
+  line-height: 1.25 !important;
+  color: var(--text-primary) !important;
+}
+@media (min-width: 768px) {
+  .text-dashboard-title,
+  .text-dashboard { font-size: 25px !important; }
+}
+@media (min-width: 1280px) {
+  .text-dashboard-title,
+  .text-dashboard { font-size: 27px !important; }
+}
+
+.text-page-subtitle {
+  font-size: 13px !important;
+  color: var(--text-muted) !important;
+  line-height: 1.45 !important;
+  margin-top: 3px !important;
+}
+
+.text-section-title,
+.text-section {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.012em !important;
+  color: var(--text-primary) !important;
+}
+@media (min-width: 768px) { .text-section-title, .text-section { font-size: 16px !important; } }
+
+.text-card-title {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.006em !important;
+  line-height: 1.4 !important;
+  color: var(--text-primary) !important;
+}
+
+.text-body,
+.text-body-copy,
+.text-dialog-body { font-size: 13px !important; line-height: 1.55 !important; }
+.text-body-lg { font-size: 14px !important; line-height: 1.5 !important; }
+.text-btn-nav { font-size: 13px !important; font-weight: 500 !important; }
+
+.text-input-label {
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  color: var(--text-secondary) !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.text-table-header {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.03em !important;
+  text-transform: uppercase !important;
+  color: var(--text-muted) !important;
+}
+.text-table-row { font-size: 13px !important; color: var(--text-secondary) !important; }
+.text-input-entry { font-size: 13px !important; }
+.text-brand-600 { color: var(--brand-text) !important; }
+.bg-brand-50 { background-color: var(--brand-soft) !important; }
+.border-brand-600 { border-color: var(--brand) !important; }
+.border-surface-border { border-color: var(--border) !important; }
+.icon-36 { width: 16px !important; height: 16px !important; }
+
+/* Legacy entrance animations, kept for the modules that still reference them. */
+.smooth-appear { animation: fade-in 140ms ease-out; }
+.pulse-once { animation: fade-in 200ms ease-out; }
+.animate-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    var(--skeleton-from) 0%,
+    var(--skeleton-via) 50%,
+    var(--skeleton-from) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Responsive rules
+   These are deliberately few and behavioural. Component-level responsiveness
+   belongs in the component; this block only enforces the app-wide contract.
+─────────────────────────────────────────────────────────────────────────── */
+
+/* The shell never scrolls sideways. */
+#root { overflow-x: clip; }
+
+/* Comfortable touch targets on pointer-coarse devices. */
+@media (pointer: coarse) {
+  :where(button, a, [role='button'], input[type='checkbox'], input[type='radio']) {
+    min-height: 40px;
+  }
+  :where(button[aria-label], a[aria-label], [role='button'][aria-label]) {
+    min-width: 40px;
+  }
+  /* Inputs and selects keep their own height so dense grids stay dense. */
+  :where(input:not([type='checkbox']):not([type='radio']), select, textarea) {
+    min-height: 40px;
+    font-size: 16px; /* prevents iOS zoom-on-focus */
+  }
+  :where(input[type='checkbox'], input[type='radio']) { min-height: 20px; min-width: 20px; }
+}
+
+/* The desktop sidebar is the only nav; below `lg` the drawer takes over. */
+@media (max-width: 1023.98px) {
+  .ledger { min-width: 640px; }
+  .ledger-responsive { min-width: 0; }
+  .ledger-responsive thead th,
+  .ledger-responsive tbody td { padding: 8px 10px; }
+}
+
+/* Overlays must always fit the viewport. */
+@media (max-width: 640px) {
+  :where([role='dialog'], [role='alertdialog']) {
+    max-height: calc(100dvh - 32px);
+  }
+}
+
+/* Print sheets are unaffected by the density rules above. */
+@media print {
+  .ledger { min-width: 0; }
+  .ledger thead th { position: static; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   6 · OVERLAY BEHAVIOUR
+   Any mounted full-screen overlay locks page scroll. Overlays only mount while
+   open, so presence in the DOM == a dialog is open. `:has()` is the modern
+   path; main.tsx installs a MutationObserver fallback for older engines.
+════════════════════════════════════════════════════════════════════════════ */
+body:has(.overlay-root),
+body:has(.overlay-backdrop),
+body:has(> .fixed.inset-0),
+body:has(> div > .fixed.inset-0) { overflow: hidden; }
+
+/* An overlay backdrop dims; it does not frosted-glass the page behind it. */
+.overlay-backdrop { background: rgb(16 24 40 / 0.45); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   7 · PRINT
+   App chrome is hidden; documents print on white regardless of theme.
+════════════════════════════════════════════════════════════════════════════ */
+@media print {
+  :root,
+  [data-theme] {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #ffffff;
+    --surface-3: #ffffff;
+    --surface-hover: #ffffff;
+  }
+
+  .sidebar-dark,
+  header.app-topbar,
+  .no-print,
+  [data-print-hide] {
+    display: none !important;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  main > * {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  #printable-receipt {
+    display: block !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  .quotation-print-page,
+  .bill-print-page,
+  .dls-page,
+  .gps-page {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    min-height: auto !important;
+  }
+
+  @page { size: A4; margin: 0; }
+  @page :first { margin: 0; }
+  @page :left { margin: 0; }
+  @page :right { margin: 0; }
+
+  .avoid-break { page-break-inside: avoid !important; break-inside: avoid !important; }
+  .page-break { page-break-before: always !important; break-before: page !important; }
+  .page-sheet { page-break-after: always !important; break-after: page !important; }
+  .page-sheet:last-child { page-break-after: auto !important; break-after: auto !important; }
+
+  table { page-break-inside: auto !important; }
+  tr { page-break-inside: avoid !important; page-break-after: auto !important; break-inside: avoid !important; }
+  thead { display: table-header-group !important; }
+  tfoot { display: table-footer-group !important; }
+
+  .page-border {
+    position: fixed;
+    top: 10mm;
+    left: 10mm;
+    right: 10mm;
+    bottom: 10mm;
+    border: 2px solid #000;
+    pointer-events: none;
+    z-index: 9999;
+  }
+}
