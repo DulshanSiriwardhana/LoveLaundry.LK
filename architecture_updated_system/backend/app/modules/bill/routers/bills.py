@@ -1,0 +1,1443 @@
+import logging
+from datetime import datetime, timezone, timedelta
+from typing import List, Optional
+from bson import ObjectId
+from bson.errors import InvalidId
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+
+from ..auth_helper import get_current_user, require_capability
+from ..crypto_helper import decrypt_dict, encrypt_dict, get_search_token
+from ..database.main_db import (
+    audit_collection,
+    bills_collection,
+    deliveries_collection,
+    gatepasses_collection,
+    payments_collection,
+)
+from ..repositories.main_repository import bump_version, enqueue_sync
+from ..services import idempotency
+from ..services import balance_engine as be
+from ..services.transaction_events import build_item_delta, record_event, EVENT_BILL_CREATED
+from ..services.verification_service import attach_verification_to
+from pydantic import BaseModel
+from ..app_time import day_query, day_query_end, wall_clock
+from ..models import (
+    BillCreate,
+    BillItemIn,
+    BillModel,
+    BillListResponse,
+    PaymentCreate,
+    PaymentModel,
+)
+
+router = APIRouter(prefix="/bills", tags=["bills"])
+
+SENSITIVE_FIELDS = [
+    "client_name",
+    "quotation_title",
+    "notes",
+    "items",
+]
+
+PAYMENT_SENSITIVE_FIELDS = ["client_name", "notes"]
+DELIVERY_SENSITIVE_FIELDS = ["client_name", "items", "notes"]
+GATEPASS_SENSITIVE_FIELDS = ["client_name", "items", "notes"]
+QUOTATION_SENSITIVE_FIELDS = ["client_name", "quotation_title", "line_items"]
+logger = logging.getLogger(__name__)
+
+
+def _serialize(doc: dict) -> dict:
+    try:
+        decrypted = decrypt_dict(doc, SENSITIVE_FIELDS)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to decrypt document: {str(e)}"
+        )
+
+    decrypted["id"] = str(decrypted["_id"])
+    del decrypted["_id"]
+    return decrypted
+
+
+async def _attach_receiving_date(bill_doc: dict, serialized: dict) -> dict:
+    """Expose the linked gate pass's received date on bills for invoice rows."""
+    gate_pass = None
+    gate_pass_id = bill_doc.get("gate_pass_id")
+    if gate_pass_id and ObjectId.is_valid(str(gate_pass_id)):
+        gate_pass = await gatepasses_collection.find_one(
+            {"_id": ObjectId(str(gate_pass_id))}
+        )
+
+    if gate_pass is None:
+        for delivery_id in bill_doc.get("delivery_ids") or []:
+            if not ObjectId.is_valid(str(delivery_id)):
+                continue
+            delivery = await deliveries_collection.find_one(
+                {"_id": ObjectId(str(delivery_id))}
+            )
+            if not delivery:
+                continue
+            source_ids = delivery.get("source_gate_pass_ids") or [
+                delivery.get("gate_pass_id")
+            ]
+            for source_id in source_ids:
+                if source_id and ObjectId.is_valid(str(source_id)):
+                    gate_pass = await gatepasses_collection.find_one(
+                        {"_id": ObjectId(str(source_id))}
+                    )
+                    if gate_pass:
+                        break
+            if gate_pass:
+                break
+
+    if gate_pass:
+        serialized["receiving_date"] = gate_pass.get("receiving_date")
+    return serialized
+
+
+def _item_unit(item_name: str, unit: Optional[str] = None) -> str:
+    return unit or ("kg" if "curtain" in item_name.casefold() else "pcs")
+
+
+def _serialize_payment(doc: dict) -> dict:
+    try:
+        decrypted = decrypt_dict(doc, PAYMENT_SENSITIVE_FIELDS)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to decrypt payment: {str(e)}"
+        )
+    decrypted["id"] = str(decrypted["_id"])
+    del decrypted["_id"]
+    return decrypted
+
+
+def _parse_object_id(bill_id: str) -> ObjectId:
+    try:
+        return ObjectId(bill_id)
+    except InvalidId:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid bill ID"
+        )
+
+
+async def log_audit(user_id: str, action: str, entity: str, entity_id: str, details: dict = None):
+    audit_doc = {
+        "user_id": user_id,
+        "action": action,
+        "entity": entity,
+        "entity_id": entity_id,
+        "timestamp": datetime.now(timezone.utc),
+    }
+    if details:
+        audit_doc["details"] = details
+    await audit_collection.insert_one(audit_doc)
+
+
+async def get_quotation_prices(quotation_id: str) -> tuple:
+    """Fetch quotation pricing (the agreed price list) for a client.
+
+    A quotation is a PRICE LIST, not a transaction: this function reads only
+    item names and agreed unit prices from it. It returns
+    ``(prices_by_item_name, quotation_client_name)`` so the caller can refuse
+    to price one hotel's laundry with another hotel's contract.
+
+    Failures return an empty map rather than raising: an unreachable
+    quotation database must not 500 a bill, but it is logged so the silent
+    "no prices" degradation is visible instead of invisible.
+    """
+    import logging
+
+    from ..database.connection_manager import get_client
+
+    log = logging.getLogger("bill_service")
+    motor_client = get_client("MAIN")
+
+    try:
+        q_oid = ObjectId(quotation_id)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid quotation_id format.",
+        )
+
+    # Search known quotation DB names (mirrors quotation-service config defaults)
+    db_names = ["quotations_db", "quotations", "laundry_db"]
+    quotation_doc = None
+    for db_name in db_names:
+        try:
+            coll = motor_client[db_name]["quotations"]
+            quotation_doc = await coll.find_one({"_id": q_oid})
+            if quotation_doc:
+                break
+        except Exception:
+            continue
+
+    if not quotation_doc:
+        # Return empty price map — prices will fall back to manual item prices
+        return {}, None
+
+    try:
+        q_decrypted = decrypt_dict(quotation_doc, QUOTATION_SENSITIVE_FIELDS)
+    except Exception as exc:
+        # A MASTER_KEY mismatch silently turning every price into "0.0" is far
+        # worse than a loud log line.
+        log.error("Could not decrypt quotation %s for pricing: %s", quotation_id, exc)
+        return {}, None
+
+    prices = {}
+    for item in q_decrypted.get("line_items", []) or []:
+        if not isinstance(item, dict):
+            continue
+        name = item.get("item_name")
+        if not name:
+            continue
+        prices[name] = {
+            "price": item.get("unit_price") or item.get("price") or 0.0,
+            "category": item.get("category"),
+        }
+    return prices, (q_decrypted.get("client_name") or "").strip() or None
+
+
+async def _load_universe_deliveries(gp_ids: List[str]) -> List[dict]:
+    """Every non-cancelled delivery that draws from any of ``gp_ids``.
+
+    This is the movement universe a bill may draw its billable quantity from.
+    Both billing legs use it so the already-billed lookup and the delivered
+    quantity are always computed over the same set of deliveries — which is what
+    stops a second bill against the same gate pass from re-billing the first
+    bill's pieces.
+    """
+    deliveries: List[dict] = []
+    for gpid in gp_ids or []:
+        cursor = deliveries_collection.find(
+            {**source_filter(gpid), "status": {"$ne": "CANCELLED"}}
+        )
+        async for del_doc in cursor:
+            deliveries.append(del_doc)
+    return deliveries
+
+
+async def _assert_items_within_billable_ceiling(
+    bill_doc: dict, items: List["BillItemIn"]
+) -> None:
+    """Reject bill line items that exceed the delivered-and-unbilled quantity.
+
+    ``bill_doc`` is the decrypted bill. The ceiling is the delivered quantity of
+    the bill's own movement universe, minus whatever OTHER non-cancelled bills
+    have already charged for it. This bill's existing lines are excluded from
+    the already-billed total, so raising a line's quantity by exactly what is
+    added stays legal while any jump beyond the real delivery ceiling fails.
+    """
+    gp_ids: List[str] = []
+    raw_gp = bill_doc.get("gate_pass_id")
+    if raw_gp:
+        gp_ids.append(str(raw_gp))
+    universe = await _load_universe_deliveries(gp_ids)
+    # A manual bill (no gate pass) has no delivery universe to check against.
+    if not gp_ids and not universe:
+        return
+
+    if not gp_ids:
+        for d in universe:
+            for gpid in be.source_gate_pass_ids(d):
+                if gpid not in gp_ids:
+                    gp_ids.append(gpid)
+
+    all_del_ids = [d["_id"] for d in universe] + [
+        ObjectId(d_id) for d_id in (bill_doc.get("delivery_ids") or []) if ObjectId.is_valid(str(d_id))
+    ]
+    already_billed: Dict[str, float] = {}
+    or_clauses = []
+    if all_del_ids:
+        or_clauses.append({"delivery_ids": {"$in": all_del_ids}})
+    if gp_ids:
+        or_clauses.append({"gate_pass_id": {"$in": gp_ids}})
+    if not or_clauses:
+        return
+
+    async for pb_doc in bills_collection.find(
+        {"payment_status": {"$ne": "CANCELLED"}, "$or": or_clauses}
+    ):
+        if str(pb_doc.get("_id")) == str(bill_doc.get("id") or bill_doc.get("_id") or ""):
+            continue  # this bill's own lines are replaced, not added
+        pb_dec = decrypt_dict(pb_doc, SENSITIVE_FIELDS)
+        for it in pb_dec.get("items") or []:
+            name = it.get("item_name")
+            if name:
+                already_billed[name] = already_billed.get(name, 0) + be.as_qty(it.get("quantity"))
+
+    ceiling = be.compute_billable_delivered_by_name(universe, already_billed)
+    for item in items or []:
+        name = (item.item_name or "").strip()
+        allowed = ceiling.get(name, 0)
+        if item.quantity > allowed:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    f"Double-Billing constraint violation. Item '{name}' requested: "
+                    f"{item.quantity}, but only {allowed} delivered and not yet billable."
+                ),
+            )
+
+
+
+
+@router.post("", response_model=BillModel, status_code=status.HTTP_201_CREATED)
+async def create_bill(
+    payload: BillCreate,
+    current_user: dict = Depends(require_capability("bill:write")),
+    request: Request = None,
+):
+    auth_id = current_user.get("auth_id", "system")
+
+    # Idempotent create: retried requests reuse the previously created bill.
+    existing_created = await idempotency.find_previous(request, auth_id, bills_collection)
+    if existing_created:
+        return await attach_verification_to(
+            "bill", existing_created["_id"], _serialize(existing_created)
+        )
+
+    # 0. Resolve gate pass (optional) and its quotation for pricing
+    gp_doc = None
+    gp_dec = None
+    if payload.gate_pass_id:
+        try:
+            gp_oid = ObjectId(payload.gate_pass_id)
+        except InvalidId:
+            raise HTTPException(
+                status_code=400, detail="Invalid gate_pass_id format."
+            )
+        gp_doc = await gatepasses_collection.find_one({"_id": gp_oid})
+        if not gp_doc:
+            raise HTTPException(
+                status_code=404, detail="Gate Pass not found."
+            )
+        gp_dec = decrypt_dict(gp_doc, GATEPASS_SENSITIVE_FIELDS)
+
+    # ── Hotel separation: a bill can only ever be priced and issued for ONE
+    # hotel. Refuse to mix, and refuse to price hotel A's laundry with hotel
+    # B's contract.
+    if gp_dec is not None and not be.same_client(payload.client_name, gp_dec.get("client_name")):
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Hotel mismatch: the bill is for '{payload.client_name}' but gate pass "
+                f"{gp_dec.get('gate_pass_number')} belongs to '{gp_dec.get('client_name')}'."
+            ),
+        )
+
+    gp_quotation_id = payload.quotation_id or (
+        gp_dec.get("quotation_id") if gp_doc else None
+    )
+    price_map, quotation_client = await get_quotation_prices(gp_quotation_id) if gp_quotation_id else ({}, None)
+    if quotation_client and not be.same_client(payload.client_name, quotation_client):
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Hotel mismatch: quotation {gp_quotation_id} is the price list for "
+                f"'{quotation_client}', not '{payload.client_name}'."
+            ),
+        )
+
+    # 2. Prevent Double Billing & Auto populate or validate quantities
+    bill_items_to_save = []
+    del_ids_to_save = payload.delivery_ids or []
+
+    if del_ids_to_save:
+        # The billable event is the RECEIVED quantity (business decision).
+        # Gather every gate pass these deliveries draw from, then compute
+        # what is still billable = received - already billed per item name.
+        gp_ids_for_del = []
+        for d_id in del_ids_to_save:
+            d_oid = ObjectId(d_id)
+            d_doc = await deliveries_collection.find_one({"_id": d_oid})
+            if not d_doc:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Referenced delivery record '{d_id}' not found.",
+                )
+
+            d_dec = decrypt_dict(d_doc, DELIVERY_SENSITIVE_FIELDS)
+            if d_dec.get("status") == "CANCELLED":
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Delivery '{d_id}' is cancelled and cannot be billed.",
+                )
+            # A delivery may draw lines from several gate passes; the billable
+            # base is every one of them, not just the primary.
+            for gpid in be.source_gate_pass_ids(d_dec):
+                if gpid not in gp_ids_for_del:
+                    gp_ids_for_del.append(gpid)
+
+        gp_items_list = []
+        for gpid in gp_ids_for_del:
+            try:
+                g_obj = ObjectId(gpid)
+            except InvalidId:
+                continue
+            g_doc = await gatepasses_collection.find_one({"_id": g_obj})
+            if not g_doc:
+                continue
+            g_dec = decrypt_dict(g_doc, GATEPASS_SENSITIVE_FIELDS)
+            # Every source pass, not just the one in `payload.gate_pass_id`.
+            # A delivery may draw lines from two hotels' passes; billing it must
+            # not slip hotel B's linen through on hotel A's contract.
+            if not be.same_client(payload.client_name, g_dec.get("client_name")):
+                raise HTTPException(
+                    status_code=400,
+                    detail=(
+                        f"Hotel mismatch: the bill is for '{payload.client_name}' but one of "
+                        f"the referenced deliveries draws from gate pass "
+                        f"{g_dec.get('gate_pass_number')}, which belongs to "
+                        f"'{g_dec.get('client_name')}'."
+                    ),
+                )
+            gp_items_list.extend(g_dec.get("items", []))
+
+        # Free re-washes are never billed — reject them explicitly with a clear
+        # message (the billable map already excludes them, so this is a clearer
+        # 400 than the generic "only X remaining" error).
+        rewashed_names = {
+            it.get("item_name")
+            for it in gp_items_list
+            if it.get("rewashed")
+        }
+        if rewashed_names:
+            rewashed_names = {n for n in rewashed_names if n}
+
+        # Map item_name -> already billed quantity for these deliveries AND
+        # for the gate passes they belong to (GP-leg bills store no delivery ids).
+        already_billed_map = {}
+        billed_filter: dict = {
+            "payment_status": {"$ne": "CANCELLED"},
+            "$or": [
+                {"delivery_ids": {"$in": del_ids_to_save}},
+            ],
+        }
+        if gp_ids_for_del:
+            billed_filter["$or"].append({"gate_pass_id": {"$in": gp_ids_for_del}})
+        prev_bills_cursor = bills_collection.find(billed_filter)
+        async for pb_doc in prev_bills_cursor:
+            pb_dec = decrypt_dict(pb_doc, SENSITIVE_FIELDS)
+            for item in pb_dec.get("items", []):
+                name = item["item_name"]
+                already_billed_map[name] = (
+                    already_billed_map.get(name, 0) + item["quantity"]
+                )
+
+        # Compute remaining billable quantities on the received basis
+        billable_map = be.compute_billable_received_by_name(gp_items_list, already_billed_map)
+
+        if payload.items:
+            # Validate input quantities against remaining billable balance
+            for input_item in payload.items:
+                name = input_item.item_name
+                qty = input_item.quantity
+                allowed = billable_map.get(name, 0)
+
+                if name in rewashed_names and allowed <= 0:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=(
+                            f"Item '{name}' is tagged as a free re-wash on "
+                            "this gate pass and cannot be billed."
+                        ),
+                    )
+                if qty > allowed:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=(
+                            f"Double-Billing constraint violation. "
+                            f"Item '{name}' requested: {qty}, but only {allowed} remaining is billable."
+                        ),
+                    )
+
+                price_info = price_map.get(name, {"price": input_item.unit_price, "category": input_item.category})
+                unit_price = price_info["price"]
+                line_total = round(unit_price * qty, 2)
+                bill_items_to_save.append(
+                    {
+                        "item_name": name,
+                        "category": price_info.get("category") or input_item.category,
+                        "unit_price": unit_price,
+                        "quantity": qty,
+                        "line_total": line_total,
+                    }
+                )
+        else:
+            # Auto-aggregate remaining billable
+            for name, billable_qty in billable_map.items():
+                if billable_qty <= 0:
+                    continue
+                price_info = price_map.get(name)
+                if not price_info:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Pricing rule for item '{name}' not defined in the quotation.",
+                    )
+                unit_price = price_info["price"]
+                line_total = round(unit_price * billable_qty, 2)
+                bill_items_to_save.append(
+                    {
+                        "item_name": name,
+                        "category": price_info["category"],
+                        "unit_price": unit_price,
+                        "quantity": billable_qty,
+                        "line_total": line_total,
+                    }
+                )
+    elif payload.gate_pass_id and gp_doc:
+        # Derive billable items from the gate pass RECEIVED quantities,
+        # minus whatever has already been billed for the pass (GP-leg bills
+        # reference gate_pass_id; delivery-leg bills reference its deliveries).
+        from ..services.operations_context import source_filter
+
+        gp_del_ids = []
+        gp_del_cursor = deliveries_collection.find(
+            {**source_filter(payload.gate_pass_id), "status": {"$ne": "CANCELLED"}}
+        )
+        async for del_doc in gp_del_cursor:
+            gp_del_ids.append(str(del_doc["_id"]))
+
+        already_billed_map = {}
+        already_billed_pieces = {}
+        billed_filter: dict = {
+            "payment_status": {"$ne": "CANCELLED"},
+            "$or": [{"gate_pass_id": payload.gate_pass_id}],
+        }
+        if gp_del_ids:
+            billed_filter["$or"].append({"delivery_ids": {"$in": gp_del_ids}})
+        prev_bills_cursor = bills_collection.find(billed_filter)
+        async for pb_doc in prev_bills_cursor:
+            pb_dec = decrypt_dict(pb_doc, SENSITIVE_FIELDS)
+            for item in pb_dec.get("items", []):
+                name = item["item_name"]
+                already_billed_map[name] = (
+                    already_billed_map.get(name, 0) + item["quantity"]
+                )
+                already_billed_pieces[name] = (
+                    already_billed_pieces.get(name, 0) + int(item.get("piece_count", 0) or 0)
+                )
+
+        gp_map = be.compute_billable_received_by_name(gp_dec.get("items", []), already_billed_map)
+        received_by_name = {}
+        pieces_by_name = {}
+        unit_by_name = {}
+        for gp_item in gp_dec.get("items", []):
+            if gp_item.get("rewashed"):
+                continue
+            name = gp_item.get("item_name", "")
+            received_by_name[name] = received_by_name.get(name, 0) + float(gp_item.get("received_qty", 0) or 0)
+            pieces_by_name[name] = pieces_by_name.get(name, 0) + int(gp_item.get("piece_count", 0) or 0)
+            unit_by_name[name] = _item_unit(name, gp_item.get("unit"))
+
+        def unbilled_pieces(name: str, unbilled_qty: float) -> int:
+            total_pieces = pieces_by_name.get(name, 0)
+            received_qty = received_by_name.get(name, 0)
+            billed_pieces = already_billed_pieces.get(name, 0)
+            if billed_pieces > 0:
+                return max(0, total_pieces - billed_pieces)
+            if total_pieces <= 0 or received_qty <= 0:
+                return 0
+            return min(total_pieces, round(total_pieces * unbilled_qty / received_qty))
+
+        rewashed_names = {
+            it.get("item_name")
+            for it in (gp_dec.get("items") or [])
+            if it.get("rewashed") and it.get("item_name")
+        }
+
+        if payload.items:
+            for input_item in payload.items:
+                name = input_item.item_name
+                qty = input_item.quantity
+                allowed = gp_map.get(name, 0)
+                if name in rewashed_names and allowed <= 0:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=(
+                            f"Item '{name}' is tagged as a free re-wash on "
+                            "this gate pass and cannot be billed."
+                        ),
+                    )
+                if qty > allowed:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=(
+                            f"Item '{name}' requested: {qty}, but only "
+                            f"{allowed} delivered (and not yet billed) on this gate pass."
+                        ),
+                    )
+                price_info = price_map.get(
+                    name,
+                    {"price": input_item.unit_price, "category": input_item.category},
+                )
+                unit_price = price_info["price"]
+                line_total = round(unit_price * qty, 2)
+                bill_items_to_save.append(
+                    {
+                        "item_name": name,
+                        "category": price_info.get("category") or input_item.category,
+                        "unit_price": unit_price,
+                        "quantity": qty,
+                        "line_total": line_total,
+                        "piece_count": input_item.piece_count or unbilled_pieces(name, qty),
+                        "unit": _item_unit(name, input_item.unit or unit_by_name.get(name)),
+                    }
+                )
+        else:
+            for name, qty in gp_map.items():
+                if qty <= 0:
+                    continue
+                price_info = price_map.get(name)
+                if not price_info:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=(
+                            f"Pricing rule for item '{name}' not defined. "
+                            "Link a quotation to the gate pass first."
+                        ),
+                    )
+                unit_price = price_info["price"]
+                line_total = round(unit_price * qty, 2)
+                bill_items_to_save.append(
+                    {
+                        "item_name": name,
+                        "category": price_info.get("category"),
+                        "unit_price": unit_price,
+                        "quantity": qty,
+                        "line_total": line_total,
+                        "piece_count": unbilled_pieces(name, qty),
+                        "unit": unit_by_name.get(name, _item_unit(name)),
+                    }
+                )
+
+    else:
+        # Create manually from items list in payload
+        if not payload.items:
+            raise HTTPException(
+                status_code=400,
+                detail="Must provide either delivery_ids or custom items payload.",
+            )
+
+        for input_item in payload.items:
+            # Use price from quotation if available, otherwise pay what they passed
+            name = input_item.item_name
+            price_info = price_map.get(name, {"price": input_item.unit_price, "category": input_item.category})
+            unit_price = price_info["price"]
+            line_total = round(unit_price * input_item.quantity, 2)
+            bill_items_to_save.append(
+                {
+                    "item_name": name,
+                    "category": price_info.get("category"),
+                    "unit_price": unit_price,
+                    "quantity": input_item.quantity,
+                    "line_total": line_total,
+                    "piece_count": input_item.piece_count,
+                    "unit": _item_unit(name, input_item.unit),
+                }
+            )
+
+    if not bill_items_to_save:
+        raise HTTPException(
+            status_code=400,
+            detail="No billable items found. Everything in these deliveries might have already been billed.",
+        )
+
+    # 3. Calculate Totals
+    total_quantity = sum(x["quantity"] for x in bill_items_to_save)
+    total_amount = round(sum(x["line_total"] for x in bill_items_to_save), 2)
+
+    discounts = payload.discounts or 0.0
+    transport_fee = payload.transport_fee or 0.0
+    taxes = payload.taxes or 0.0
+    additional_charges = payload.additional_charges or 0.0
+
+    grand_total = round(
+        total_amount - discounts + transport_fee + taxes + additional_charges, 2
+    )
+    if grand_total < 0:
+        grand_total = 0.0
+
+    now = datetime.now(timezone.utc)
+    payment_status = "PAID" if payload.instant else "DRAFT"
+    paid_amount = grand_total if payload.instant else 0.0
+    outstanding_amount = 0.0 if payload.instant else grand_total
+    doc = {
+        "quotation_id": payload.quotation_id or "",
+        "client_name": payload.client_name,
+        "client_name_search": get_search_token(payload.client_name),
+        "quotation_title": payload.quotation_title,
+        "items": bill_items_to_save,
+        "total_quantity": total_quantity,
+        "total_amount": total_amount,
+        "discounts": discounts,
+        "transport_fee": transport_fee,
+        "taxes": taxes,
+        "additional_charges": additional_charges,
+        "grand_total": grand_total,
+        "payment_status": payment_status,
+        "paid_amount": paid_amount,
+        "outstanding_amount": outstanding_amount,
+        "delivery_ids": del_ids_to_save,
+        "gate_pass_id": payload.gate_pass_id,
+        "receiving_date": gp_dec.get("receiving_date") if gp_dec else None,
+        "manual_bill_number": gp_dec.get("manual_bill_number") if gp_dec else None,
+        "manual_gate_pass_number": gp_dec.get("manual_gate_pass_number") if gp_dec else None,
+        "alrs_number": gp_dec.get("alrs_number") if gp_dec else None,
+        "notes": payload.notes,
+        "created_at": now,
+        "updated_at": now,
+    }
+
+    encrypted_doc = encrypt_dict(doc, SENSITIVE_FIELDS)
+    result = await bills_collection.insert_one(encrypted_doc)
+    created = await bills_collection.find_one({"_id": result.inserted_id})
+
+    serialized = _serialize(created)
+
+    # Main DB write succeeded -> bump version and enqueue replication
+    new_version = await bump_version("bill", result.inserted_id)
+    await enqueue_sync("bill", result.inserted_id, new_version)
+    serialized = await attach_verification_to("bill", result.inserted_id, serialized)
+
+    await record_event(
+        entity_type="bill",
+        entity_id=serialized["id"],
+        event_type=EVENT_BILL_CREATED,
+        gate_pass_id=payload.gate_pass_id,
+        user_id=current_user.get("auth_id", "system"),
+        user_name=current_user.get("user_name"),
+        item_deltas=[
+            build_item_delta(it["item_name"], None, 0, it["quantity"]) for it in bill_items_to_save
+        ],
+        meta={
+            "delivery_ids": del_ids_to_save,
+            "payment_status": payment_status,
+            "grand_total": grand_total,
+        },
+    )
+
+    await log_audit(
+        current_user.get("auth_id", "system"),
+        "BILL_CREATE",
+        "bill",
+        serialized["id"],
+    )
+    await idempotency.record_created(request, auth_id, "bill", serialized["id"])
+    return serialized
+
+
+@router.get("", response_model=BillListResponse)
+async def list_bills(
+    search: Optional[str] = Query(None),
+    client_name: Optional[str] = Query(None),
+    quotation_id: Optional[str] = Query(None),
+    payment_status: Optional[str] = Query(None),
+    date_from: Optional[datetime] = Query(None),
+    date_to: Optional[datetime] = Query(None),
+    gate_pass_date_from: Optional[datetime] = Query(None),
+    gate_pass_date_to: Optional[datetime] = Query(None),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=5000),
+    current_user: dict = Depends(require_capability("bill:read")),
+):
+    use_pipeline = gate_pass_date_from or gate_pass_date_to
+
+    if use_pipeline:
+        # Build aggregation pipeline — filter by gate pass receiving_date
+        pipeline: list = []
+
+        # Start with basic bill-level filters (non-date)
+        base_match: dict = {}
+        if client_name:
+            base_match["client_name_search"] = get_search_token(client_name)
+        if quotation_id:
+            base_match["quotation_id"] = quotation_id
+        if payment_status:
+            base_match["payment_status"] = payment_status
+        if search:
+            base_match["client_name_search"] = get_search_token(search)
+        if base_match:
+            pipeline.append({"$match": base_match})
+
+        # Join with gatepasses to access receiving_date
+        # gate_pass_id is stored as a string, _id is ObjectId — must convert
+        pipeline.append({
+            "$lookup": {
+                "from": "gatepasses",
+                "let": {"gp_id_str": "$gate_pass_id"},
+                "pipeline": [
+                    {"$match": {"$expr": {"$eq": ["$_id", {"$toObjectId": "$$gp_id_str"}]}}},
+                ],
+                "as": "gp",
+            }
+        })
+
+        # Filter by gate pass receiving_date (handles null gate_pass_id too)
+        gp_date_match: dict = {}
+        if gate_pass_date_from:
+            gp_date_match["$gte"] = day_query(gate_pass_date_from)
+        if gate_pass_date_to:
+            gp_date_match["$lte"] = day_query_end(gate_pass_date_to)
+        pipeline.append({
+            "$match": {
+                "gp": {"$ne": []},
+                "gp.receiving_date": gp_date_match,
+            }
+        })
+
+        pipeline.append(
+            {
+                "$addFields": {
+                    "receiving_date": {
+                        "$ifNull": [
+                            "$receiving_date",
+                            {"$arrayElemAt": ["$gp.receiving_date", 0]},
+                        ]
+                    }
+                }
+            }
+        )
+        # Drop the gate-pass join field after exposing the date.
+        pipeline.append({"$project": {"gp": 0}})
+
+        # Count total before sort/skip/limit
+        count_pipeline = pipeline + [{"$count": "total"}]
+        count_result = await bills_collection.aggregate(count_pipeline).to_list(1)
+        total = count_result[0]["total"] if count_result else 0
+
+        # Sort, skip, limit
+        pipeline.append({"$sort": {"created_at": -1}})
+        pipeline.append({"$skip": skip})
+        pipeline.append({"$limit": limit})
+
+        cursor = bills_collection.aggregate(pipeline)
+        docs = []
+        async for doc in cursor:
+            try:
+                serialized = _serialize(doc)
+                serialized = await _attach_receiving_date(doc, serialized)
+                docs.append(await attach_verification_to("bill", doc["_id"], serialized))
+            except HTTPException:
+                pass
+
+        return {"items": docs, "total": total}
+
+    # Original simple query (no gate pass date filter)
+    query: dict = {}
+
+    if client_name:
+        query["client_name_search"] = get_search_token(client_name)
+
+    if quotation_id:
+        query["quotation_id"] = quotation_id
+
+    if payment_status:
+        query["payment_status"] = payment_status
+
+    if date_from or date_to:
+        date_filter: dict = {}
+        if date_from:
+            date_filter["$gte"] = day_query(date_from)
+        if date_to:
+            date_filter["$lte"] = day_query_end(date_to)
+        query["created_at"] = date_filter
+
+    if search:
+        query["client_name_search"] = get_search_token(search)
+
+    total = await bills_collection.count_documents(query)
+    cursor = (
+        bills_collection.find(query)
+        .sort("created_at", -1)
+        .skip(skip)
+        .limit(limit)
+    )
+
+    docs = []
+    async for doc in cursor:
+        try:
+            serialized = _serialize(doc)
+            serialized = await _attach_receiving_date(doc, serialized)
+            docs.append(await attach_verification_to("bill", doc["_id"], serialized))
+        except HTTPException:
+            pass
+
+    return {"items": docs, "total": total}
+
+
+@router.get("/unbilled-gatepasses", response_model=list)
+async def get_unbilled_gatepasses(
+    client_name: Optional[str] = Query(None),
+    current_user: dict = Depends(require_capability("bill:read")),
+):
+    """
+    Returns gate passes that have items ready to be billed.
+    The billable event is the RECEIVED quantity (business decision), so a
+    pass is listed as soon as it is received — delivery is not required.
+    Optionally filter by client name.
+    """
+    from ..database.main_db import gatepasses_collection
+    from ..services import operations_context as ctx
+
+    query = {"status": {"$nin": ["CANCELLED"]}}
+
+    if client_name:
+        query["client_name_search"] = get_search_token(client_name)
+
+    gp_cursor = gatepasses_collection.find(query).sort("receiving_date", -1)
+
+    unbilled_gatepasses = []
+
+    async for gp_doc in gp_cursor:
+        try:
+            gp = decrypt_dict(gp_doc, ["client_name", "items", "notes"])
+            gp["id"] = str(gp_doc["_id"])
+            gp_id = gp["id"]
+
+            # Identify this pass's (non-cancelled) delivery records. Only the
+            # lines that came from THIS pass count for this pass — a delivery
+            # that also drew from another gate pass must not inflate this
+            # pass's delivered totals.
+            deliveries, _returns = await ctx.load_movements([gp_id])
+            delivery_ids = [d["id"] for d in deliveries if d.get("id")]
+
+            delivered_items = {}
+            for key, qty in be.compute_delivered_by_gate_pass(deliveries).get(
+                gp_id, {}
+            ).items():
+                delivered_items[be.flatten_name(key)] = (
+                    delivered_items.get(be.flatten_name(key), 0) + qty
+                )
+
+            # What's already billed against this pass (either leg)
+            billed_items = {}
+            billed_filter = {
+                "payment_status": {"$ne": "CANCELLED"},
+                "$or": [{"gate_pass_id": gp_id}],
+            }
+            if delivery_ids:
+                billed_filter["$or"].append({"delivery_ids": {"$in": delivery_ids}})
+            bills_cursor = bills_collection.find(billed_filter)
+
+            async for bill_doc in bills_cursor:
+                try:
+                    bill = decrypt_dict(bill_doc, SENSITIVE_FIELDS)
+                    for item in bill.get("items", []):
+                        item_name = item["item_name"]
+                        qty = item.get("quantity", 0)
+                        billed_items[item_name] = billed_items.get(item_name, 0) + qty
+                except Exception:
+                    pass
+
+            # Calculate unbilled quantities on the received basis
+            unbilled_items = []
+            total_unbilled_qty = 0
+            rewashed_items = []
+            total_rewashed_qty = 0
+
+            received_by_name: dict = {}
+            for gp_item in gp.get("items", []):
+                if gp_item.get("rewashed"):
+                    received = float(gp_item.get("received_qty", 0) or 0)
+                    rewashed_items.append({
+                        "item_name": gp_item.get("item_name", ""),
+                        "specification": gp_item.get("specification") or "",
+                        "received_qty": received,
+                    })
+                    total_rewashed_qty += received
+                    continue  # free re-washes are never billed
+                name = gp_item.get("item_name", "")
+                received_by_name[name] = received_by_name.get(name, 0) + float(
+                    gp_item.get("received_qty", 0) or 0
+                )
+
+            for item_name, received_qty in received_by_name.items():
+                billed_qty = billed_items.get(item_name, 0)
+                unbilled_qty = max(0, received_qty - billed_qty)
+                delivered_qty = delivered_items.get(item_name, 0)
+
+                if unbilled_qty > 0:
+                    gp_item = next(
+                        (item for item in gp.get("items", [])
+                         if item["item_name"] == item_name and not item.get("rewashed")),
+                        {},
+                    )
+
+                    unbilled_items.append({
+                        "item_name": item_name,
+                        "category": gp_item.get("category"),
+                        "received_qty": received_qty,
+                        "delivered_qty": delivered_qty,
+                        "billed_qty": billed_qty,
+                        "unbilled_qty": unbilled_qty,
+                    })
+                    total_unbilled_qty += unbilled_qty
+
+            if unbilled_items:
+                unbilled_gatepasses.append({
+                    "id": gp_id,
+                    "gate_pass_number": gp.get("gate_pass_number"),
+                    "client_name": gp.get("client_name"),
+                    "receiving_date": gp.get("receiving_date"),
+                    "quotation_id": gp.get("quotation_id"),
+                    "delivery_ids": delivery_ids,
+                    "unbilled_items": unbilled_items,
+                    "total_unbilled_qty": total_unbilled_qty,
+                    "rewashed_items": rewashed_items,
+                    "total_rewashed_qty": total_rewashed_qty,
+                })
+
+        except Exception:
+            pass
+
+    return unbilled_gatepasses
+
+
+@router.get("/{bill_id}", response_model=BillModel)
+async def get_bill(
+    bill_id: str,
+    current_user: dict = Depends(require_capability("bill:read")),
+):
+    oid = _parse_object_id(bill_id)
+    doc = await bills_collection.find_one({"_id": oid})
+    if not doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Bill not found"
+        )
+    serialized = _serialize(doc)
+    return await attach_verification_to("bill", oid, serialized)
+
+
+@router.patch("/{bill_id}/status", response_model=BillModel)
+async def update_bill_status(
+    bill_id: str,
+    status_update: str = Query(...),
+    current_user: dict = Depends(require_capability("bill:write")),
+):
+    valid_statuses = [
+        "DRAFT",
+        "PENDING",
+        "ISSUED",
+        "PARTIALLY_PAID",
+        "PAID",
+        "CANCELLED",
+    ]
+    if status_update not in valid_statuses:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid status. Must be one of {valid_statuses}",
+        )
+
+    oid = _parse_object_id(bill_id)
+    doc = await bills_collection.find_one({"_id": oid})
+    if not doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Bill not found"
+        )
+
+    await bills_collection.update_one(
+        {"_id": oid},
+        {
+            "$set": {
+                "payment_status": status_update,
+                "updated_at": datetime.now(timezone.utc),
+            }
+        },
+    )
+
+    updated_doc = await bills_collection.find_one({"_id": oid})
+    serialized = _serialize(updated_doc)
+
+    new_version = await bump_version("bill", oid)
+    await enqueue_sync("bill", oid, new_version)
+    serialized = await attach_verification_to("bill", oid, serialized)
+
+    await log_audit(
+        current_user.get("auth_id", "system"),
+        "BILL_STATUS_UPDATE",
+        "bill",
+        serialized["id"],
+    )
+    return serialized
+
+
+# ── Bill Edit (PATCH) ─────────────────────────────────────────────────────────
+
+class BillEdit(BaseModel):
+    client_name: Optional[str] = None
+    quotation_title: Optional[str] = None
+    notes: Optional[str] = None
+    discounts: Optional[float] = None
+    transport_fee: Optional[float] = None
+    taxes: Optional[float] = None
+    additional_charges: Optional[float] = None
+    items: Optional[List[BillItemIn]] = None
+
+
+@router.patch("/{bill_id}", response_model=BillModel)
+async def edit_bill(
+    bill_id: str,
+    payload: BillEdit,
+    current_user: dict = Depends(require_capability("bill:write")),
+):
+    oid = _parse_object_id(bill_id)
+    doc = await bills_collection.find_one({"_id": oid})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Bill not found")
+
+    dec = decrypt_dict(doc, SENSITIVE_FIELDS)
+    if dec.get("payment_status") in ("PAID", "CANCELLED"):
+        raise HTTPException(status_code=400, detail="Cannot edit a paid or cancelled bill")
+
+    # Editing must not become a way around the double-billing guard: every line
+    # is re-validated against the same delivered-minus-already-billed ceiling
+    # create_bill enforces, computed over this bill's own movement universe.
+    if payload.items is not None:
+        await _assert_items_within_billable_ceiling(dec, payload.items)
+
+    update_fields: dict = {}
+    for field in ("client_name", "quotation_title", "notes", "discounts", "transport_fee", "taxes", "additional_charges"):
+        val = getattr(payload, field)
+        if val is not None:
+            update_fields[field] = val
+
+    # Recalculate totals from items (new or existing)
+    if payload.items is not None:
+        items_out = []
+        for item in payload.items:
+            items_out.append({
+                "item_name": item.item_name,
+                "category": item.category,
+                "unit_price": item.unit_price,
+                "quantity": item.quantity,
+                "line_total": round(item.unit_price * item.quantity, 2),
+            })
+        total_amount = sum(i["line_total"] for i in items_out)
+    else:
+        items_out = dec.get("items") or []
+        total_amount = dec.get("total_amount", 0) or 0
+
+    # Always recalculate grand_total from (possibly updated) fees + total_amount
+    grand_total = (
+        total_amount
+        - (update_fields.get("discounts", dec.get("discounts", 0)) or 0)
+        + (update_fields.get("transport_fee", dec.get("transport_fee", 0)) or 0)
+        + (update_fields.get("taxes", dec.get("taxes", 0)) or 0)
+        + (update_fields.get("additional_charges", dec.get("additional_charges", 0)) or 0)
+    )
+    # Clamp exactly like create_bill does, so a discount larger than the
+    # subtotal can never store a negative invoice total.
+    grand_total = round(grand_total, 2)
+    if grand_total < 0:
+        grand_total = 0.0
+
+    paid = dec.get("paid_amount", 0) or 0
+    outstanding = round(grand_total - paid, 2)
+    if outstanding < 0:
+        outstanding = 0.0
+    payment_status = dec.get("payment_status", "DRAFT")
+    if outstanding <= 0 and payment_status not in ("CANCELLED",):
+        payment_status = "PAID"
+    elif outstanding > 0 and payment_status == "PAID":
+        payment_status = "PARTIALLY_PAID"
+
+    if not update_fields and payload.items is None:
+        raise HTTPException(status_code=400, detail="No fields to update")
+
+    # Merge into the DECRYPTED document and re-encrypt the whole thing. A bare
+    # $set would write client_name/notes/items in cleartext, silently defeating
+    # field-level encryption, and would leave client_name_search stale so a
+    # renamed client becomes unlistable.
+    merged = {**dec, **update_fields}
+    if payload.items is not None:
+        merged["items"] = items_out
+    merged["total_amount"] = round(total_amount, 2)
+    merged["total_quantity"] = sum(i["quantity"] for i in items_out)
+    merged["grand_total"] = grand_total
+    merged["outstanding_amount"] = outstanding
+    merged["payment_status"] = payment_status
+    merged["updated_at"] = datetime.now(timezone.utc)
+    if merged.get("client_name") is not None:
+        merged["client_name_search"] = get_search_token(merged["client_name"])
+
+    await bills_collection.replace_one(
+        {"_id": oid}, encrypt_dict(merged, SENSITIVE_FIELDS)
+    )
+
+    updated_doc = await bills_collection.find_one({"_id": oid})
+    serialized = _serialize(updated_doc)
+
+    new_version = await bump_version("bill", oid)
+    await enqueue_sync("bill", oid, new_version)
+    serialized = await attach_verification_to("bill", oid, serialized)
+
+    await log_audit(
+        current_user.get("auth_id", "system"),
+        "BILL_EDIT",
+        "bill",
+        serialized["id"],
+        details={"edited_fields": list(update_fields.keys())},
+    )
+    return serialized
+
+
+@router.delete("/{bill_id}")
+async def delete_bill(
+    bill_id: str,
+    current_user: dict = Depends(require_capability("payment:write")),
+):
+    oid = _parse_object_id(bill_id)
+    # Prefer Cancellation / status CANCELLED instead of hard delete
+    result = await bills_collection.update_one(
+        {"_id": oid},
+        {
+            "$set": {
+                "payment_status": "CANCELLED",
+                "updated_at": datetime.now(timezone.utc),
+            }
+        },
+    )
+    if result.matched_count == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Bill not found"
+        )
+
+    new_version = await bump_version("bill", oid)
+    await enqueue_sync("bill", oid, new_version)
+
+    await log_audit(
+        current_user.get("auth_id", "system"), "BILL_CANCEL", "bill", bill_id
+    )
+    return {"message": "Bill cancelled successfully"}
+
+
+# --- Payment APIs ---
+def _payment_bill_cas_filter(doc: dict, oid: ObjectId) -> dict:
+    """Match the money state read by a payment before changing its aggregates."""
+    query = {"_id": oid}
+    for field in ("paid_amount", "grand_total", "outstanding_amount", "payment_status"):
+        if field in doc:
+            query[field] = doc[field]
+        else:
+            query[field] = {"$exists": False}
+    return query
+
+
+async def _reserve_bill_payment(oid: ObjectId, amount: float, now: datetime) -> tuple[dict, dict]:
+    """Atomically reserve amount against the current bill balance using CAS.
+
+    MongoDB updates a single document atomically across processes. Comparing
+    every accounting field read prevents one request from overwriting another
+    request's newer aggregate values.
+    """
+    for _ in range(20):
+        doc = await bills_collection.find_one({"_id": oid})
+        if not doc:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Bill not found"
+            )
+
+        dec_bill = _serialize(doc)
+        if dec_bill["payment_status"] == "CANCELLED":
+            raise HTTPException(
+                status_code=400, detail="Cannot record payments on a cancelled bill."
+            )
+
+        paid_amount = round(float(dec_bill.get("paid_amount") or 0), 2)
+        grand_total = round(float(dec_bill["grand_total"]), 2)
+        outstanding = round(grand_total - paid_amount, 2)
+        if outstanding < 0:
+            outstanding = 0.0
+        if amount > outstanding + 0.01:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Payment amount of {amount} exceeds outstanding block of {outstanding}.",
+            )
+
+        new_paid = round(paid_amount + amount, 2)
+        new_outstanding = round(grand_total - new_paid, 2)
+        if new_outstanding < 0.01:
+            new_outstanding = 0.0
+            new_status = "PAID"
+        else:
+            new_status = "PARTIALLY_PAID"
+
+        result = await bills_collection.update_one(
+            _payment_bill_cas_filter(doc, oid),
+            {
+                "$set": {
+                    "paid_amount": new_paid,
+                    "outstanding_amount": new_outstanding,
+                    "payment_status": new_status,
+                    "updated_at": now,
+                }
+            },
+        )
+        if result.modified_count == 1:
+            return dec_bill, {
+                "paid_amount": new_paid,
+                "outstanding_amount": new_outstanding,
+                "payment_status": new_status,
+            }
+
+    raise HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail="Bill was updated concurrently. Please retry the payment.",
+    )
+
+
+async def _rollback_bill_payment(oid: ObjectId, amount: float, prior_status: str) -> None:
+    """Compensate a successful bill reservation if its payment row cannot save."""
+    for _ in range(20):
+        doc = await bills_collection.find_one({"_id": oid})
+        if not doc:
+            raise RuntimeError("Bill disappeared while restoring its payment balance")
+
+        dec_bill = _serialize(doc)
+        paid_amount = round(float(dec_bill.get("paid_amount") or 0), 2)
+        grand_total = round(float(dec_bill["grand_total"]), 2)
+        restored_paid = max(0.0, round(paid_amount - amount, 2))
+        restored_outstanding = round(grand_total - restored_paid, 2)
+        if restored_outstanding < 0.01:
+            restored_outstanding = 0.0
+            restored_status = "PAID"
+        elif restored_paid > 0:
+            restored_status = "PARTIALLY_PAID"
+        else:
+            restored_status = prior_status
+
+        # A cancellation that happened while the write was in flight remains
+        # authoritative; compensation only restores its monetary aggregates.
+        if dec_bill["payment_status"] == "CANCELLED":
+            restored_status = "CANCELLED"
+
+        result = await bills_collection.update_one(
+            _payment_bill_cas_filter(doc, oid),
+            {
+                "$set": {
+                    "paid_amount": restored_paid,
+                    "outstanding_amount": restored_outstanding,
+                    "payment_status": restored_status,
+                    "updated_at": datetime.now(timezone.utc),
+                }
+            },
+        )
+        if result.modified_count == 1:
+            return
+
+    raise RuntimeError("Bill changed repeatedly while restoring its payment balance")
+
+
+@router.post(
+    "/{bill_id}/payments",
+    response_model=PaymentModel,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_payment(
+    bill_id: str,
+    payload: PaymentCreate,
+    current_user: dict = Depends(require_capability("payment:write")),
+    request: Request = None,
+):
+    auth_id = current_user.get("auth_id", "system")
+
+    # Idempotent create: retried payment posts reuse the previous payment.
+    existing_created = await idempotency.find_previous(request, auth_id, payments_collection)
+    if existing_created:
+        return _serialize_payment(existing_created)
+
+    oid = _parse_object_id(bill_id)
+    now = datetime.now(timezone.utc)
+    dec_bill, _ = await _reserve_bill_payment(oid, payload.amount, now)
+    payment_doc = {
+        "bill_id": bill_id,
+        "client_name": dec_bill["client_name"],
+        "client_name_search": get_search_token(dec_bill["client_name"]),
+        "amount": payload.amount,
+        "payment_method": payload.payment_method,
+        "payment_date": wall_clock(payload.payment_date),
+        "reference": payload.reference,
+        "notes": payload.notes,
+        "created_at": now,
+    }
+
+    # Without replica-set transactions the two collections cannot commit
+    # together. Reserve the balance first, then compensate the bill if the
+    # payment insert fails. Confirm the pre-generated id after an insert error
+    # because a lost acknowledgement may still mean MongoDB committed it.
+    payment_id = ObjectId()
+    try:
+        encrypted_pay = encrypt_dict(payment_doc, PAYMENT_SENSITIVE_FIELDS)
+        encrypted_pay["_id"] = payment_id
+        await payments_collection.insert_one(encrypted_pay)
+    except Exception as insert_error:
+        try:
+            created_pay = await payments_collection.find_one({"_id": payment_id})
+        except Exception:
+            logger.exception(
+                "Could not determine whether payment %s was persisted",
+                payment_id,
+            )
+            raise HTTPException(
+                status_code=500,
+                detail="Payment persistence could not be confirmed; manual reconciliation is required.",
+            ) from insert_error
+
+        if created_pay is None:
+            try:
+                await _rollback_bill_payment(
+                    oid, payload.amount, dec_bill.get("payment_status", "PENDING")
+                )
+            except Exception as rollback_error:
+                logger.exception(
+                    "Payment insert failed and bill %s compensation failed",
+                    bill_id,
+                )
+                raise HTTPException(
+                    status_code=500,
+                    detail="Payment could not be saved and the bill balance could not be restored; manual reconciliation is required.",
+                ) from rollback_error
+
+            raise HTTPException(
+                status_code=500,
+                detail="Payment could not be saved; the bill balance was restored.",
+            ) from insert_error
+
+    payment_version = await bump_version("payment", payment_id)
+    await enqueue_sync("payment", payment_id, payment_version)
+
+    created_pay = await payments_collection.find_one({"_id": payment_id})
+    serialized_pay = _serialize_payment(created_pay)
+
+    # The bill changed too -> enqueue its replication as well
+    bill_new_version = await bump_version("bill", oid)
+    await enqueue_sync("bill", oid, bill_new_version)
+
+    serialized_pay = await attach_verification_to("payment", payment_id, serialized_pay)
+
+    await log_audit(
+        current_user.get("auth_id", "system"),
+        "PAYMENT_CREATE",
+        "payment",
+        serialized_pay["id"],
+    )
+    await idempotency.record_created(request, auth_id, "payment", serialized_pay["id"])
+    return serialized_pay
+
+
+@router.get("/{bill_id}/payments", response_model=List[PaymentModel])
+async def list_payments_for_bill(
+    bill_id: str,
+    current_user: dict = Depends(require_capability("payment:read")),
+):
+    cursor = payments_collection.find({"bill_id": bill_id}).sort("payment_date", -1)
+    results = []
+    async for doc in cursor:
+        try:
+            serialized = _serialize_payment(doc)
+            results.append(await attach_verification_to("payment", doc["_id"], serialized))
+        except HTTPException:
+            pass
+    return results

@@ -1,0 +1,65 @@
+{
+  "nodes": [
+    "bill-service",
+    "laundry-management",
+    "love-ai",
+    "love-bot",
+    "quotation-service",
+    "quotations-ui",
+    "skaner",
+    "user-service",
+    "worker-service",
+    "love-bot",
+    "mongo"
+  ],
+  "edges": [
+    {
+      "from": "love-bot",
+      "to": "bill-service",
+      "via": "BILL_SERVICE_URL",
+      "verified": true
+    },
+    {
+      "from": "love-bot",
+      "to": "quotation-service",
+      "via": "QUOTATION_SERVICE_URL",
+      "verified": true
+    },
+    {
+      "from": "love-ai",
+      "to": "mongo",
+      "via": "MONGO_URI/MONGO_DB_NAME",
+      "verified": true
+    },
+    {
+      "from": "quotations-ui",
+      "to": "bill-service",
+      "via": "VITE_BILLS_API_URL",
+      "verified": true
+    },
+    {
+      "from": "quotations-ui",
+      "to": "laundry-management",
+      "via": "VITE_MGMT_API_URL",
+      "verified": true
+    },
+    {
+      "from": "quotations-ui",
+      "to": "user-service",
+      "via": "VITE_USER_API_URL",
+      "verified": true
+    },
+    {
+      "from": "quotations-ui",
+      "to": "worker-service",
+      "via": "VITE_WORKERS_API_URL",
+      "verified": true
+    },
+    {
+      "from": "quotations-ui",
+      "to": "love-ai",
+      "via": "VITE_AI_API_URL",
+      "verified": true
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+"""
+MAIN database — production source of truth.
+
+All normal application reads and writes MUST go through these
+collections. Never read or write the Secondary/Local databases
+from business logic.
+"""
+from ._proxy import register
+from .connection_manager import ROLE_MAIN
+
+bills_collection = register(ROLE_MAIN, "bills")
+gatepasses_collection = register(ROLE_MAIN, "gatepasses")
+deliveries_collection = register(ROLE_MAIN, "deliveries")
+dispatch_jobs_collection = register(ROLE_MAIN, "dispatch_jobs")
+payments_collection = register(ROLE_MAIN, "payments")
+loyalty_collection = register(ROLE_MAIN, "loyalty_accounts")
+audit_collection = register(ROLE_MAIN, "audit_logs")
+linens_collection = register(ROLE_MAIN, "linens")
+linen_events_collection = register(ROLE_MAIN, "linen_events")
+returns_collection = register(ROLE_MAIN, "returns")
+adjustments_collection = register(ROLE_MAIN, "adjustments")
+idempotency_collection = register(ROLE_MAIN, "idempotency_keys")
+shop_bills_collection = register(ROLE_MAIN, "shop_bills")
+bill_templates_collection = register(ROLE_MAIN, "bill_templates")
+legacy_invoices_collection = register(ROLE_MAIN, "legacy_invoices")
+rewashes_collection = register(ROLE_MAIN, "rewashes")
+monthly_entries_collection = register(ROLE_MAIN, "monthly_entries")
+linen_category_mappings_collection = register(ROLE_MAIN, "linen_category_mappings")
+manual_references_collection = register(ROLE_MAIN, "manual_references")
+
+# Sync infrastructure collections live alongside business data in MAIN.
+sync_status_collection = register(ROLE_MAIN, "sync_status")
+sync_queue_collection = register(ROLE_MAIN, "sync_queue")
+sync_logs_collection = register(ROLE_MAIN, "sync_logs")
+
+
+async def ensure_indexes():
+    """Create all required indexes on the MAIN database."""
+    # Bills indexes
+    await bills_collection.create_index("created_at")
+    await bills_collection.create_index("client_name_search")
+    await bills_collection.create_index("quotation_id")
+
+    # Gatepasses indexes
+    await gatepasses_collection.create_index("gate_pass_number", unique=True)
+    await gatepasses_collection.create_index("client_name_search")
+    await gatepasses_collection.create_index("status")
+    await gatepasses_collection.create_index("created_at")
+    await gatepasses_collection.create_index([("receiving_date", 1), ("status", 1)])
+    await manual_references_collection.create_index("normalized", unique=True)
+
+    # Deliveries indexes
+    await deliveries_collection.create_index("gate_pass_id")
+    await deliveries_collection.create_index("client_name_search")
+    await deliveries_collection.create_index("created_at")
+    # A delivery can draw items from several gate passes, so every per-pass
+    # balance, listing and availability query matches on this denormalised list
+    # rather than on the document-level gate_pass_id. Sparse so legacy rows
+    # (written before the field existed) are simply absent from the index and
+    # keep matching through their own gate_pass_id.
+    await deliveries_collection.create_index("source_gate_pass_ids", sparse=True)
+    # Gate-pass detail screens list a pass's deliveries newest-first, so the
+    # source list and the dispatch date are queried together.
+    await deliveries_collection.create_index(
+        [("source_gate_pass_ids", 1), ("delivery_date", -1)],
+        sparse=True,
+    )
+
+    # Dispatch jobs indexes
+    await dispatch_jobs_collection.create_index("client_name_search")
+    await dispatch_jobs_collection.create_index("status")
+    await dispatch_jobs_collection.create_index("assigned_to")
+    await dispatch_jobs_collection.create_index("scheduled_at")
+
+    # Payments indexes
+    await payments_collection.create_index("bill_id")
+    await payments_collection.create_index("client_name_search")
+    await payments_collection.create_index("created_at")
+
+    # Loyalty indexes
+    await loyalty_collection.create_index("client_name_search", unique=True)
+
+    # Audit logs indexes
+    await audit_collection.create_index("timestamp")
+    await audit_collection.create_index("user_id")
+    await audit_collection.create_index("entity_id")
+
+    # Linens indexes
+    await linens_collection.create_index("linen_id", unique=True)
+    await linens_collection.create_index("category")
+    await linens_collection.create_index("status")
+    await linens_collection.create_index("client_name")
+    await linens_collection.create_index("condition")
+    await linens_collection.create_index("created_at")
+    await linens_collection.create_index("last_scanned_date")
+
+    # Linen events indexes
+    await linen_events_collection.create_index("linen_id")
+    await linen_events_collection.create_index("timestamp")
+    await linen_events_collection.create_index([("linen_id", 1), ("timestamp", -1)])
+    # Transaction/entity journal indexes
+    await linen_events_collection.create_index([("entity_type", 1), ("entity_id", 1), ("occurred_at", -1)])
+    await linen_events_collection.create_index("gate_pass_id")
+
+    # Returns indexes
+    await returns_collection.create_index("return_id", unique=True)
+    await returns_collection.create_index("gate_pass_id")
+    await returns_collection.create_index("client_name_search")
+    await returns_collection.create_index("status")
+    await returns_collection.create_index("created_at")
+
+    # Adjustments indexes
+    await adjustments_collection.create_index("gate_pass_id")
+    await adjustments_collection.create_index("status")
+    await adjustments_collection.create_index("created_at")
+
+    # Idempotency keys (unique per user:key)
+    await idempotency_collection.create_index("key", unique=True)
+    await idempotency_collection.create_index("created_at")
+
+    # Shop Bills indexes
+    await shop_bills_collection.create_index("bill_number", unique=True)
+    await shop_bills_collection.create_index("client_name_search")
+    await shop_bills_collection.create_index("status")
+    await shop_bills_collection.create_index("payment_status")
+    await shop_bills_collection.create_index("created_at")
+    await shop_bills_collection.create_index("is_recurring")
+    await shop_bills_collection.create_index("locked")
+
+    # Bill Templates indexes
+    await bill_templates_collection.create_index("name")
+    await bill_templates_collection.create_index("client_name_search")
+
+    # Legacy invoices indexes
+    await legacy_invoices_collection.create_index("invoice_number", unique=True)
+    await legacy_invoices_collection.create_index("shop_name_search")
+    await legacy_invoices_collection.create_index("created_at")
+
+    # Rewash indexes
+    await rewashes_collection.create_index("rewash_number", unique=True)
+    await rewashes_collection.create_index("client_name_search")
+    await rewashes_collection.create_index("date")
+    await rewashes_collection.create_index("status")
+
+    # Monthly entries: one doc per (client_name, kind, year, month).
+    # The unique index prevents duplicate month docs; day-level uniqueness is
+    # enforced inside the single day map (no cross-document race possible).
+    await monthly_entries_collection.create_index(
+        [("client_name", 1), ("kind", 1), ("year", 1), ("month", 1)], unique=True
+    )
+    await linen_category_mappings_collection.create_index("normalized_item", unique=True)
+    await monthly_entries_collection.create_index("client_name_search")
+    await monthly_entries_collection.create_index([("year", 1), ("month", 1)])
+
+    # Sync infrastructure indexes
+    await sync_status_collection.create_index([("entity", 1), ("record_id", 1)], unique=True)
+    await sync_queue_collection.create_index([("status", 1), ("next_attempt_at", 1)])
+    await sync_queue_collection.create_index([("status", 1), ("lease_until", 1)])
+    await sync_queue_collection.create_index([("entity", 1), ("record_id", 1)], unique=True)
+    await sync_logs_collection.create_index([("operation", 1), ("started_at", -1)])

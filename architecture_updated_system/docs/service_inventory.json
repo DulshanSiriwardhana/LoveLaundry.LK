@@ -1,0 +1,2384 @@
+{
+  "source_root": "/home/dulshan/Desktop/LoveLaundry.LK/system-manegment",
+  "service_count": 9,
+  "route_count": 420,
+  "services": [
+    {
+      "name": "bill-service",
+      "path": "/home/dulshan/Desktop/LoveLaundry.LK/system-manegment/bill-service",
+      "language": "python",
+      "framework": "fastapi",
+      "mount_prefix": "",
+      "python_files": 48,
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/adjustments",
+          "file": "routers/adjustments.py"
+        },
+        {
+          "method": "POST",
+          "path": "/adjustments",
+          "file": "routers/adjustments.py"
+        },
+        {
+          "method": "POST",
+          "path": "/adjustments/{adjustment_id}/approve",
+          "file": "routers/adjustments.py"
+        },
+        {
+          "method": "POST",
+          "path": "/adjustments/{adjustment_id}/reject",
+          "file": "routers/adjustments.py"
+        },
+        {
+          "method": "GET",
+          "path": "/admin/database/status",
+          "file": "routers/admin_database.py"
+        },
+        {
+          "method": "POST",
+          "path": "/admin/database/sync-local",
+          "file": "routers/admin_database.py"
+        },
+        {
+          "method": "GET",
+          "path": "/admin/database/sync-logs",
+          "file": "routers/admin_database.py"
+        },
+        {
+          "method": "POST",
+          "path": "/admin/database/sync-secondary",
+          "file": "routers/admin_database.py"
+        },
+        {
+          "method": "GET",
+          "path": "/audit-logs",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/balances/client",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/bills",
+          "file": "routers/bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/bills",
+          "file": "routers/bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/bills/unbilled-gatepasses",
+          "file": "routers/bills.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/bills/{bill_id}",
+          "file": "routers/bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/bills/{bill_id}",
+          "file": "routers/bills.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/bills/{bill_id}",
+          "file": "routers/bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/bills/{bill_id}/payments",
+          "file": "routers/bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/bills/{bill_id}/payments",
+          "file": "routers/bills.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/bills/{bill_id}/status",
+          "file": "routers/bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/dashboard/client-summary",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/dashboard/linen-flow",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/dashboard/outstanding-aging",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/dashboard/recent-activity",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/dashboard/summary",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/dashboard/today-deliveries",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/dashboard/yearly-trend",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/day-close",
+          "file": "routers/day_close.py"
+        },
+        {
+          "method": "POST",
+          "path": "/day-close",
+          "file": "routers/day_close.py"
+        },
+        {
+          "method": "GET",
+          "path": "/day-money",
+          "file": "routers/day_money.py"
+        },
+        {
+          "method": "GET",
+          "path": "/deliveries",
+          "file": "routers/deliveries.py"
+        },
+        {
+          "method": "POST",
+          "path": "/deliveries",
+          "file": "routers/deliveries.py"
+        },
+        {
+          "method": "GET",
+          "path": "/deliveries/available",
+          "file": "routers/deliveries.py"
+        },
+        {
+          "method": "GET",
+          "path": "/deliveries/pending-gatepasses",
+          "file": "routers/deliveries.py"
+        },
+        {
+          "method": "GET",
+          "path": "/deliveries/{delivery_id}",
+          "file": "routers/deliveries.py"
+        },
+        {
+          "method": "POST",
+          "path": "/deliveries/{delivery_id}/activate",
+          "file": "routers/deliveries.py"
+        },
+        {
+          "method": "GET",
+          "path": "/deliveries/{delivery_id}/balance",
+          "file": "routers/deliveries.py"
+        },
+        {
+          "method": "POST",
+          "path": "/deliveries/{delivery_id}/cancel",
+          "file": "routers/deliveries.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/deliveries/{delivery_id}/date",
+          "file": "routers/deliveries.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/deliveries/{delivery_id}/items",
+          "file": "routers/deliveries.py"
+        },
+        {
+          "method": "GET",
+          "path": "/dispatch",
+          "file": "routers/dispatch.py"
+        },
+        {
+          "method": "POST",
+          "path": "/dispatch",
+          "file": "routers/dispatch.py"
+        },
+        {
+          "method": "POST",
+          "path": "/dispatch/optimize",
+          "file": "routers/dispatch.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/dispatch/{job_id}",
+          "file": "routers/dispatch.py"
+        },
+        {
+          "method": "GET",
+          "path": "/dispatch/{job_id}",
+          "file": "routers/dispatch.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/dispatch/{job_id}",
+          "file": "routers/dispatch.py"
+        },
+        {
+          "method": "GET",
+          "path": "/events",
+          "file": "routers/events.py"
+        },
+        {
+          "method": "GET",
+          "path": "/export/bills",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/export/bills/xlsx",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/export/deliveries",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/export/deliveries/xlsx",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/export/gatepasses",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/export/gatepasses/xlsx",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/gatepasses",
+          "file": "routers/gatepasses.py"
+        },
+        {
+          "method": "POST",
+          "path": "/gatepasses",
+          "file": "routers/gatepasses.py"
+        },
+        {
+          "method": "POST",
+          "path": "/gatepasses/reopen-legacy",
+          "file": "routers/gatepasses.py"
+        },
+        {
+          "method": "GET",
+          "path": "/gatepasses/{gate_pass_id}",
+          "file": "routers/gatepasses.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/gatepasses/{gate_pass_id}",
+          "file": "routers/gatepasses.py"
+        },
+        {
+          "method": "POST",
+          "path": "/gatepasses/{gate_pass_id}/adjust",
+          "file": "routers/gatepasses.py"
+        },
+        {
+          "method": "GET",
+          "path": "/gatepasses/{gate_pass_id}/balance",
+          "file": "routers/gatepasses.py"
+        },
+        {
+          "method": "POST",
+          "path": "/gatepasses/{gate_pass_id}/catch-up-delivery",
+          "file": "routers/gatepasses.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/gatepasses/{gate_pass_id}/date",
+          "file": "routers/gatepasses.py"
+        },
+        {
+          "method": "GET",
+          "path": "/gatepasses/{gate_pass_id}/deliveries",
+          "file": "routers/gatepasses.py"
+        },
+        {
+          "method": "POST",
+          "path": "/gatepasses/{gate_pass_id}/mark-delivered",
+          "file": "routers/gatepasses.py"
+        },
+        {
+          "method": "POST",
+          "path": "/gatepasses/{gate_pass_id}/reopen",
+          "file": "routers/gatepasses.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/gatepasses/{gate_pass_id}/status",
+          "file": "routers/gatepasses.py"
+        },
+        {
+          "method": "GET",
+          "path": "/health",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/linens",
+          "file": "routers/linens.py"
+        },
+        {
+          "method": "POST",
+          "path": "/linens",
+          "file": "routers/linens.py"
+        },
+        {
+          "method": "POST",
+          "path": "/linens/bulk",
+          "file": "routers/linens.py"
+        },
+        {
+          "method": "POST",
+          "path": "/linens/bulk-scan",
+          "file": "routers/linens.py"
+        },
+        {
+          "method": "GET",
+          "path": "/linens/by-code/{linen_code}",
+          "file": "routers/linens.py"
+        },
+        {
+          "method": "POST",
+          "path": "/linens/generate-tags",
+          "file": "routers/linens.py"
+        },
+        {
+          "method": "GET",
+          "path": "/linens/stats/summary",
+          "file": "routers/linens.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/linens/{doc_id}",
+          "file": "routers/linens.py"
+        },
+        {
+          "method": "GET",
+          "path": "/linens/{doc_id}",
+          "file": "routers/linens.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/linens/{doc_id}",
+          "file": "routers/linens.py"
+        },
+        {
+          "method": "GET",
+          "path": "/linens/{doc_id}/events",
+          "file": "routers/linens.py"
+        },
+        {
+          "method": "POST",
+          "path": "/linens/{doc_id}/scan",
+          "file": "routers/linens.py"
+        },
+        {
+          "method": "GET",
+          "path": "/loyalty",
+          "file": "routers/loyalty.py"
+        },
+        {
+          "method": "POST",
+          "path": "/loyalty/adjust",
+          "file": "routers/loyalty.py"
+        },
+        {
+          "method": "GET",
+          "path": "/loyalty/{client_name}",
+          "file": "routers/loyalty.py"
+        },
+        {
+          "method": "GET",
+          "path": "/monthly/{kind}/{client_name}/{year}/{month}",
+          "file": "routers/monthly.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/monthly/{kind}/{client_name}/{year}/{month}/day/{day}/cancel",
+          "file": "routers/monthly.py"
+        },
+        {
+          "method": "POST",
+          "path": "/monthly/{kind}/{client_name}/{year}/{month}/day/{day}/confirm",
+          "file": "routers/monthly.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/monthly/{kind}/{client_name}/{year}/{month}/day/{day}/quantities",
+          "file": "routers/monthly.py"
+        },
+        {
+          "method": "GET",
+          "path": "/notifications/gatepass-pending",
+          "file": "routers/notifications.py"
+        },
+        {
+          "method": "GET",
+          "path": "/notifications/summary",
+          "file": "routers/notifications.py"
+        },
+        {
+          "method": "GET",
+          "path": "/reconciliation/issues",
+          "file": "routers/reconciliation.py"
+        },
+        {
+          "method": "GET",
+          "path": "/reports/billing",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/reports/client-wise",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/reports/gatepass-wise",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/reports/item-wise",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/reports/linen-categories",
+          "file": "routers/operational_reports.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/reports/linen-categories/mappings",
+          "file": "routers/operational_reports.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/reports/linen-categories/mappings/{item_name}",
+          "file": "routers/operational_reports.py"
+        },
+        {
+          "method": "POST",
+          "path": "/reports/monthly-operations",
+          "file": "routers/operational_reports.py"
+        },
+        {
+          "method": "GET",
+          "path": "/returns",
+          "file": "routers/returns.py"
+        },
+        {
+          "method": "POST",
+          "path": "/returns",
+          "file": "routers/returns.py"
+        },
+        {
+          "method": "GET",
+          "path": "/returns/pending-resent",
+          "file": "routers/returns.py"
+        },
+        {
+          "method": "GET",
+          "path": "/returns/stats/summary",
+          "file": "routers/returns.py"
+        },
+        {
+          "method": "GET",
+          "path": "/returns/{return_id}",
+          "file": "routers/returns.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/returns/{return_id}",
+          "file": "routers/returns.py"
+        },
+        {
+          "method": "POST",
+          "path": "/returns/{return_id}/resent",
+          "file": "routers/returns.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/archived",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/attention-needed",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/audit-trail/{bill_id}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/batch-create",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/bulk-delete",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/bulk-mark-paid",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/bulk-print-data",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/bulk-status",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/bulk-status-notes",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/by-number/{bill_number}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/by-tag/{tag}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/calculate-discount",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/calculate-tax",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/client-count/{client_name}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/client-loyalty/{client_name}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/clients/search",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/clients/{client_name}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/clients/{client_name}/statement",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/count",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/dashboard/summary",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/diff",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/expire-old",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/expiring",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/export/csv",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/export/csv-by-ids",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/export/csv-selected",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/export/json",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/export/summary",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/from-quotation/{quotation_id}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/fulltext-search",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/health",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/info",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/legacy",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/legacy",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/shop-bills/legacy/{invoice_id}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/legacy/{invoice_id}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/shop-bills/legacy/{invoice_id}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/legacy/{invoice_id}/mark-paid",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/lookup",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/manual-bill",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/overdue",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/quick-bill",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/recent-activity",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/recurring/due",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/recurring/due-v2",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/reports/tax",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/schema",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/search",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/avg-value",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/by-client",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/by-status",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/client-turnaround",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/collection-rate",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/daily",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/date-range",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/monthly",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/monthly-trends",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/overview",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/payment-methods",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/payment-projection",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/payment-summary",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/revenue",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/tag-summary",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/top-items",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/weekly",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/stats/yearly",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/tags",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/templates",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/templates",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/shop-bills/templates/{template_id}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/templates/{template_id}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/shop-bills/templates/{template_id}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/templates/{template_id}/duplicate",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/templates/{template_id}/usage",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/this-month",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/this-week",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/today",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/shop-bills/{bill_id}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/{bill_id}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/shop-bills/{bill_id}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/archive",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/{bill_id}/attachments",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/attachments",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/shop-bills/{bill_id}/attachments/{index}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/cancel-recurring",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/credit-note",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/shop-bills/{bill_id}/delivery-date",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/shop-bills/{bill_id}/discount",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/duplicate",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/duplicate-options",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/item",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/shop-bills/{bill_id}/item/{item_index}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/shop-bills/{bill_id}/items/bulk-update",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/shop-bills/{bill_id}/items/reorder",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/shop-bills/{bill_id}/items/{item_index}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/shop-bills/{bill_id}/link-quotation",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/shop-bills/{bill_id}/link-quotation",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/lock",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/make-recurring",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/mark-delivered",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/merge-bills",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/notes",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/notes-category",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/{bill_id}/notes-history",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/{bill_id}/payment-history",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/{bill_id}/print-data",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/record-payment",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/refund",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/restore",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/split-bill",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/status",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/tag",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/shop-bills/{bill_id}/tag/{tag}",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/shop-bills/{bill_id}/taxes",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/{bill_id}/timeline",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/transfer-client",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/shop-bills/{bill_id}/transport-fee",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/unlock",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "GET",
+          "path": "/shop-bills/{bill_id}/versions",
+          "file": "routers/shop_bills.py"
+        },
+        {
+          "method": "POST",
+          "path": "/shop-bills/{bill_id}/void",
+          "file": "routers/shop_bills.py"
+        }
+      ],
+      "env_var_names": [
+        "ALLOWED_ORIGINS",
+        "DATABASE_URL",
+        "JWT_SECRET",
+        "MASTER_KEY",
+        "MONGO_DB_NAME",
+        "TZ"
+      ],
+      "dependencies": [
+        "cryptography",
+        "dnspython",
+        "fastapi",
+        "motor",
+        "openpyxl",
+        "pydantic",
+        "pydantic-settings",
+        "pyjwt",
+        "python-dotenv",
+        "sentry-sdk",
+        "starlette",
+        "uvicorn"
+      ],
+      "entrypoints": [
+        "api/index.py"
+      ]
+    },
+    {
+      "name": "laundry-management",
+      "path": "/home/dulshan/Desktop/LoveLaundry.LK/system-manegment/laundry-management",
+      "language": "python",
+      "framework": "fastapi",
+      "mount_prefix": "/api",
+      "python_files": 34,
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/advances",
+          "file": "routers/advances.py"
+        },
+        {
+          "method": "POST",
+          "path": "/advances",
+          "file": "routers/advances.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/advances/{advance_id}",
+          "file": "routers/advances.py"
+        },
+        {
+          "method": "GET",
+          "path": "/advances/{advance_id}",
+          "file": "routers/advances.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/advances/{advance_id}",
+          "file": "routers/advances.py"
+        },
+        {
+          "method": "GET",
+          "path": "/api/health",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/attendance",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "POST",
+          "path": "/attendance/bulk",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "POST",
+          "path": "/attendance/bulk-day",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "GET",
+          "path": "/attendance/summary",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/attendance/{attendance_id}",
+          "file": "routers/employees.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/attendance/{attendance_id}",
+          "file": "routers/employees.py"
+        },
+        {
+          "method": "GET",
+          "path": "/company-settings",
+          "file": "routers/company_settings.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/company-settings",
+          "file": "routers/company_settings.py"
+        },
+        {
+          "method": "GET",
+          "path": "/company-settings/electricity-meter-analytics",
+          "file": "routers/company_settings.py"
+        },
+        {
+          "method": "GET",
+          "path": "/company-settings/electricity-meter-projection",
+          "file": "routers/company_settings.py"
+        },
+        {
+          "method": "GET",
+          "path": "/company-settings/electricity-meter-readings",
+          "file": "routers/company_settings.py"
+        },
+        {
+          "method": "POST",
+          "path": "/company-settings/electricity-meter-readings",
+          "file": "routers/company_settings.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/company-settings/electricity-meter-readings/{reading_id}",
+          "file": "routers/company_settings.py"
+        },
+        {
+          "method": "GET",
+          "path": "/company-settings/electricity-meter-usage",
+          "file": "routers/company_settings.py"
+        },
+        {
+          "method": "GET",
+          "path": "/customers",
+          "file": "routers/customers.py"
+        },
+        {
+          "method": "POST",
+          "path": "/customers",
+          "file": "routers/customers.py"
+        },
+        {
+          "method": "GET",
+          "path": "/customers/summary",
+          "file": "routers/customers.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/customers/{customer_id}",
+          "file": "routers/customers.py"
+        },
+        {
+          "method": "GET",
+          "path": "/customers/{customer_id}",
+          "file": "routers/customers.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/customers/{customer_id}",
+          "file": "routers/customers.py"
+        },
+        {
+          "method": "GET",
+          "path": "/customers/{customer_id}/rates",
+          "file": "routers/customers.py"
+        },
+        {
+          "method": "POST",
+          "path": "/customers/{customer_id}/rates",
+          "file": "routers/customers.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/customers/{customer_id}/rates/{rate_id}",
+          "file": "routers/customers.py"
+        },
+        {
+          "method": "GET",
+          "path": "/dashboard",
+          "file": "routers/dashboard.py"
+        },
+        {
+          "method": "GET",
+          "path": "/employees",
+          "file": "routers/employees.py"
+        },
+        {
+          "method": "POST",
+          "path": "/employees",
+          "file": "routers/employees.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/employees/{employee_id}",
+          "file": "routers/employees.py"
+        },
+        {
+          "method": "GET",
+          "path": "/employees/{employee_id}",
+          "file": "routers/employees.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/employees/{employee_id}",
+          "file": "routers/employees.py"
+        },
+        {
+          "method": "POST",
+          "path": "/employees/{employee_id}/activate",
+          "file": "routers/employees.py"
+        },
+        {
+          "method": "GET",
+          "path": "/employees/{employee_id}/advances",
+          "file": "routers/advances.py"
+        },
+        {
+          "method": "GET",
+          "path": "/employees/{employee_id}/advances/summary",
+          "file": "routers/advances.py"
+        },
+        {
+          "method": "GET",
+          "path": "/employees/{employee_id}/attendance",
+          "file": "routers/employees.py"
+        },
+        {
+          "method": "POST",
+          "path": "/employees/{employee_id}/attendance",
+          "file": "routers/employees.py"
+        },
+        {
+          "method": "GET",
+          "path": "/employees/{employee_id}/salaries",
+          "file": "routers/employees.py"
+        },
+        {
+          "method": "GET",
+          "path": "/employees/{employee_id}/salaries",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "POST",
+          "path": "/employees/{employee_id}/salaries",
+          "file": "routers/employees.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/employees/{employee_id}/salaries/{salary_id}",
+          "file": "routers/employees.py"
+        },
+        {
+          "method": "GET",
+          "path": "/employees/{employee_id}/salary-history",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "GET",
+          "path": "/expenses",
+          "file": "routers/expenses.py"
+        },
+        {
+          "method": "POST",
+          "path": "/expenses",
+          "file": "routers/expenses.py"
+        },
+        {
+          "method": "GET",
+          "path": "/expenses/categories",
+          "file": "routers/expenses.py"
+        },
+        {
+          "method": "POST",
+          "path": "/expenses/categories",
+          "file": "routers/expenses.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/expenses/categories/{category_id}",
+          "file": "routers/expenses.py"
+        },
+        {
+          "method": "GET",
+          "path": "/expenses/summary",
+          "file": "routers/expenses.py"
+        },
+        {
+          "method": "GET",
+          "path": "/expenses/templates",
+          "file": "routers/expenses.py"
+        },
+        {
+          "method": "POST",
+          "path": "/expenses/templates",
+          "file": "routers/expenses.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/expenses/templates/{template_id}",
+          "file": "routers/expenses.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/expenses/{expense_id}",
+          "file": "routers/expenses.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/expenses/{expense_id}",
+          "file": "routers/expenses.py"
+        },
+        {
+          "method": "GET",
+          "path": "/extra-work/categories",
+          "file": "routers/extra_work.py"
+        },
+        {
+          "method": "POST",
+          "path": "/extra-work/categories",
+          "file": "routers/extra_work.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/extra-work/categories/{category_id}",
+          "file": "routers/extra_work.py"
+        },
+        {
+          "method": "GET",
+          "path": "/extra-work/categories/{category_id}",
+          "file": "routers/extra_work.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/extra-work/categories/{category_id}",
+          "file": "routers/extra_work.py"
+        },
+        {
+          "method": "GET",
+          "path": "/extra-work/records",
+          "file": "routers/extra_work.py"
+        },
+        {
+          "method": "POST",
+          "path": "/extra-work/records",
+          "file": "routers/extra_work.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/extra-work/records/{record_id}",
+          "file": "routers/extra_work.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/extra-work/records/{record_id}",
+          "file": "routers/extra_work.py"
+        },
+        {
+          "method": "GET",
+          "path": "/holidays",
+          "file": "routers/holidays.py"
+        },
+        {
+          "method": "POST",
+          "path": "/holidays",
+          "file": "routers/holidays.py"
+        },
+        {
+          "method": "GET",
+          "path": "/holidays/check/{date}",
+          "file": "routers/holidays.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/holidays/{holiday_id}",
+          "file": "routers/holidays.py"
+        },
+        {
+          "method": "GET",
+          "path": "/holidays/{holiday_id}",
+          "file": "routers/holidays.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/holidays/{holiday_id}",
+          "file": "routers/holidays.py"
+        },
+        {
+          "method": "POST",
+          "path": "/import/execute",
+          "file": "routers/import_export.py"
+        },
+        {
+          "method": "GET",
+          "path": "/import/history",
+          "file": "routers/import_export.py"
+        },
+        {
+          "method": "POST",
+          "path": "/import/preview",
+          "file": "routers/import_export.py"
+        },
+        {
+          "method": "GET",
+          "path": "/import/template",
+          "file": "routers/import_export.py"
+        },
+        {
+          "method": "GET",
+          "path": "/items",
+          "file": "routers/items.py"
+        },
+        {
+          "method": "POST",
+          "path": "/items",
+          "file": "routers/items.py"
+        },
+        {
+          "method": "GET",
+          "path": "/items/categories",
+          "file": "routers/items.py"
+        },
+        {
+          "method": "POST",
+          "path": "/items/categories",
+          "file": "routers/items.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/items/categories/{category_id}",
+          "file": "routers/items.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/items/categories/{category_id}",
+          "file": "routers/items.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/items/{item_id}",
+          "file": "routers/items.py"
+        },
+        {
+          "method": "GET",
+          "path": "/items/{item_id}",
+          "file": "routers/items.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/items/{item_id}",
+          "file": "routers/items.py"
+        },
+        {
+          "method": "GET",
+          "path": "/payments",
+          "file": "routers/payments.py"
+        },
+        {
+          "method": "POST",
+          "path": "/payments",
+          "file": "routers/payments.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/payments/{payment_id}",
+          "file": "routers/payments.py"
+        },
+        {
+          "method": "GET",
+          "path": "/reports/daily",
+          "file": "routers/reports.py"
+        },
+        {
+          "method": "GET",
+          "path": "/reports/data-quality",
+          "file": "routers/reports.py"
+        },
+        {
+          "method": "GET",
+          "path": "/reports/health",
+          "file": "routers/reports.py"
+        },
+        {
+          "method": "GET",
+          "path": "/reports/hotel-wise",
+          "file": "routers/reports.py"
+        },
+        {
+          "method": "GET",
+          "path": "/reports/item-wise",
+          "file": "routers/reports.py"
+        },
+        {
+          "method": "GET",
+          "path": "/reports/master",
+          "file": "routers/reports.py"
+        },
+        {
+          "method": "GET",
+          "path": "/reports/monthly",
+          "file": "routers/reports.py"
+        },
+        {
+          "method": "GET",
+          "path": "/reports/outstanding",
+          "file": "routers/reports.py"
+        },
+        {
+          "method": "GET",
+          "path": "/reports/profit-loss",
+          "file": "routers/reports.py"
+        },
+        {
+          "method": "GET",
+          "path": "/reports/range",
+          "file": "routers/reports.py"
+        },
+        {
+          "method": "GET",
+          "path": "/reports/saved",
+          "file": "routers/reports.py"
+        },
+        {
+          "method": "POST",
+          "path": "/reports/saved",
+          "file": "routers/reports.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/reports/saved/{report_id}",
+          "file": "routers/reports.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/reports/saved/{report_id}",
+          "file": "routers/reports.py"
+        },
+        {
+          "method": "GET",
+          "path": "/salary/calculate",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "POST",
+          "path": "/salary/calculate",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "GET",
+          "path": "/salary/calculate-period",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "POST",
+          "path": "/salary/calculate-period",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "GET",
+          "path": "/salary/packages",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "POST",
+          "path": "/salary/packages",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/salary/packages/{package_id}",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/salary/packages/{package_id}",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "GET",
+          "path": "/salary/payroll-preview",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "POST",
+          "path": "/salary/payroll-run",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "POST",
+          "path": "/salary/slip",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "GET",
+          "path": "/salary/slips",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/salary/slips/{slip_id}",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "GET",
+          "path": "/salary/slips/{slip_id}",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/salary/slips/{slip_id}",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "POST",
+          "path": "/salary/slips/{slip_id}/cancel",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "POST",
+          "path": "/salary/slips/{slip_id}/finalize",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "POST",
+          "path": "/salary/slips/{slip_id}/pay",
+          "file": "routers/salary.py"
+        },
+        {
+          "method": "GET",
+          "path": "/transactions",
+          "file": "routers/transactions.py"
+        },
+        {
+          "method": "POST",
+          "path": "/transactions",
+          "file": "routers/transactions.py"
+        },
+        {
+          "method": "POST",
+          "path": "/transactions/bulk",
+          "file": "routers/transactions.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/transactions/{transaction_id}",
+          "file": "routers/transactions.py"
+        },
+        {
+          "method": "GET",
+          "path": "/transactions/{transaction_id}",
+          "file": "routers/transactions.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/transactions/{transaction_id}",
+          "file": "routers/transactions.py"
+        }
+      ],
+      "env_var_names": [
+        "JWT_SECRET",
+        "MASTER_KEY",
+        "MONGODB_LOCAL_DB",
+        "MONGODB_LOCAL_URI",
+        "MONGODB_MAIN_DB",
+        "MONGODB_MAIN_URI",
+        "MONGODB_SECONDARY_DB",
+        "MONGODB_SECONDARY_URI",
+        "TZ"
+      ],
+      "dependencies": [
+        "cryptography",
+        "fastapi",
+        "motor",
+        "openpyxl",
+        "pydantic",
+        "pydantic-settings",
+        "pyjwt",
+        "pymongo",
+        "python-dotenv",
+        "python-multipart",
+        "uvicorn"
+      ],
+      "entrypoints": [
+        "api/index.py",
+        "src/main.py"
+      ]
+    },
+    {
+      "name": "love-ai",
+      "path": "/home/dulshan/Desktop/LoveLaundry.LK/system-manegment/love-ai",
+      "language": "python",
+      "framework": "fastapi",
+      "mount_prefix": "/api/ai",
+      "python_files": 10,
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/api/health",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/health",
+          "file": "routers/insights.py"
+        },
+        {
+          "method": "GET",
+          "path": "/insights/dashboard",
+          "file": "routers/insights.py"
+        },
+        {
+          "method": "GET",
+          "path": "/insights/expenses",
+          "file": "routers/insights.py"
+        },
+        {
+          "method": "GET",
+          "path": "/insights/payroll-risk",
+          "file": "routers/insights.py"
+        },
+        {
+          "method": "POST",
+          "path": "/insights/query",
+          "file": "routers/insights.py"
+        },
+        {
+          "method": "GET",
+          "path": "/insights/revenue",
+          "file": "routers/insights.py"
+        },
+        {
+          "method": "GET",
+          "path": "/insights/salary",
+          "file": "routers/insights.py"
+        }
+      ],
+      "env_var_names": [
+        "CORS_ORIGINS",
+        "LOVE_AI_API_KEYS",
+        "MASTER_KEY",
+        "MONGO_DB_NAME",
+        "MONGO_URI",
+        "RATE_LIMIT_PER_MINUTE",
+        "SIGNATURE_TTL_SECONDS",
+        "TZ"
+      ],
+      "dependencies": [
+        "cryptography",
+        "fastapi",
+        "motor",
+        "pydantic",
+        "pydantic-settings",
+        "pyjwt",
+        "pymongo",
+        "python-dotenv",
+        "uvicorn"
+      ],
+      "entrypoints": [
+        "api/index.py",
+        "src/main.py"
+      ]
+    },
+    {
+      "name": "love-bot",
+      "path": "/home/dulshan/Desktop/LoveLaundry.LK/system-manegment/love-bot",
+      "language": "typescript",
+      "framework": "vercel-function",
+      "mount_prefix": "",
+      "python_files": 0,
+      "routes": [],
+      "env_var_names": [
+        "BILL_SERVICE_URL",
+        "LLM_API_KEY",
+        "LLM_BASE_URL",
+        "LLM_MODEL",
+        "LLM_PROVIDER",
+        "MASTER_KEY",
+        "PORT",
+        "QUOTATION_SERVICE_URL"
+      ],
+      "dependencies": [],
+      "entrypoints": [
+        "api/chat.ts",
+        "src/index.ts"
+      ]
+    },
+    {
+      "name": "quotation-service",
+      "path": "/home/dulshan/Desktop/LoveLaundry.LK/system-manegment/quotation-service",
+      "language": "python",
+      "framework": "fastapi",
+      "mount_prefix": "",
+      "python_files": 31,
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/admin/database/status",
+          "file": "routers/admin_database.py"
+        },
+        {
+          "method": "POST",
+          "path": "/admin/database/sync-local",
+          "file": "routers/admin_database.py"
+        },
+        {
+          "method": "GET",
+          "path": "/admin/database/sync-logs",
+          "file": "routers/admin_database.py"
+        },
+        {
+          "method": "POST",
+          "path": "/admin/database/sync-secondary",
+          "file": "routers/admin_database.py"
+        },
+        {
+          "method": "GET",
+          "path": "/chat/admin/conversations",
+          "file": "routers/chat.py"
+        },
+        {
+          "method": "GET",
+          "path": "/chat/admin/conversations/{conversation_id}",
+          "file": "routers/chat.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/chat/admin/conversations/{conversation_id}",
+          "file": "routers/chat.py"
+        },
+        {
+          "method": "POST",
+          "path": "/chat/admin/conversations/{conversation_id}/messages",
+          "file": "routers/chat.py"
+        },
+        {
+          "method": "GET",
+          "path": "/chat/conversations/{conversation_id}",
+          "file": "routers/chat.py"
+        },
+        {
+          "method": "POST",
+          "path": "/chat/conversations/{conversation_id}/messages",
+          "file": "routers/chat.py"
+        },
+        {
+          "method": "POST",
+          "path": "/chat/conversations/{conversation_id}/participants",
+          "file": "routers/chat.py"
+        },
+        {
+          "method": "GET",
+          "path": "/health",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/quotations",
+          "file": "main.py"
+        },
+        {
+          "method": "POST",
+          "path": "/quotations",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/quotations/guest/shop",
+          "file": "main.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/quotations/{quotation_id}",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/quotations/{quotation_id}",
+          "file": "main.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/quotations/{quotation_id}",
+          "file": "main.py"
+        },
+        {
+          "method": "POST",
+          "path": "/quotations/{quotation_id}/status",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/quotations/{quotation_id}/tags",
+          "file": "main.py"
+        },
+        {
+          "method": "POST",
+          "path": "/quotations/{quotation_id}/tags",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/quotations/{quotation_id}/tracking",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/tags/{code}",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/tags/{code}/tracking",
+          "file": "main.py"
+        }
+      ],
+      "env_var_names": [
+        "CHAT_API_KEY",
+        "CHAT_BOT_URL",
+        "DATABASE_URL",
+        "JWT_SECRET",
+        "MASTER_KEY",
+        "MONGODB_COLLECTION",
+        "MONGODB_DB_NAME",
+        "TZ"
+      ],
+      "dependencies": [
+        "cryptography",
+        "dnspython",
+        "fastapi",
+        "psycopg",
+        "pydantic",
+        "pyjwt",
+        "pymongo",
+        "python-dotenv",
+        "sentry-sdk",
+        "sqlalchemy",
+        "starlette",
+        "uvicorn"
+      ],
+      "entrypoints": [
+        "api/index.py"
+      ]
+    },
+    {
+      "name": "quotations-ui",
+      "path": "/home/dulshan/Desktop/LoveLaundry.LK/system-manegment/quotations-ui",
+      "language": "typescript",
+      "framework": "vercel-function",
+      "mount_prefix": "",
+      "python_files": 0,
+      "routes": [],
+      "env_var_names": [
+        "JWT_SECRET",
+        "MASTER_KEY",
+        "VITE_AI_API_KEY",
+        "VITE_AI_API_URL",
+        "VITE_API_URL",
+        "VITE_APP_TITLE",
+        "VITE_BILLS_API_URL",
+        "VITE_MGMT_API_URL",
+        "VITE_USER_API_URL",
+        "VITE_WORKERS_API_URL"
+      ],
+      "dependencies": [],
+      "entrypoints": []
+    },
+    {
+      "name": "skaner",
+      "path": "/home/dulshan/Desktop/LoveLaundry.LK/system-manegment/skaner",
+      "language": "dart",
+      "framework": "flutter",
+      "mount_prefix": "",
+      "python_files": 0,
+      "routes": [],
+      "env_var_names": [],
+      "dependencies": [],
+      "entrypoints": []
+    },
+    {
+      "name": "user-service",
+      "path": "/home/dulshan/Desktop/LoveLaundry.LK/system-manegment/user-service",
+      "language": "python",
+      "framework": "fastapi",
+      "mount_prefix": "",
+      "python_files": 30,
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/admin/database/status",
+          "file": "routers/admin_database.py"
+        },
+        {
+          "method": "POST",
+          "path": "/admin/database/sync-local",
+          "file": "routers/admin_database.py"
+        },
+        {
+          "method": "GET",
+          "path": "/admin/database/sync-logs",
+          "file": "routers/admin_database.py"
+        },
+        {
+          "method": "POST",
+          "path": "/admin/database/sync-secondary",
+          "file": "routers/admin_database.py"
+        },
+        {
+          "method": "POST",
+          "path": "/auth/login",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/auth/status",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/health",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/users",
+          "file": "main.py"
+        },
+        {
+          "method": "POST",
+          "path": "/users",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/users/auth/{auth_id}",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/users/count",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/users/email/{email}",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/users/employee/{employee_id}",
+          "file": "main.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/users/{user_id}",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/users/{user_id}",
+          "file": "main.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/users/{user_id}",
+          "file": "main.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/users/{user_id}/password",
+          "file": "main.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/users/{user_id}/profile",
+          "file": "main.py"
+        },
+        {
+          "method": "PATCH",
+          "path": "/users/{user_id}/status",
+          "file": "main.py"
+        }
+      ],
+      "env_var_names": [
+        "DATABASE_URL",
+        "JWT_SECRET",
+        "MASTER_KEY",
+        "MONGODB_COLLECTION",
+        "MONGODB_DB_NAME",
+        "TZ"
+      ],
+      "dependencies": [
+        "bcrypt",
+        "cryptography",
+        "dnspython",
+        "fastapi",
+        "psycopg",
+        "pydantic",
+        "pyjwt",
+        "pymongo",
+        "python-dotenv",
+        "python-multipart",
+        "sentry-sdk",
+        "sqlalchemy",
+        "starlette",
+        "uvicorn"
+      ],
+      "entrypoints": [
+        "api/index.py"
+      ]
+    },
+    {
+      "name": "worker-service",
+      "path": "/home/dulshan/Desktop/LoveLaundry.LK/system-manegment/worker-service",
+      "language": "python",
+      "framework": "fastapi",
+      "mount_prefix": "",
+      "python_files": 17,
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/daily-logs",
+          "file": "main.py"
+        },
+        {
+          "method": "POST",
+          "path": "/daily-logs",
+          "file": "main.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/daily-logs/{log_id}",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/daily-logs/{log_id}",
+          "file": "main.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/daily-logs/{log_id}",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/health",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/meta",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/summary/daily",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/summary/range",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/workers",
+          "file": "main.py"
+        },
+        {
+          "method": "POST",
+          "path": "/workers",
+          "file": "main.py"
+        },
+        {
+          "method": "DELETE",
+          "path": "/workers/{worker_id}",
+          "file": "main.py"
+        },
+        {
+          "method": "GET",
+          "path": "/workers/{worker_id}",
+          "file": "main.py"
+        },
+        {
+          "method": "PUT",
+          "path": "/workers/{worker_id}",
+          "file": "main.py"
+        }
+      ],
+      "env_var_names": [
+        "ALLOWED_ORIGINS",
+        "DATABASE_URL",
+        "JWT_SECRET",
+        "MASTER_KEY",
+        "MONGODB_DAILY_LOGS_COLLECTION",
+        "MONGODB_DB_NAME",
+        "MONGODB_WORKERS_COLLECTION",
+        "TZ"
+      ],
+      "dependencies": [
+        "cryptography",
+        "dnspython",
+        "fastapi",
+        "psycopg",
+        "pydantic",
+        "pyjwt",
+        "pymongo",
+        "python-dotenv",
+        "sentry-sdk",
+        "sqlalchemy",
+        "uvicorn"
+      ],
+      "entrypoints": [
+        "api/index.py"
+      ]
+    }
+  ]
+}

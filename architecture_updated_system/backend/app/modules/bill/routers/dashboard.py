@@ -1,0 +1,1946 @@
+import asyncio
+from datetime import datetime, timezone
+from typing import Dict, List, Optional
+import csv
+import io
+from bson import ObjectId
+from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import StreamingResponse
+
+from ..app_time import UTC, add_months, day_bounds, lkt, month_start, today
+from ..auth_helper import get_current_user, require_capability
+from ..crypto_helper import decrypt_dict, get_search_token
+from ..database.main_db import (
+    audit_collection,
+    bills_collection,
+    deliveries_collection,
+    gatepasses_collection,
+    payments_collection,
+    returns_collection,
+    shop_bills_collection,
+)
+from ..services import balance_engine as be
+from ..services import operations_context as ctx
+
+router = APIRouter(tags=["dashboard"])
+
+SENSITIVE_FIELDS_GP = ["client_name", "items", "notes"]
+SENSITIVE_FIELDS_DEL = ["client_name", "items", "notes"]
+SENSITIVE_FIELDS_BILL = ["client_name", "quotation_title", "notes", "items"]
+SENSITIVE_FIELDS_PAY = ["client_name", "notes"]
+SENSITIVE_FIELDS_SHOP_BILL = ["client_name", "items", "notes"]
+
+
+def _decrypt_gp(doc: dict) -> dict:
+    dec = decrypt_dict(doc, SENSITIVE_FIELDS_GP)
+    dec["id"] = str(dec["_id"])
+    del dec["_id"]
+    return dec
+
+
+def _decrypt_del(doc: dict) -> dict:
+    dec = decrypt_dict(doc, SENSITIVE_FIELDS_DEL)
+    dec["id"] = str(dec["_id"])
+    del dec["_id"]
+    return dec
+
+
+def _decrypt_bill(doc: dict) -> dict:
+    dec = decrypt_dict(doc, SENSITIVE_FIELDS_BILL)
+    dec["id"] = str(dec["_id"])
+    del dec["_id"]
+    return dec
+
+
+def _decrypt_pay(doc: dict) -> dict:
+    dec = decrypt_dict(doc, SENSITIVE_FIELDS_PAY)
+    dec["id"] = str(dec["_id"])
+    del dec["_id"]
+    return dec
+
+
+def _decrypt_shop_bill(doc: dict) -> dict:
+    dec = decrypt_dict(doc, SENSITIVE_FIELDS_SHOP_BILL)
+    dec["id"] = str(dec["_id"])
+    del dec["_id"]
+    return dec
+
+
+def _key(name: str, spec: str = ""):
+    return f"{name}||{spec}" if spec else name
+
+
+def _delivered_by_pass_by_name(delivery_docs) -> Dict[str, Dict[str, float]]:
+    """``{gate_pass_id: {item_name: qty}}`` from the canonical engine.
+
+    The legacy report groupings below are keyed by bare item name (no
+    specification), while the engine keys by ``name||spec``. Every one of them
+    used to roll its own loop that bucketed by the delivery's document-level
+    ``gate_pass_id`` — so a delivery drawing from two passes charged all its
+    lines to the primary pass. They now all funnel through the engine and differ
+    only in how they flatten the key.
+    """
+    out: Dict[str, Dict[str, float]] = {}
+    for gp_id, keyed in be.compute_delivered_by_gate_pass(delivery_docs).items():
+        bucket = out.setdefault(gp_id, {})
+        for key, qty in keyed.items():
+            name = be.flatten_name(key)
+            bucket[name] = bucket.get(name, 0) + qty
+    return out
+
+
+async def _get_returned_items_by_gate_pass() -> Dict[str, Dict[str, float]]:
+    """Fetch all returns and build gate_pass_id → {item_key → returned_qty}.
+
+    Only includes items with action RECEIVE_BACK/RE_WASH that haven't been
+    re-sent yet (resend_status != SENT). These count as pending items because
+    they must be sent back to the client. Returns carry their own
+    gate_pass_id, so they are attributed to the exact gate pass they were
+    raised on — never to another pass of the same client.
+    """
+    returned: Dict[str, Dict[str, float]] = {}
+    ret_cursor = returns_collection.find()
+    async for ret_doc in ret_cursor:
+        try:
+            try:
+                ret = decrypt_dict(ret_doc, SENSITIVE_FIELDS_GP)
+            except (ValueError, KeyError):
+                ret = ret_doc
+            gp_id = str(ret.get("gate_pass_id") or "")
+            if not gp_id:
+                continue
+            if gp_id not in returned:
+                returned[gp_id] = {}
+            for item in ret.get("items", []):
+                if not isinstance(item, dict):
+                    continue
+                if item.get("action") not in ("RECEIVE_BACK", "RE_WASH"):
+                    continue
+                if item.get("resend_status") == "SENT":
+                    continue
+                name = item.get("item_name", "")
+                spec = item.get("specification") or ""
+                key = _key(name, spec)
+                qty = float(item.get("returned_qty", 0) or 0)
+                if qty > 0:
+                    returned[gp_id][key] = returned[gp_id].get(key, 0) + qty
+        except Exception:
+            continue
+    return returned
+
+
+def _flatten_returned_by_name(returned_by_gp: Dict[str, Dict[str, float]]) -> Dict[str, float]:
+    out: Dict[str, float] = {}
+    for _, items in returned_by_gp.items():
+        for key, qty in items.items():
+            name = key.split("||", 1)[0]
+            out[name] = out.get(name, 0) + qty
+    return out
+
+
+@router.get("/balances/client")
+async def get_client_balances(
+    client_name: str = Query(..., min_length=1),
+    include_closed: bool = Query(False),
+    current_user: dict = Depends(require_capability("dashboard:read")),
+):
+    """Single authoritative source for a client's linen balances.
+
+    Computed entirely by the balance engine from the raw gate pass,
+    delivery and return documents. Nothing on the frontend should
+    calculate these numbers independently.
+    """
+    from ..services import balance_engine as be
+
+    query: dict = {"client_name_search": get_search_token(client_name)}
+    if not include_closed:
+        query["status"] = {"$nin": ["CANCELLED"]}
+    gp_cursor = gatepasses_collection.find(query).sort("receiving_date", -1)
+
+    gp_ids: List[str] = []
+    gp_docs: List[dict] = []
+    for gd in await gp_cursor.to_list(length=None):
+        try:
+            decced = _decrypt_gp(gd)
+        except Exception:
+            continue
+        gp_docs.append(decced)
+        gp_ids.append(decced["id"])
+
+    # Deliveries and returns, attributed per gate pass by the shared context.
+    # This used to be a hand-rolled load-and-group loop that keyed deliveries
+    # off the document-level gate_pass_id, so a delivery spanning two passes
+    # charged all of its lines to the primary pass and starved the other.
+    delivered_by_gp, returned_by_gp = await ctx.movement_maps(gp_ids)
+
+    result_gps = []
+    totals = {
+        "expected_qty": 0,
+        "received_qty": 0,
+        "delivered_qty": 0,
+        "effective_delivered_qty": 0,
+        "outstanding_delivery_qty": 0,
+        "returned_back_qty": 0,
+        "not_received_qty": 0,
+    }
+    for gp in gp_docs:
+        balance = be.compute_gate_pass_balance(
+            gp["items"],
+            delivered_by_gp.get(gp["id"], {}),
+            returned_by_gp.get(gp["id"], {}),
+            marked_delivered=bool(gp.get("marked_delivered")),
+        )
+        derived = be.derive_gate_pass_status(balance, gp.get("status", ""))
+        for k, v in balance["totals"].items():
+            totals[k] = totals.get(k, 0) + v
+        result_gps.append(
+            {
+                "gate_pass_id": gp["id"],
+                "gate_pass_number": gp.get("gate_pass_number"),
+                "receiving_date": gp.get("receiving_date"),
+                "status": gp.get("status"),
+                "derived_status": derived,
+                "marked_delivered": bool(gp.get("marked_delivered")),
+                "items": list(balance["items"].values()),
+                "totals": balance["totals"],
+                "flags": balance["flags"],
+            }
+        )
+
+    return {
+        "client_name": client_name,
+        "gate_passes": result_gps,
+        "totals": totals,
+    }
+
+
+# --- 1. Client Dashboard Summary ---
+@router.get(
+    "/dashboard/linen-flow",
+    dependencies=[Depends(require_capability("dashboard:read"))],
+)
+async def get_linen_flow(
+    period: str = Query("all", pattern="^(all|month|quarter|year)$"),
+):
+    """Per-hotel linen flow, with every quantity computed by the balance engine.
+
+    The hotel linen flow screen used to pull *every* gate pass and *every*
+    delivery into the browser and then work out the numbers itself:
+
+        const deliveries = rawDeliveries.filter(d => d.gate_pass_id === gpKey(gp))
+
+    That single line is the multi-pass bug — a delivery drawing from two passes
+    was credited entirely to whichever pass happened to be its primary one — and
+    the surrounding `marked_delivered` special case and `received - delivered`
+    subtotal re-implemented rules the engine already owns, so the screen could
+    disagree with the delivery form. Period filtering also happened client-side,
+    which meant loading the whole collection to draw one quarter.
+
+    The screen now renders exactly what this returns.
+    """
+    cutoff = ""
+    if period != "all":
+        # Start of the current Sri Lankan quarter (or year).
+        now = today()
+        start_month = 1 if period == "year" else (now.month - 1) // 3 * 3 + 1
+        cutoff = month_start(now.year, start_month)
+
+    def in_period(value) -> bool:
+        if not cutoff or not value:
+            return True
+        if isinstance(value, datetime):
+            return lkt(value) >= cutoff
+        # A bare YYYY-MM-DD is already a Sri Lankan calendar date.
+        return str(value)[:10] >= cutoff.strftime("%Y-%m-%d")
+
+    gp_query: dict = {"status": {"$ne": "CANCELLED"}}
+    gp_docs: List[dict] = []
+    for gd in await gatepasses_collection.find(gp_query).sort("receiving_date", -1).to_list(
+        length=None
+    ):
+        try:
+            decced = _decrypt_gp(gd)
+        except Exception:
+            continue
+        if in_period(decced.get("receiving_date")):
+            gp_docs.append(decced)
+
+    gp_ids = [gp["id"] for gp in gp_docs]
+    if gp_ids:
+        delivered_by_gp, returned_by_gp = await ctx.movement_maps(gp_ids)
+    else:
+        # No passes in the window. There may still be unlinked deliveries to
+        # report below, so this must not short-circuit the whole response.
+        delivered_by_gp, returned_by_gp = {}, {}
+
+    hotels: Dict[str, dict] = {}
+    for gp in gp_docs:
+        balance = be.compute_gate_pass_balance(
+            gp.get("items", []),
+            delivered_by_gp.get(gp["id"], {}),
+            returned_by_gp.get(gp["id"], {}),
+            marked_delivered=bool(gp.get("marked_delivered")),
+        )
+        name = gp.get("client_name") or "Unknown"
+        hotel = hotels.setdefault(
+            name,
+            {"client_name": name, "gate_passes": [], "totals": {
+                "received_qty": 0, "delivered_qty": 0, "outstanding_delivery_qty": 0,
+            }},
+        )
+        for key in hotel["totals"]:
+            hotel["totals"][key] += balance["totals"].get(key, 0)
+        hotel["gate_passes"].append(
+            {
+                "gate_pass_id": gp["id"],
+                "gate_pass_number": gp.get("gate_pass_number"),
+                "receiving_date": gp.get("receiving_date"),
+                "status": gp.get("status"),
+                "derived_status": be.derive_gate_pass_status(balance, gp.get("status", "")),
+                "marked_delivered": bool(gp.get("marked_delivered")),
+                "totals": balance["totals"],
+                # Only the lines still owing linen, so the screen can label a
+                # shortfall with the right item instead of listing everything the
+                # pass was received with.
+                "outstanding_items": [
+                    {
+                        "item_key": row["item_key"],
+                        "item_name": row["item_name"],
+                        "specification": row.get("specification") or "",
+                        "received_qty": row["received_qty"],
+                        "delivered_qty": row["delivered_qty"],
+                        "returned_back_qty": row["returned_back_qty"],
+                        "outstanding_delivery_qty": row["outstanding_delivery_qty"],
+                    }
+                    for row in balance["items"].values()
+                    if row["outstanding_delivery_qty"] > 0
+                ],
+            }
+        )
+
+    # Deliveries in the window whose origin passes are not in the set. They are
+    # surfaced separately rather than silently dropped, because an unlinked
+    # delivery is a real discrepancy an operator has to see.
+    known = set(gp_ids)
+    for dd in await deliveries_collection.find({"status": {"$ne": "CANCELLED"}}).to_list(length=None):
+        try:
+            decced = _decrypt_del(dd)
+        except Exception:
+            continue
+        if not in_period(decced.get("delivery_date")):
+            continue
+        if known.intersection(be.source_gate_pass_ids(decced)):
+            continue
+        name = decced.get("client_name") or "Unknown"
+        hotel = hotels.setdefault(
+            name,
+            {"client_name": name, "gate_passes": [], "totals": {
+                "received_qty": 0, "delivered_qty": 0, "outstanding_delivery_qty": 0,
+            }},
+        )
+        hotel.setdefault("unlinked_deliveries", []).append(
+            {
+                "delivery_id": decced["id"],
+                "delivery_date": decced.get("delivery_date"),
+                "pieces": sum(float(i.get("quantity", 0) or 0) for i in decced.get("items", [])),
+            }
+        )
+
+    totals = {"received_qty": 0, "delivered_qty": 0, "outstanding_delivery_qty": 0}
+    for hotel in hotels.values():
+        for key in totals:
+            totals[key] += hotel["totals"][key]
+
+    return {
+        "period": period,
+        "hotels": sorted(hotels.values(), key=lambda h: (h["client_name"] or "").lower()),
+        "totals": totals,
+    }
+
+
+@router.get(
+    "/dashboard/client-summary",
+    dependencies=[Depends(require_capability("dashboard:read"))],
+)
+async def get_client_summary(client_name: str = Query(...)):
+    token = get_search_token(client_name)
+
+    gp_cursor = gatepasses_collection.find({"client_name_search": token})
+    del_cursor = deliveries_collection.find({"client_name_search": token})
+    bill_cursor = bills_collection.find({"client_name_search": token})
+    pay_cursor = payments_collection.find({"client_name_search": token})
+    sb_cursor = shop_bills_collection.find({"client_name_search": token})
+
+    gps = []
+    async for d in gp_cursor:
+        try:
+            gps.append(_decrypt_gp(d))
+        except Exception:
+            pass
+
+    deliveries = []
+    async for d in del_cursor:
+        try:
+            deliveries.append(_decrypt_del(d))
+        except Exception:
+            pass
+
+    bills = []
+    async for d in bill_cursor:
+        try:
+            bills.append(_decrypt_bill(d))
+        except Exception:
+            pass
+
+    payments = []
+    async for d in pay_cursor:
+        try:
+            payments.append(_decrypt_pay(d))
+        except Exception:
+            pass
+
+    shop_bills = []
+    async for d in sb_cursor:
+        try:
+            shop_bills.append(_decrypt_shop_bill(d))
+        except Exception:
+            pass
+
+    # Compute stats
+    total_received = 0
+    open_mismatches = 0
+    mismatches_list = []
+    balances_map: Dict[str, dict] = {}
+
+    for gp in gps:
+        for item in gp.get("items", []):
+            name = item["item_name"]
+            client_qty = item.get("client_qty", 0)
+            rec_qty = item.get("received_qty", 0)
+            diff = item.get("difference", 0)
+            total_received += rec_qty
+
+            if diff != 0:
+                open_mismatches += 1
+                mismatches_list.append(
+                    {
+                        "gate_pass_id": gp["id"],
+                        "gate_pass_number": gp["gate_pass_number"],
+                        "item_name": name,
+                        "expected": client_qty,
+                        "received": rec_qty,
+                        "difference": diff,
+                        "reason": item.get("mismatch_reason", "OTHER"),
+                        "notes": item.get("mismatch_notes"),
+                        "date": gp.get("receiving_date"),
+                    }
+                )
+
+            if name not in balances_map:
+                balances_map[name] = {"received": 0, "delivered": 0, "pending": 0}
+            balances_map[name]["received"] += rec_qty
+
+    total_delivered = 0
+    for dl in deliveries:
+        if dl.get("status") == "CANCELLED":
+            continue
+        for item in dl.get("items", []):
+            name = item["item_name"]
+            qty = item["quantity"]
+            total_delivered += qty
+            if name not in balances_map:
+                balances_map[name] = {"received": 0, "delivered": 0, "pending": 0}
+            balances_map[name]["delivered"] += qty
+
+    # Gate passes completed via catch-up mark-delivered count as fully delivered.
+    # A marked GP might also have real delivery rows; only add the un-recorded
+    # remainder so those quantities are not double counted.
+    recorded_by_gp = _delivered_by_pass_by_name(deliveries)
+
+    for gp in gps:
+        if not gp.get("marked_delivered"):
+            continue
+        recorded = recorded_by_gp.get(gp["id"], {})
+        for item in gp.get("items", []):
+            name = item["item_name"]
+            qty = float(item.get("received_qty", 0) or 0)
+            extra = max(0, qty - recorded.get(name, 0))
+            if extra <= 0:
+                continue
+            total_delivered += extra
+            if name not in balances_map:
+                balances_map[name] = {"received": 0, "delivered": 0, "pending": 0}
+            balances_map[name]["delivered"] += extra
+
+    # Add returned items to pending — items returned by client need re-sending
+    returned_by_gp = await _get_returned_items_by_gate_pass()
+    returned_global = _flatten_returned_by_name(returned_by_gp)
+
+    pending_items_sum = 0
+    for name, item_bal in balances_map.items():
+        ret_qty = returned_global.get(name, 0)
+        item_bal["pending"] = max(0, item_bal["received"] - item_bal["delivered"] + ret_qty)
+        pending_items_sum += item_bal["pending"]
+
+    total_billed = 0.0
+    total_paid = 0.0
+    outstanding_amt = 0.0
+    pending_bills_count = 0
+    for bill in bills:
+        if bill.get("payment_status") == "CANCELLED":
+            continue
+        total_billed += bill.get("grand_total", 0.0)
+        total_paid += bill.get("paid_amount", 0.0)
+        outstanding_amt += bill.get("outstanding_amount", 0.0)
+        if bill.get("payment_status") not in ["PAID"]:
+            pending_bills_count += 1
+
+    total_shop_billed = 0.0
+    total_shop_paid = 0.0
+    shop_outstanding = 0.0
+    pending_shop_bills = 0
+    for sb in shop_bills:
+        if sb.get("status") == "CANCELLED":
+            continue
+        total_shop_billed += sb.get("grand_total", 0.0)
+        total_shop_paid += sb.get("paid_amount", 0.0)
+        shop_outstanding += sb.get("outstanding_amount", 0.0)
+        if sb.get("payment_status") not in ["PAID"]:
+            pending_shop_bills += 1
+
+    return {
+        "stats": {
+            "total_gate_passes": len(gps),
+            "total_items_received": total_received,
+            "total_items_delivered": total_delivered,
+            "pending_items": pending_items_sum,
+            "open_mismatches": open_mismatches,
+            "pending_bills": pending_bills_count,
+            "total_billed": round(total_billed, 2),
+            "total_paid": round(total_paid, 2),
+            "outstanding_amount": round(outstanding_amt, 2),
+            "total_shop_bills": len(shop_bills),
+            "total_shop_billed": round(total_shop_billed, 2),
+            "total_shop_paid": round(total_shop_paid, 2),
+            "shop_outstanding": round(shop_outstanding, 2),
+            "pending_shop_bills": pending_shop_bills,
+        },
+        "gatepasses": gps,
+        "recent_gate_passes": gps,
+        "deliveries": deliveries,
+        "mismatches": mismatches_list,
+        "pending_balances": [
+            {"item_name": k, **v} for k, v in balances_map.items()
+        ],
+        "bills": bills,
+        "recent_bills": bills,
+        "payments": payments,
+        "shop_bills": shop_bills,
+    }
+
+
+# --- 2. Client-wise Report ---
+@router.get(
+    "/reports/client-wise",
+    dependencies=[Depends(require_capability("dashboard:read"))],
+)
+async def get_client_wise_report():
+    # Fetch the independent full-collection scans concurrently (they no longer
+    # run back-to-back), then process in the same order as before.
+    gp_fut = gatepasses_collection.find().to_list(length=None)
+    del_fut = deliveries_collection.find({"status": {"$ne": "CANCELLED"}}).to_list(length=None)
+    md_fut = gatepasses_collection.find({"marked_delivered": {"$exists": True}}).to_list(length=None)
+    ret_fut = _get_returned_items_by_gate_pass()
+    gp_docs, del_docs, md_docs, returned_by_gp = await asyncio.gather(
+        gp_fut, del_fut, md_fut, ret_fut
+    )
+
+    clients_map: Dict[str, dict] = {}
+    gp_client_map: Dict[str, str] = {}
+
+    for doc in gp_docs:
+        try:
+            gp = _decrypt_gp(doc)
+            c_label = gp["client_name"].strip()
+            if not c_label:
+                continue
+            if c_label not in clients_map:
+                clients_map[c_label] = {
+                    "client_name": c_label,
+                    "total_received": 0,
+                    "total_delivered": 0,
+                    "total_pending": 0,
+                    "total_mismatches": 0,
+                    "total_billed": 0.0,
+                    "paid_amount": 0.0,
+                    "outstanding": 0.0,
+                    "gate_pass_count": 0,
+                    "items_detail": {},
+                    "gate_passes": [],
+                }
+            clients_map[c_label]["gate_pass_count"] += 1
+            gp_client_map[gp["id"]] = c_label
+            gp_items = []
+            for item in gp.get("items", []):
+                clients_map[c_label]["total_received"] += item.get("received_qty", 0)
+                if item.get("difference", 0) != 0:
+                    clients_map[c_label]["total_mismatches"] += 1
+                item_key = item.get("item_name", "")
+                spec = item.get("specification") or ""
+                detail_key = f"{item_key}||{spec}" if spec else item_key
+                if detail_key not in clients_map[c_label]["items_detail"]:
+                    clients_map[c_label]["items_detail"][detail_key] = {
+                        "item_name": item_key,
+                        "specification": spec,
+                        "category": item.get("category") or "",
+                        "received": 0,
+                        "delivered": 0,
+                    }
+                clients_map[c_label]["items_detail"][detail_key]["received"] += item.get("received_qty", 0)
+                gp_items.append({
+                    "item_name": item_key,
+                    "specification": spec,
+                    "received": item.get("received_qty", 0),
+                })
+            clients_map[c_label]["gate_passes"].append({
+                "gate_pass_number": gp.get("gate_pass_number", ""),
+                "receiving_date": str(gp.get("receiving_date", ""))[:10],
+                "items": gp_items,
+            })
+        except Exception:
+            continue
+
+    for doc in del_docs:
+        try:
+            dl = _decrypt_del(doc)
+            client = dl["client_name"].strip()
+            if client in clients_map:
+                for item in dl.get("items", []):
+                    clients_map[client]["total_delivered"] += item.get("quantity", 0)
+                    item_key = item.get("item_name", "")
+                    spec = item.get("specification") or ""
+                    detail_key = f"{item_key}||{spec}" if spec else item_key
+                    if detail_key in clients_map[client]["items_detail"]:
+                        clients_map[client]["items_detail"][detail_key]["delivered"] += item.get("quantity", 0)
+        except Exception:
+            continue
+
+    decrypted_dels = []
+    for doc in del_docs:
+        try:
+            decrypted_dels.append(_decrypt_del(doc))
+        except Exception:
+            continue
+    recorded_by_gp = _delivered_by_pass_by_name(decrypted_dels)
+
+    # Gate passes completed via catch-up mark-delivered count as fully delivered.
+    # Only add the un-recorded remainder per item so recorded deliveries on the
+    # same gate pass are not double counted.
+    for doc in md_docs:
+        try:
+            gp = _decrypt_gp(doc)
+            if not gp.get("marked_delivered"):
+                continue
+            client = gp["client_name"].strip()
+            if client in clients_map:
+                recorded = recorded_by_gp.get(gp["id"], {})
+                for item in gp.get("items", []):
+                    received = item.get("received_qty", 0)
+                    item_key = item.get("item_name", "")
+                    spec = item.get("specification") or ""
+                    detail_key = f"{item_key}||{spec}" if spec else item_key
+                    extra = max(0, received - recorded.get(detail_key, 0))
+                    if extra <= 0:
+                        continue
+                    clients_map[client]["total_delivered"] += extra
+                    if detail_key in clients_map[client]["items_detail"]:
+                        clients_map[client]["items_detail"][detail_key]["delivered"] += extra
+        except Exception:
+            continue
+
+    bill_fut = bills_collection.find({"payment_status": {"$ne": "CANCELLED"}}).to_list(length=None)
+    bill_docs = await bill_fut
+    for doc in bill_docs:
+        try:
+            bill = _decrypt_bill(doc)
+            client = bill["client_name"].strip()
+            if client in clients_map:
+                clients_map[client]["total_billed"] += bill.get("grand_total", 0.0)
+                clients_map[client]["paid_amount"] += bill.get("paid_amount", 0.0)
+                clients_map[client]["outstanding"] += bill.get("outstanding_amount", 0.0)
+        except Exception:
+            continue
+
+    # Aggregate returned items per client (spec-aware) via each return's own
+    # gate pass, so a return never leaks onto another pass of the same client.
+    client_returned: Dict[str, Dict[str, float]] = {}
+    for gp_id, gp_items_returned in returned_by_gp.items():
+        client_label = gp_client_map.get(gp_id)
+        if not client_label:
+            continue
+        target = client_returned.setdefault(client_label, {})
+        for key, qty in gp_items_returned.items():
+            target[key] = target.get(key, 0) + qty
+
+    results = []
+    for c_label, stats in clients_map.items():
+        creturned = client_returned.get(c_label, {})
+        total_returned = sum(creturned.values())
+        stats["total_pending"] = max(0, stats["total_received"] - stats["total_delivered"] + total_returned)
+        stats["total_billed"] = round(stats["total_billed"], 2)
+        stats["paid_amount"] = round(stats["paid_amount"], 2)
+        stats["outstanding"] = round(stats["outstanding"], 2)
+        items_list = list(stats.pop("items_detail").values())
+        for it in items_list:
+            it_key = f"{it['item_name']}||{it['specification']}" if it["specification"] else it["item_name"]
+            ret_qty = creturned.get(it_key, 0)
+            it["returned"] = ret_qty
+            it["pending"] = max(0, it["received"] - it["delivered"] + ret_qty)
+        stats["items"] = [it for it in items_list if it["pending"] > 0]
+        stats["gate_passes"] = stats.pop("gate_passes", [])
+        results.append(stats)
+
+    return results
+
+
+# --- 3. Item-wise Report ---
+@router.get(
+    "/reports/item-wise",
+    dependencies=[Depends(require_capability("dashboard:read"))],
+)
+async def get_item_wise_report():
+    # Fetch the independent full-collection scans concurrently, then aggregate.
+    gp_fut = gatepasses_collection.find().to_list(length=None)
+    del_fut = deliveries_collection.find({"status": {"$ne": "CANCELLED"}}).to_list(length=None)
+    md_fut = gatepasses_collection.find({"marked_delivered": {"$exists": True}}).to_list(length=None)
+    ret_fut = _get_returned_items_by_gate_pass()
+    gp_docs, del_docs, md_docs, returned_by_gp = await asyncio.gather(
+        gp_fut, del_fut, md_fut, ret_fut
+    )
+
+    items_map: Dict[str, dict] = {}
+
+    for doc in gp_docs:
+        try:
+            gp = _decrypt_gp(doc)
+            for item in gp.get("items", []):
+                name = item["item_name"]
+                if name not in items_map:
+                    items_map[name] = {
+                        "item_name": name,
+                        "total_received": 0,
+                        "total_delivered": 0,
+                        "pending": 0,
+                        "mismatch_count": 0,
+                        "clients": set()
+                    }
+                items_map[name]["total_received"] += item.get("received_qty", 0)
+                if item.get("difference", 0) != 0:
+                    items_map[name]["mismatch_count"] += 1
+                items_map[name]["clients"].add(gp.get("client_name", ""))
+        except Exception:
+            pass
+
+    for doc in del_docs:
+        try:
+            dl = _decrypt_del(doc)
+            for item in dl.get("items", []):
+                name = item["item_name"]
+                if name in items_map:
+                    items_map[name]["total_delivered"] += item.get("quantity", 0)
+        except Exception:
+            pass
+
+    # Gate passes completed via catch-up mark-delivered count as fully delivered.
+    # Only add the un-recorded remainder per item so recorded deliveries on the
+    # same gate pass are not double counted.
+    decrypted_dels = []
+    for doc in del_docs:
+        try:
+            decrypted_dels.append(_decrypt_del(doc))
+        except Exception:
+            continue
+    recorded_by_gp = _delivered_by_pass_by_name(decrypted_dels)
+    for doc in md_docs:
+        try:
+            gp = _decrypt_gp(doc)
+            if not gp.get("marked_delivered"):
+                continue
+            recorded = recorded_by_gp.get(gp["id"], {})
+            for item in gp.get("items", []):
+                name = item["item_name"]
+                extra = max(0, item.get("received_qty", 0) - recorded.get(name, 0))
+                if name in items_map and extra > 0:
+                    items_map[name]["total_delivered"] += extra
+        except Exception:
+            pass
+
+    # Add returned items — returned by client, need re-sending
+    returned_global = _flatten_returned_by_name(returned_by_gp)
+
+    results = []
+    for name, stats in items_map.items():
+        ret_qty = returned_global.get(name, 0)
+        stats["returned"] = ret_qty
+        stats["pending"] = max(0, stats["total_received"] - stats["total_delivered"] + ret_qty)
+        stats["client_count"] = len(stats["clients"])
+        del stats["clients"]  # Remove the set before returning
+        results.append(stats)
+
+    return results
+
+
+# --- 4. Gate Pass-wise Report ---
+@router.get(
+    "/reports/gatepass-wise",
+    dependencies=[Depends(require_capability("dashboard:read"))],
+)
+async def get_gatepass_wise_report():
+    gp_docs = await gatepasses_collection.find().sort("receiving_date", -1).to_list(length=None)
+
+    # Batched delivery lookup: fetch all non-cancelled deliveries for every
+    # gate pass in a single query instead of one query per gate pass.
+    gp_by_id: Dict[str, dict] = {}
+    for doc in gp_docs:
+        try:
+            gp = _decrypt_gp(doc)
+            gp_by_id[gp["id"]] = gp
+        except Exception:
+            continue
+    del_docs = await deliveries_collection.find(
+        {"status": {"$ne": "CANCELLED"}}
+    ).to_list(length=None) if gp_by_id else []
+
+    # A delivery that drew lines from two passes must appear under BOTH, and
+    # contribute only the lines that came from each. Bucketing on the
+    # document-level gate_pass_id (as this used to) listed the delivery once and
+    # summed every line into the primary pass.
+    dels_by_gp: Dict[str, List[dict]] = {}
+    for d_doc in del_docs:
+        try:
+            dl = _decrypt_del(d_doc)
+        except Exception:
+            continue
+        for gp_id in be.source_gate_pass_ids(dl):
+            if gp_id in gp_by_id:
+                dels_by_gp.setdefault(gp_id, []).append(dl)
+
+    results = []
+
+    for doc in gp_docs:
+        try:
+            gp = _decrypt_gp(doc)
+            gp_id = gp["id"]
+
+            total_received = sum(x.get("received_qty", 0) for x in gp.get("items", []))
+            mismatch_count = sum(1 for x in gp.get("items", []) if x.get("difference", 0) != 0)
+
+            del_ids = []
+            total_delivered = 0
+            for dl in dels_by_gp.get(gp_id, []):
+                del_ids.append(dl["id"])
+                total_delivered += sum(x.get("quantity", 0) for x in dl.get("items", []))
+            if gp.get("marked_delivered"):
+                total_delivered = max(total_delivered, total_received)
+
+            results.append(
+                {
+                    "gate_pass_number": gp["gate_pass_number"],
+                    "client_name": gp["client_name"],
+                    "receiving_date": gp.get("receiving_date"),
+                    "received_by": gp.get("received_by"),
+                    "total_received": total_received,
+                    "total_delivered": total_delivered,
+                    "mismatch_count": mismatch_count,
+                    "status": gp.get("status"),
+                }
+            )
+        except Exception:
+            pass
+
+    return results
+
+
+# --- 5. Billing Summary Report ---
+@router.get(
+    "/reports/billing",
+    dependencies=[Depends(require_capability("dashboard:read"))],
+)
+async def get_billing_report():
+    cursor = bills_collection.find({"payment_status": {"$ne": "CANCELLED"}})
+    total_sales = 0.0
+    pending_amount = 0.0
+    paid_amount = 0.0
+    outstanding_amt = 0.0
+
+    async for doc in cursor:
+        try:
+            bill = _decrypt_bill(doc)
+            total_sales += bill.get("grand_total", 0.0)
+            paid_amount += bill.get("paid_amount", 0.0)
+            outstanding_amt += bill.get("outstanding_amount", 0.0)
+            if bill.get("payment_status") != "PAID":
+                pending_amount += bill.get("outstanding_amount", 0.0)
+        except Exception:
+            pass
+
+    return {
+        "total_sales": round(total_sales, 2),
+        "pending_bills_amount": round(pending_amount, 2),
+        "paid_bills_amount": round(paid_amount, 2),
+        "outstanding_amount": round(outstanding_amt, 2),
+    }
+
+
+# --- 6. Audit Logs ---
+@router.get(
+    "/audit-logs",
+    dependencies=[Depends(require_capability("dashboard:read"))],
+)
+async def get_audit_logs(
+    limit: int = Query(50, ge=1, le=200),
+):
+    cursor = audit_collection.find().sort("timestamp", -1).limit(limit)
+    logs = []
+    async for doc in cursor:
+        doc["id"] = str(doc["_id"])
+        del doc["_id"]
+        logs.append(doc)
+    return logs
+
+from datetime import timedelta
+
+BILL_DECRYPT_FIELDS = ["client_name"]
+GP_DECRYPT_FIELDS = ["client_name", "items"]
+DELIVERY_DECRYPT_FIELDS = ["items"]
+
+PERIOD_DAYS = {
+    "day": 1,
+    "week": 7,
+    "month": 30,
+    "quarter": 90,
+    "year": 365,
+}
+
+
+def _utc(dt: Optional[datetime]) -> Optional[datetime]:
+    """Normalise a stored timestamp to aware UTC. Storage stays UTC."""
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=UTC)
+    return dt.astimezone(UTC)
+
+
+def _windows(period: str):
+    now = datetime.now(UTC)
+    span = PERIOD_DAYS.get(period, 30)
+    cur_start = now - timedelta(days=span)
+    prev_end = cur_start - timedelta(microseconds=1)
+    prev_start = prev_end - timedelta(days=span)
+    return cur_start, now, prev_start, prev_end
+
+
+async def _fetch_bills(start: datetime, end: datetime):
+    docs = []
+    cursor = bills_collection.find(
+        {"created_at": {"$gte": start, "$lte": end}},
+        {
+            "client_name": 1,
+            "grand_total": 1,
+            "paid_amount": 1,
+            "outstanding_amount": 1,
+            "payment_status": 1,
+            "created_at": 1,
+            "encryption_metadata": 1,
+            "_id": 1,
+        },
+    )
+    async for d in cursor:
+        try:
+            dec = decrypt_dict(d, BILL_DECRYPT_FIELDS)
+            client = dec.get("client_name") or "Unknown"
+        except Exception:
+            client = "Unknown"
+        docs.append(
+            {
+                "client_name": client,
+                "grand_total": float(d.get("grand_total") or 0),
+                "paid_amount": float(d.get("paid_amount") or 0),
+                "outstanding_amount": float(d.get("outstanding_amount") or 0),
+                "payment_status": (d.get("payment_status") or "DRAFT"),
+                "created_at": _utc(d.get("created_at")),
+            }
+        )
+    return docs
+
+
+async def _fetch_gate_passes(start: datetime, end: datetime):
+    out = []
+    cursor = gatepasses_collection.find(
+        {"created_at": {"$gte": start, "$lte": end}},
+        {"client_name": 1, "items": 1, "gate_pass_number": 1, "created_at": 1, "encryption_metadata": 1, "_id": 1, "status": 1, "marked_delivered": 1},
+    )
+    async for d in cursor:
+        try:
+            dec = decrypt_dict(d, GP_DECRYPT_FIELDS)
+            client = dec.get("client_name") or "Unknown"
+            items = dec.get("items") or []
+        except Exception:
+            client = "Unknown"
+            items = []
+        out.append(
+            {
+                "id": str(d.get("_id")),
+                "gate_pass_number": d.get("gate_pass_number"),
+                "client_name": client,
+                "created_at": _utc(d.get("created_at")),
+                "status": d.get("status"),
+                "marked_delivered": d.get("marked_delivered"),
+                "items": [
+                    {
+                        "item_name": it.get("item_name"),
+                        "specification": it.get("specification") or "",
+                        "received_qty": float(it.get("received_qty") or 0),
+                    }
+                    for it in items
+                ],
+            }
+        )
+    return out
+
+
+async def _fetch_deliveries(gate_pass_ids: List[str]):
+    """Deliveries touching any of the given passes, with per-line attribution.
+
+    The filter has to include ``source_gate_pass_ids``: a delivery that drew
+    lines from two passes stores the second pass only at item level, so a
+    document-level ``gate_pass_id`` lookup silently dropped it. Each line keeps
+    its own ``gate_pass_id`` so the caller can attribute it correctly.
+    """
+    if not gate_pass_ids:
+        return []
+    out = []
+    source_filter = {
+        "$or": [c for g in gate_pass_ids for c in ctx.source_filter(g)["$or"]]
+    }
+    cursor = deliveries_collection.find(
+        source_filter,
+        {
+            "gate_pass_id": 1,
+            "source_gate_pass_ids": 1,
+            "items": 1,
+            "status": 1,
+            "created_at": 1,
+            "encryption_metadata": 1,
+            "_id": 1,
+        },
+    )
+    async for d in cursor:
+        try:
+            dec = decrypt_dict(d, DELIVERY_DECRYPT_FIELDS)
+            items = dec.get("items") or []
+        except Exception:
+            items = []
+        out.append(
+            {
+                "gate_pass_id": d.get("gate_pass_id"),
+                "status": d.get("status"),
+                "items": [
+                    {
+                        "item_name": it.get("item_name"),
+                        "specification": it.get("specification") or "",
+                        "gate_pass_id": it.get("gate_pass_id") or d.get("gate_pass_id"),
+                        "quantity": float(it.get("quantity") or 0),
+                    }
+                    for it in items
+                ],
+            }
+        )
+    return out
+
+
+def _bucket_key(dt: Optional[datetime], period: str):
+    if dt is None:
+        return None
+    if period == "day":
+        h = f"{dt.hour:02d}:00"
+        return (h, h)
+    if period in ("quarter", "year"):
+        key = f"{dt.year}-{dt.month:02d}"
+        return (key, key)
+    key = dt.date().isoformat()
+    return (key, f"{dt.month}/{dt.day}")
+
+
+def _outstanding(b):
+    if b["outstanding_amount"]:
+        return b["outstanding_amount"]
+    return max(0.0, b["grand_total"] - b["paid_amount"])
+
+
+def aggregate(bills, gate_passes, deliveries, period, returned_by_gp=None):
+    revenue = sum(b["grand_total"] for b in bills)
+    collected = sum(b["paid_amount"] for b in bills)
+    outstanding = sum(_outstanding(b) for b in bills)
+    bill_count = len(bills)
+    paid = sum(1 for b in bills if b["payment_status"] == "PAID")
+    partial = sum(1 for b in bills if b["payment_status"] == "PARTIALLY_PAID")
+    pending = sum(
+        1
+        for b in bills
+        if b["payment_status"] not in ("PAID", "PARTIALLY_PAID", "CANCELLED")
+    )
+    collection_rate = (collected / revenue * 100) if revenue else 0.0
+    avg = (revenue / bill_count) if bill_count else 0.0
+
+    # Cancelled gate passes are void — never count as received or pending.
+    open_gps = [gp for gp in gate_passes if gp.get("status") != "CANCELLED"]
+    gp_count = len(open_gps)
+
+    # Single authoritative balance engine. All delivered/outstanding numbers
+    # below come from balance_engine so no other page can compute them differently.
+    from ..services import balance_engine as be
+
+    # Per-pass attribution from the engine, not a flat sum keyed on the
+    # delivery's document-level gate_pass_id.
+    delivered_by_gp: Dict[str, Dict[str, float]] = be.compute_delivered_by_gate_pass(deliveries)
+
+    balances = []
+    items_received = 0
+    items_delivered = 0
+    total_returned = 0
+    for gp in open_gps:
+        gp_id = gp["id"]
+        bal = be.compute_gate_pass_balance(
+            gp["items"],
+            delivered_by_gp.get(gp_id, {}),
+            (returned_by_gp or {}).get(gp_id, {}),
+            marked_delivered=bool(gp.get("marked_delivered")),
+        )
+        balances.append((gp, bal))
+        items_received += bal["totals"]["received_qty"]
+        items_delivered += bal["totals"]["effective_delivered_qty"]
+        total_returned += bal["totals"]["returned_back_qty"]
+
+    items_pending = max(0, items_received - items_delivered + total_returned)
+
+    active_clients = len(set(b["client_name"] for b in bills))
+
+    client_agg = {}
+    for b in bills:
+        c = client_agg.setdefault(
+            b["client_name"], {"revenue": 0.0, "outstanding": 0.0, "bills": 0}
+        )
+        c["revenue"] += b["grand_total"]
+        c["outstanding"] += _outstanding(b)
+        c["bills"] += 1
+    top_clients = sorted(
+        ({"client_name": k, **v} for k, v in client_agg.items()),
+        key=lambda x: -x["revenue"],
+    )[:6]
+
+    series = {}
+    for b in bills:
+        k = _bucket_key(b["created_at"], period)
+        if not k:
+            continue
+        key, label = k
+        e = series.setdefault(key, {"label": label, "revenue": 0.0, "collected": 0.0})
+        e["revenue"] += b["grand_total"]
+        e["collected"] += b["paid_amount"]
+    revenue_series = sorted(
+        ({"key": k, **v} for k, v in series.items()), key=lambda x: x["key"]
+    )
+
+    st = {"PAID": 0.0, "PARTIAL": 0.0, "PENDING": 0.0}
+    for b in bills:
+        amt = b["grand_total"]
+        if b["payment_status"] == "PAID":
+            st["PAID"] += amt
+        elif b["payment_status"] == "PARTIALLY_PAID":
+            st["PARTIAL"] += amt
+        elif b["payment_status"] != "CANCELLED":
+            st["PENDING"] += amt
+    payment_status = [
+        {"name": "Paid", "value": round(st["PAID"], 2), "color": "#16A34A"},
+        {"name": "Partial", "value": round(st["PARTIAL"], 2), "color": "#F59E0B"},
+        {"name": "Unpaid", "value": round(st["PENDING"], 2), "color": "#DC2626"},
+    ]
+    payment_status = [s for s in payment_status if s["value"] > 0]
+
+    pending_gps = []
+    for gp, bal in balances:
+        pending_rows = be.compute_outstanding_per_item(gp["items"], bal)
+        total_pending = sum(r["pending_qty"] for r in pending_rows)
+        if total_pending > 0:
+            pending_gps.append(
+                {
+                    "gate_pass_number": gp["gate_pass_number"],
+                    "client_name": gp["client_name"],
+                    "pending": total_pending,
+                    "items": [
+                        {
+                            "item_name": r["item_name"],
+                            "specification": r["specification"],
+                            "category": r["category"],
+                            "received": r["received_qty"],
+                            "delivered": r["delivered_qty"],
+                            "returned": r["returned_qty"],
+                            "pending": r["pending_qty"],
+                        }
+                        for r in pending_rows
+                    ],
+                }
+            )
+    pending_gps.sort(key=lambda x: -x["pending"])
+    pending_gps = pending_gps[:6]
+
+    return {
+        "revenue": round(revenue, 2),
+        "collected": round(collected, 2),
+        "outstanding": round(outstanding, 2),
+        "collectionRate": round(collection_rate, 2),
+        "avgBill": round(avg, 2),
+        "billCount": bill_count,
+        "paidBills": paid,
+        "partialBills": partial,
+        "pendingBills": pending,
+        "gatePasses": gp_count,
+        "itemsReceived": items_received,
+        "itemsDelivered": items_delivered,
+        "itemsPending": items_pending,
+        "activeClients": active_clients,
+        "topClients": top_clients,
+        "revenueSeries": revenue_series,
+        "paymentStatus": payment_status,
+        "pendingGatePasses": pending_gps,
+    }
+
+
+@router.get("/dashboard/summary")
+async def get_dashboard_summary(
+    period: str = Query("month", pattern="^(day|week|month|quarter|year)$"),
+    current_user: dict = Depends(require_capability("dashboard:read")),
+):
+    cur_start, cur_end, prev_start, prev_end = _windows(period)
+
+    cur_bills = await _fetch_bills(cur_start, cur_end)
+    prev_bills = await _fetch_bills(prev_start, prev_end)
+    cur_gps = await _fetch_gate_passes(cur_start, cur_end)
+    cur_dels = await _fetch_deliveries([gp["id"] for gp in cur_gps])
+    prev_gps = await _fetch_gate_passes(prev_start, prev_end)
+    prev_dels = await _fetch_deliveries([gp["id"] for gp in prev_gps])
+
+    returned_by_gp = await _get_returned_items_by_gate_pass()
+
+    current = aggregate(cur_bills, cur_gps, cur_dels, period, returned_by_gp)
+    previous = aggregate(prev_bills, prev_gps, prev_dels, period, returned_by_gp)
+
+    cur_clients = {b["client_name"] for b in cur_bills}
+    prev_clients = {b["client_name"] for b in prev_bills}
+    current["newClients"] = len(cur_clients - prev_clients)
+    previous["newClients"] = 0
+
+    for m in (current, previous):
+        m["quotationsDraft"] = 0
+        m["quotationsSent"] = 0
+        m["quotationsAccepted"] = 0
+        m["quotationAcceptedValue"] = 0.0
+
+    return {"current": current, "previous": previous}
+
+
+# ── Recent Activity ───────────────────────────────────────────────────────────
+
+@router.get("/dashboard/recent-activity")
+async def recent_activity(
+    limit: int = Query(default=10, ge=1, le=50),
+    current_user: dict = Depends(require_capability("dashboard:read")),
+):
+    cursor = audit_collection.find().sort("timestamp", -1).limit(limit)
+    activities = []
+    async for doc in cursor:
+        ts = doc.get("timestamp")
+        activities.append({
+            "id": str(doc.get("_id", "")),
+            "user_id": doc.get("user_id") or doc.get("auth_id") or "system",
+            "action": doc.get("action") or "UNKNOWN",
+            "entity": doc.get("entity_type") or doc.get("entity") or "",
+            "entity_id": str(doc.get("entity_id", "")),
+            "details": doc.get("details") or {},
+            "timestamp": ts.isoformat() if ts else None,
+        })
+    return activities
+
+
+# ── Outstanding Aging ─────────────────────────────────────────────────────────
+
+@router.get("/dashboard/outstanding-aging")
+async def outstanding_aging(
+    current_user: dict = Depends(require_capability("dashboard:read")),
+):
+    from datetime import timedelta
+    now = datetime.now(timezone.utc)
+    buckets = {"current": 0.0, "30_day": 0.0, "60_day": 0.0, "90_day": 0.0, "over_90": 0.0}
+
+    cursor = bills_collection.find(
+        {"payment_status": {"$in": ["PENDING", "PARTIALLY_PAID", "ISSUED"]}},
+        {"outstanding_amount": 1, "created_at": 1, "_id": 0},
+    )
+    async for doc in cursor:
+        outstanding = float(doc.get("outstanding_amount") or 0)
+        if outstanding <= 0:
+            continue
+        created = doc.get("created_at")
+        if not created:
+            buckets["current"] += outstanding
+            continue
+        created_utc = _utc(created)
+        if not created_utc:
+            buckets["current"] += outstanding
+            continue
+        age_days = (now - created_utc).days
+        if age_days <= 0:
+            buckets["current"] += outstanding
+        elif age_days <= 30:
+            buckets["30_day"] += outstanding
+        elif age_days <= 60:
+            buckets["60_day"] += outstanding
+        elif age_days <= 90:
+            buckets["90_day"] += outstanding
+        else:
+            buckets["over_90"] += outstanding
+
+    return {
+        "current": round(buckets["current"], 2),
+        "30_day": round(buckets["30_day"], 2),
+        "60_day": round(buckets["60_day"], 2),
+        "90_day": round(buckets["90_day"], 2),
+        "over_90": round(buckets["over_90"], 2),
+    }
+
+
+# ── 12-Month Trend ───────────────────────────────────────────────────────────
+
+@router.get("/dashboard/yearly-trend")
+async def yearly_trend(
+    current_user: dict = Depends(require_capability("dashboard:read")),
+):
+    from datetime import timedelta
+    months = []
+    # Step back whole months on the Sri Lankan calendar rather than by 30-day
+    # chunks, so every bucket lines up with a real calendar month.
+    for i in range(11, -1, -1):
+        d = add_months(today(), -i)
+        months.append({
+            "key": d.strftime("%Y-%m"),
+            "label": d.strftime("%b %y"),
+            "revenue": 0.0,
+            "collected": 0.0,
+            "bills": 0,
+        })
+
+    month_index = {m["key"]: m for m in months}
+
+    cursor = bills_collection.find(
+        {"payment_status": {"$ne": "CANCELLED"}},
+        {"grand_total": 1, "paid_amount": 1, "created_at": 1, "_id": 0},
+    )
+    async for doc in cursor:
+        created = doc.get("created_at")
+        if not created:
+            continue
+        created_utc = _utc(created)
+        if not created_utc:
+            continue
+        key = created_utc.strftime("%Y-%m")
+        if key in month_index:
+            month_index[key]["revenue"] += float(doc.get("grand_total") or 0)
+            month_index[key]["collected"] += float(doc.get("paid_amount") or 0)
+            month_index[key]["bills"] += 1
+
+    for m in months:
+        m["revenue"] = round(m["revenue"], 2)
+        m["collected"] = round(m["collected"], 2)
+
+    return months
+
+
+# ── Today's Deliveries ────────────────────────────────────────────────────────
+
+@router.get("/dashboard/today-deliveries")
+async def today_deliveries(
+    current_user: dict = Depends(require_capability("dashboard:read")),
+):
+    """Today's delivery breakdown by client with pending items from ALL open gate passes."""
+    from datetime import timedelta as td
+
+    today_start, today_end = day_bounds(today())
+
+    # Step 1: Get today's deliveries grouped by client
+    client_map: Dict[str, dict] = {}
+
+    del_cursor = deliveries_collection.find({
+        "created_at": {"$gte": today_start, "$lt": today_end},
+        "status": {"$ne": "CANCELLED"},
+    })
+    async for doc in del_cursor:
+        try:
+            dl = _decrypt_del(doc)
+            client = dl.get("client_name", "").strip()
+            if not client:
+                continue
+            if client not in client_map:
+                client_map[client] = {
+                    "client_name": client,
+                    "items": {},
+                    "total_qty": 0,
+                }
+            for item in dl.get("items", []):
+                item_name = item.get("item_name", "")
+                spec = item.get("specification") or ""
+                qty = item.get("quantity", 0)
+                detail_key = f"{item_name}||{spec}" if spec else item_name
+                if detail_key not in client_map[client]["items"]:
+                    client_map[client]["items"][detail_key] = {
+                        "item_name": item_name,
+                        "specification": spec,
+                        "quantity": 0,
+                    }
+                client_map[client]["items"][detail_key]["quantity"] += qty
+                client_map[client]["total_qty"] += qty
+        except Exception:
+            continue
+
+    # Step 1b: Gate passes completed via catch-up note (delivery never recorded)
+    # Show them on today's dashboard when the note was added today or the
+    # recorded delivered date falls on today.
+    note_deliveries: Dict[str, List[dict]] = {}
+
+    def _md_in_window(cand) -> bool:
+        if not isinstance(cand, datetime):
+            return False
+        return today_start <= lkt(cand) < today_end
+
+    md_cursor = gatepasses_collection.find({"marked_delivered": {"$exists": True}})
+    async for doc in md_cursor:
+        md = doc.get("marked_delivered") or {}
+        if not (_md_in_window(md.get("at")) or _md_in_window(md.get("delivered_date"))):
+            continue
+        try:
+            gp = _decrypt_gp(doc)
+        except Exception:
+            continue
+        client = (gp.get("client_name") or "").strip()
+        if not client:
+            continue
+        if client not in client_map:
+            client_map[client] = {
+                "client_name": client,
+                "items": {},
+                "total_qty": 0,
+            }
+        if client not in note_deliveries:
+            note_deliveries[client] = []
+        note_deliveries[client].append({
+            "gate_pass_number": gp.get("gate_pass_number", ""),
+            "note": md.get("note", ""),
+            "delivered_date": md.get("delivered_date"),
+        })
+        for item in gp.get("items", []):
+            item_name = item.get("item_name", "")
+            spec = item.get("specification") or ""
+            qty = float(item.get("received_qty", 0) or 0)
+            detail_key = f"{item_name}||{spec}" if spec else item_name
+            if detail_key not in client_map[client]["items"]:
+                client_map[client]["items"][detail_key] = {
+                    "item_name": item_name,
+                    "specification": spec,
+                    "quantity": 0,
+                }
+            client_map[client]["items"][detail_key]["quantity"] += qty
+            client_map[client]["total_qty"] += qty
+
+    # Step 2: For each client with today's deliveries, get ALL open gate passes
+    for client, data in client_map.items():
+        # Get ALL open gate passes for this client (not just today's)
+        received_map: Dict[str, dict] = {}
+        gp_cursor = gatepasses_collection.find({
+            "client_name_search": get_search_token(client),
+            "status": {"$ne": "CANCELLED"},
+        })
+        async for doc in gp_cursor:
+            try:
+                gp = _decrypt_gp(doc)
+                for item in gp.get("items", []):
+                    item_name = item.get("item_name", "")
+                    spec = item.get("specification") or ""
+                    qty = item.get("received_qty", 0)
+                    detail_key = f"{item_name}||{spec}" if spec else item_name
+                    if detail_key not in received_map:
+                        received_map[detail_key] = {"item_name": item_name, "specification": spec, "received": 0}
+                    received_map[detail_key]["received"] += qty
+            except Exception:
+                continue
+
+        # Get ALL delivered qty for this client across ALL gate passes
+        delivered_map: Dict[str, float] = {}
+        del_cursor2 = deliveries_collection.find({
+            "client_name_search": get_search_token(client),
+            "status": {"$ne": "CANCELLED"},
+        })
+        client_deliveries = []
+        async for doc in del_cursor2:
+            try:
+                client_deliveries.append(_decrypt_del(doc))
+            except Exception:
+                continue
+        recorded_by_gp = _delivered_by_pass_by_name(client_deliveries)
+
+        # The client's total delivered quantity, independent of which pass each
+        # line came from.
+        delivered_map: Dict[str, float] = {}
+        for dl in client_deliveries:
+            if dl.get("status") == "CANCELLED":
+                continue
+            for item in dl.get("items", []):
+                item_name = item.get("item_name", "")
+                spec = item.get("specification") or ""
+                qty = item.get("quantity", 0)
+                detail_key = f"{item_name}||{spec}" if spec else item_name
+                delivered_map[detail_key] = delivered_map.get(detail_key, 0) + qty
+
+        # Mark-delivered gate passes count as fully delivered for pending math.
+        # Only add the un-recorded remainder per gate pass so a marked pass that
+        # shares an item name with other passes of the same client is not under
+        # or over counted.
+        md_cursor2 = gatepasses_collection.find({
+            "client_name_search": get_search_token(client),
+            "marked_delivered": {"$exists": True},
+        })
+        async for doc in md_cursor2:
+            try:
+                gp = _decrypt_gp(doc)
+                if not gp.get("marked_delivered"):
+                    continue
+                recorded = recorded_by_gp.get(gp["id"], {})
+                for item in gp.get("items", []):
+                    item_name = item.get("item_name", "")
+                    spec = item.get("specification") or ""
+                    qty = float(item.get("received_qty", 0) or 0)
+                    detail_key = f"{item_name}||{spec}" if spec else item_name
+                    extra = max(0, qty - recorded.get(detail_key, 0))
+                    if extra > 0:
+                        delivered_map[detail_key] = delivered_map.get(detail_key, 0) + extra
+            except Exception:
+                continue
+
+        # Calculate pending = total received (all open GPs) - total delivered (all time)
+        # Returned items with action RECEIVE_BACK/RE_WASH need to be re-sent, so they count as pending
+        returned_map: Dict[str, float] = {}
+        ret_cursor = returns_collection.find({
+            "client_name_search": get_search_token(client),
+        })
+        async for ret_doc in ret_cursor:
+            try:
+                try:
+                    ret_dec = decrypt_dict(ret_doc, SENSITIVE_FIELDS_GP)
+                except (ValueError, KeyError):
+                    ret_dec = ret_doc
+                for item in ret_dec.get("items", []) if isinstance(ret_dec.get("items"), list) else []:
+                    if isinstance(item, dict) and item.get("action") in ("RECEIVE_BACK", "RE_WASH") and item.get("resend_status") != "SENT":
+                        item_name = item.get("item_name", "")
+                        spec = item.get("specification") or ""
+                        qty = item.get("returned_qty", 0)
+                        detail_key = f"{item_name}||{spec}" if spec else item_name
+                        returned_map[detail_key] = returned_map.get(detail_key, 0) + qty
+            except Exception:
+                continue
+
+        pending_items = []
+        for dk, recv in received_map.items():
+            del_qty = delivered_map.get(dk, 0)
+            ret_qty = returned_map.get(dk, 0)
+            # Items returned by client that need re-sending are pending
+            pending = max(0, recv["received"] - del_qty + ret_qty)
+            if pending > 0:
+                pending_items.append({
+                    "item_name": recv["item_name"],
+                    "specification": recv["specification"],
+                    "received": recv["received"],
+                    "delivered": del_qty,
+                    "returned": ret_qty,
+                    "pending": pending,
+                })
+        data["pending_items"] = pending_items
+
+    # Build result
+    results = []
+    for client, data in client_map.items():
+        client_notes = note_deliveries.get(client, [])
+        results.append({
+            "client_name": client,
+            "delivered_items": list(data["items"].values()),
+            "total_qty": data["total_qty"],
+            "pending_items": data.get("pending_items", []),
+            "note_deliveries": client_notes,
+            "has_note_delivery": len(client_notes) > 0,
+        })
+
+    results.sort(key=lambda x: x["total_qty"], reverse=True)
+    return results
+
+
+# ── CSV Export ────────────────────────────────────────────────────────────────
+
+
+@router.get("/export/gatepasses")
+async def export_gatepasses_csv(
+    client_name: Optional[str] = None,
+    status: Optional[str] = None,
+    current_user: dict = Depends(require_capability("report:read")),
+):
+    """Export gate passes as CSV for download."""
+    query: dict = {}
+    if client_name:
+        query["client_name_search"] = get_search_token(client_name)
+    if status:
+        query["status"] = status
+
+    cursor = gatepasses_collection.find(query).sort("created_at", -1)
+    rows = []
+    async for doc in cursor:
+        dec = _decrypt_gp(doc)
+        for item in dec.get("items", []):
+            rows.append({
+                "gate_pass_number": dec.get("gate_pass_number", ""),
+                "client_name": dec.get("client_name", ""),
+                "receiving_date": str(dec.get("receiving_date", ""))[:10],
+                "status": dec.get("status", ""),
+                "item_name": item.get("item_name", ""),
+                "specification": item.get("specification", ""),
+                "category": item.get("category", ""),
+                "client_qty": item.get("client_qty", 0),
+                "received_qty": item.get("received_qty", 0),
+                "difference": item.get("difference", 0),
+            })
+
+    if not rows:
+        rows.append({"gate_pass_number": "No data", "client_name": "", "receiving_date": "",
+                       "status": "", "item_name": "", "specification": "", "category": "",
+                       "client_qty": 0, "received_qty": 0, "difference": 0})
+
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=rows[0].keys())
+    writer.writeheader()
+    writer.writerows(rows)
+    output.seek(0)
+
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=gate-passes.csv"},
+    )
+
+
+@router.get("/export/bills")
+async def export_bills_csv(
+    client_name: Optional[str] = None,
+    status: Optional[str] = None,
+    current_user: dict = Depends(require_capability("report:read")),
+):
+    """Export bills as CSV for download."""
+    query: dict = {}
+    if client_name:
+        query["client_name_search"] = get_search_token(client_name)
+    if status:
+        query["payment_status"] = status
+
+    cursor = bills_collection.find(query).sort("created_at", -1)
+    rows = []
+    async for doc in cursor:
+        try:
+            dec = decrypt_dict(doc, SENSITIVE_FIELDS_BILL)
+        except Exception:
+            continue
+        dec["id"] = str(dec["_id"])
+        del dec["_id"]
+        for item in dec.get("items", []):
+            rows.append({
+                "bill_number": dec.get("bill_number", ""),
+                "client_name": dec.get("client_name", ""),
+                "bill_date": str(dec.get("bill_date", ""))[:10],
+                "status": dec.get("payment_status", ""),
+                "item_name": item.get("item_name", ""),
+                "quantity": item.get("quantity", 0),
+                "unit_price": item.get("unit_price", 0),
+                "total": item.get("total", 0),
+                "grand_total": dec.get("grand_total", 0),
+                "amount_paid": dec.get("amount_paid", 0),
+                "balance": dec.get("balance", 0),
+            })
+
+    if not rows:
+        rows.append({"bill_number": "No data", "client_name": "", "bill_date": "",
+                       "status": "", "item_name": "", "quantity": 0, "unit_price": 0,
+                       "total": 0, "grand_total": 0, "amount_paid": 0, "balance": 0})
+
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=rows[0].keys())
+    writer.writeheader()
+    writer.writerows(rows)
+    output.seek(0)
+
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=bills.csv"},
+    )
+
+
+@router.get("/export/deliveries")
+async def export_deliveries_csv(
+    client_name: Optional[str] = None,
+    current_user: dict = Depends(require_capability("report:read")),
+):
+    """Export deliveries as CSV for download."""
+    query: dict = {}
+    if client_name:
+        query["client_name_search"] = get_search_token(client_name)
+
+    cursor = deliveries_collection.find(query).sort("created_at", -1)
+    rows = []
+    async for doc in cursor:
+        try:
+            dec = decrypt_dict(doc, SENSITIVE_FIELDS_DEL)
+        except Exception:
+            continue
+        dec["id"] = str(dec["_id"])
+        del dec["_id"]
+        for item in dec.get("items", []):
+            rows.append({
+                "client_name": dec.get("client_name", ""),
+                "delivery_date": str(dec.get("delivery_date", ""))[:10],
+                "delivered_by": dec.get("delivered_by", ""),
+                "received_by": dec.get("received_by", ""),
+                "status": dec.get("status", ""),
+                "item_name": item.get("item_name", ""),
+                "specification": item.get("specification", ""),
+                "quantity": item.get("quantity", 0),
+            })
+
+    if not rows:
+        rows.append({"client_name": "No data", "delivery_date": "", "delivered_by": "",
+                       "received_by": "", "status": "", "item_name": "", "specification": "",
+                       "quantity": 0})
+
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=rows[0].keys())
+    writer.writeheader()
+    writer.writerows(rows)
+    output.seek(0)
+
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=deliveries.csv"},
+    )
+
+
+# ── Excel Export ──────────────────────────────────────────────────────────────
+
+HEADER_FONT = None
+HEADER_FILL = None
+HEADER_ALIGN = None
+THIN_BORDER = None
+
+
+def _init_openpyxl():
+    global HEADER_FONT, HEADER_FILL, HEADER_ALIGN, THIN_BORDER
+    if HEADER_FONT is not None:
+        return
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    HEADER_FONT = Font(bold=True, color="FFFFFF", size=11)
+    HEADER_FILL = PatternFill(start_color="DC2626", end_color="DC2626", fill_type="solid")
+    HEADER_ALIGN = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    THIN_BORDER = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin"),
+    )
+
+
+def _style_sheet(ws, headers, rows):
+    _init_openpyxl()
+    for col_idx, h in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_idx, value=h)
+        cell.font = HEADER_FONT
+        cell.fill = HEADER_FILL
+        cell.alignment = HEADER_ALIGN
+        cell.border = THIN_BORDER
+    for row_idx, row_data in enumerate(rows, 2):
+        for col_idx, val in enumerate(row_data, 1):
+            cell = ws.cell(row=row_idx, column=col_idx, value=val)
+            cell.border = THIN_BORDER
+            cell.alignment = Alignment(vertical="center")
+    for col_idx, h in enumerate(headers, 1):
+        max_len = max(len(str(h)), *(len(str(r[col_idx - 1])) for r in rows) if rows else [0])
+        ws.column_dimensions[ws.cell(row=1, column=col_idx).column_letter].width = min(max_len + 4, 40)
+    ws.auto_filter.ref = ws.dimensions
+
+
+@router.get("/export/gatepasses/xlsx")
+async def export_gatepasses_xlsx(
+    client_name: Optional[str] = None,
+    status: Optional[str] = None,
+    current_user: dict = Depends(require_capability("report:read")),
+):
+    """Export gate passes as Excel."""
+    from openpyxl import Workbook
+
+    query: dict = {}
+    if client_name:
+        query["client_name_search"] = get_search_token(client_name)
+    if status:
+        query["status"] = status
+
+    cursor = gatepasses_collection.find(query).sort("created_at", -1)
+    rows = []
+    async for doc in cursor:
+        dec = _decrypt_gp(doc)
+        for item in dec.get("items", []):
+            rows.append([
+                dec.get("gate_pass_number", ""),
+                dec.get("client_name", ""),
+                str(dec.get("receiving_date", ""))[:10],
+                dec.get("status", ""),
+                item.get("item_name", ""),
+                item.get("specification", ""),
+                item.get("category", ""),
+                item.get("client_qty", 0),
+                item.get("received_qty", 0),
+                item.get("difference", 0),
+            ])
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Gate Passes"
+    headers = ["Gate Pass #", "Client", "Date", "Status", "Item", "Specification", "Category", "Client Qty", "Received", "Difference"]
+    if rows:
+        _style_sheet(ws, headers, rows)
+    else:
+        ws.cell(row=1, column=1, value="No data")
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return StreamingResponse(
+        iter([buf.getvalue()]),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=gate-passes.xlsx"},
+    )
+
+
+@router.get("/export/bills/xlsx")
+async def export_bills_xlsx(
+    client_name: Optional[str] = None,
+    status: Optional[str] = None,
+    current_user: dict = Depends(require_capability("report:read")),
+):
+    """Export bills as Excel."""
+    from openpyxl import Workbook
+
+    query: dict = {}
+    if client_name:
+        query["client_name_search"] = get_search_token(client_name)
+    if status:
+        query["payment_status"] = status
+
+    cursor = bills_collection.find(query).sort("created_at", -1)
+    rows = []
+    async for doc in cursor:
+        try:
+            dec = decrypt_dict(doc, SENSITIVE_FIELDS_BILL)
+        except Exception:
+            continue
+        for item in dec.get("items", []):
+            rows.append([
+                dec.get("bill_number", ""),
+                dec.get("client_name", ""),
+                str(dec.get("bill_date", ""))[:10],
+                dec.get("payment_status", ""),
+                item.get("item_name", ""),
+                item.get("quantity", 0),
+                item.get("unit_price", 0),
+                item.get("total", 0),
+                dec.get("grand_total", 0),
+                dec.get("amount_paid", 0),
+                dec.get("balance", 0),
+            ])
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Bills"
+    headers = ["Bill #", "Client", "Date", "Status", "Item", "Qty", "Unit Price", "Item Total", "Grand Total", "Paid", "Balance"]
+    if rows:
+        _style_sheet(ws, headers, rows)
+    else:
+        ws.cell(row=1, column=1, value="No data")
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return StreamingResponse(
+        iter([buf.getvalue()]),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=bills.xlsx"},
+    )
+
+
+@router.get("/export/deliveries/xlsx")
+async def export_deliveries_xlsx(
+    client_name: Optional[str] = None,
+    current_user: dict = Depends(require_capability("report:read")),
+):
+    """Export deliveries as Excel."""
+    from openpyxl import Workbook
+
+    query: dict = {}
+    if client_name:
+        query["client_name_search"] = get_search_token(client_name)
+
+    cursor = deliveries_collection.find(query).sort("created_at", -1)
+    rows = []
+    async for doc in cursor:
+        try:
+            dec = decrypt_dict(doc, SENSITIVE_FIELDS_DEL)
+        except Exception:
+            continue
+        for item in dec.get("items", []):
+            rows.append([
+                dec.get("client_name", ""),
+                str(dec.get("delivery_date", ""))[:10],
+                dec.get("delivered_by", ""),
+                dec.get("received_by", ""),
+                dec.get("status", ""),
+                item.get("item_name", ""),
+                item.get("specification", ""),
+                item.get("quantity", 0),
+            ])
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Deliveries"
+    headers = ["Client", "Date", "Delivered By", "Received By", "Status", "Item", "Specification", "Qty"]
+    if rows:
+        _style_sheet(ws, headers, rows)
+    else:
+        ws.cell(row=1, column=1, value="No data")
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return StreamingResponse(
+        iter([buf.getvalue()]),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=deliveries.xlsx"},
+    )

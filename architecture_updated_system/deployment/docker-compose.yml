@@ -1,0 +1,83 @@
+# LoveLaundry recreated system — local orchestration.
+#
+# Build context is the repository root (architecture_updated_system/).
+# All host ports use NEW values; none collide with the legacy services.
+#
+#   Run from architecture_updated_system/:
+#     docker compose -f deployment/docker-compose.yml up --build
+#
+# Host port map:
+#   backend            8100
+#   app frontend       8101
+#   system_info API    8810
+#   system_info UI     8820
+#   mongodb            27018 (mapped from 27017 in-container)
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:27018:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    environment:
+      APP_ENV: production
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET}
+      MASTER_KEY: ${MASTER_KEY:?set MASTER_KEY}
+      MONGODB_MAIN_URI: mongodb://mongo:27017
+      MONGODB_MAIN_DB: lovelaundry
+      MONGODB_SECONDARY_URI: mongodb://mongo:27017
+      MONGODB_SECONDARY_DB: lovelaundry_secondary
+      MONGODB_LOCAL_URI: mongodb://mongo:27017
+      MONGODB_LOCAL_DB: lovelaundry_local
+      TZ: Asia/Colombo
+    ports:
+      - "127.0.0.1:8100:8100"
+
+  app-frontend:
+    build:
+      context: ../frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "127.0.0.1:8101:8101"
+
+  system-info-backend:
+    build:
+      context: ..
+      dockerfile: system_info/backend/Dockerfile
+    restart: unless-stopped
+    environment:
+      # Read-only scan of a mounted copy of the legacy tree.
+      SCAN_SOURCE_ROOT: /legacy
+      SCAN_BIND_HOST: 0.0.0.0
+      SCAN_BIND_PORT: "8810"
+      SCAN_API_KEY: ${SCAN_API_KEY:-}
+    volumes:
+      # Mount the legacy services read-only. Override LEGACY_ROOT to point
+      # elsewhere; the container user cannot write to it.
+      - ${LEGACY_ROOT:-../../system-manegment}:/legacy:ro
+    ports:
+      - "127.0.0.1:8810:8810"
+
+  system-info-frontend:
+    build:
+      context: ../system_info/frontend
+    restart: unless-stopped
+    depends_on:
+      - system-info-backend
+    ports:
+      - "127.0.0.1:8820:8820"
+
+volumes:
+  mongo_data:
