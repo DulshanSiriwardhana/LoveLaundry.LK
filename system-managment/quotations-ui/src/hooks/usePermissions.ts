@@ -5,7 +5,10 @@ export function usePermissions() {
     
     const hasPermission = (permission: string) => {
         if (!user) return false
-        if (user.role_id?.toUpperCase() === 'ADMIN') return true
+        // Platform admins and tenant sub-admins (hotel / shop / laundry admins)
+        // are all administrators for the purposes of the admin UI.
+        const adminLikeRoles = ['ADMIN', 'SHOP_ADMIN', 'HOTEL_ADMIN', 'PLATFORM_ADMIN']
+        if (adminLikeRoles.includes((user.role_id || '').toUpperCase())) return true
         
         if (!user.permissions) return false
         

@@ -22,9 +22,13 @@ interface UserForm {
     employee_id: string
     role_id: string
     status: string
+    laundry_id: string
 }
 
-const ROLES = ['ADMIN', 'MANAGER', 'STAFF']
+// Sub-admin roles (hotel / shop / laundry admins) + platform admin. The
+// platform administrator provisions sub-admins; they manage their own password
+// via self-service and are only disabled/enabled (status) by the platform admin.
+const ROLES = ['ADMIN', 'MANAGER', 'STAFF', 'SHOP_ADMIN', 'HOTEL_ADMIN', 'PLATFORM_ADMIN']
 const STATUSES = ['active', 'inactive', 'unset']
 
 const emptyForm: UserForm = {
@@ -36,6 +40,7 @@ const emptyForm: UserForm = {
     employee_id: '',
     role_id: 'STAFF',
     status: 'active',
+    laundry_id: '',
 }
 
 interface UserRecord {
@@ -48,6 +53,7 @@ interface UserRecord {
     role_id: string
     status: string
     created_at?: string
+    laundry_id?: string
 }
 
 export default function UsersPage() {
@@ -58,6 +64,9 @@ export default function UsersPage() {
     const [form, setForm] = useState<UserForm>(emptyForm)
     const [submitting, setSubmitting] = useState(false)
     const [showPw, setShowPw] = useState(false)
+    const [showChangePw, setShowChangePw] = useState(false)
+    const [changePw, setChangePw] = useState({ current_password: '', new_password: '' })
+    const [changePwSaving, setChangePwSaving] = useState(false)
     const flow = useEnterFlow()
 
     useEscape(showModal, () => setShowModal(false))
@@ -78,6 +87,29 @@ export default function UsersPage() {
         fetchUsers()
     }, [])
 
+    const handleChangePassword = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!changePw.current_password || !changePw.new_password) {
+            toast.error('Both current and new password are required')
+            return
+        }
+        if (changePw.new_password.length < 8) {
+            toast.error('New password must be at least 8 characters')
+            return
+        }
+        setChangePwSaving(true)
+        try {
+            await authApi.patch('/auth/password', changePw)
+            toast.success('Password updated successfully')
+            setShowChangePw(false)
+            setChangePw({ current_password: '', new_password: '' })
+        } catch (err: any) {
+            toast.error(err.message || 'Failed to update password')
+        } finally {
+            setChangePwSaving(false)
+        }
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!form.user_name || !form.auth_id) {
@@ -86,6 +118,10 @@ export default function UsersPage() {
         }
         if (!editId && !form.password) {
             toast.error('Password is required for new users')
+            return
+        }
+        if (['SHOP_ADMIN', 'HOTEL_ADMIN', 'ADMIN'].includes(form.role_id) && !form.laundry_id) {
+            toast.error('Laundry / Hotel / Shop is required for sub-admin users')
             return
         }
         setSubmitting(true)
@@ -99,6 +135,7 @@ export default function UsersPage() {
             if (form.email) payload.email = form.email
             if (form.mobile_number) payload.mobile_number = form.mobile_number
             if (form.employee_id) payload.employee_id = form.employee_id
+            if (form.laundry_id) payload.laundry_id = form.laundry_id
 
             if (editId) {
                 await authApi.put(`/users/${editId}`, payload)
@@ -128,6 +165,11 @@ export default function UsersPage() {
         setShowModal(true)
     }
 
+    const openChangePw = () => {
+        setChangePw({ current_password: '', new_password: '' })
+        setShowChangePw(true)
+    }
+
     const openEdit = (u: UserRecord) => {
         setForm({
             user_name: u.user_name,
@@ -138,6 +180,7 @@ export default function UsersPage() {
             employee_id: u.employee_id || '',
             role_id: (u.role_id || 'STAFF').toUpperCase(),
             status: (u.status || 'active').toLowerCase(),
+            laundry_id: u.laundry_id || '',
         })
         setEditId(u.id)
         setShowPw(false)
@@ -181,6 +224,10 @@ export default function UsersPage() {
                     <Button onClick={openModal} className="flex items-center gap-1.5">
                         <RiUserAddLine size={15} />
                         Create User
+                    </Button>
+                    <Button variant="secondary" onClick={openChangePw} className="flex items-center gap-1.5">
+                        <RiShieldCheckLine size={15} />
+                        Change Password
                     </Button>
                 </div>
             </div>
@@ -391,6 +438,21 @@ export default function UsersPage() {
                                         </div>
                                     </div>
 
+                                    {(form.role_id === 'SHOP_ADMIN' || form.role_id === 'HOTEL_ADMIN' || form.role_id === 'ADMIN') && (
+                                        <div>
+                                            <label className="block text-[12px] font-medium text-[#374151] mb-1.5">
+                                                Laundry / Hotel / Shop
+                                            </label>
+                                            <select
+                                                value={form.laundry_id}
+                                                onChange={e => setForm(f => ({ ...f, laundry_id: e.target.value }))}
+                                                className={inputClass}
+                                            >
+                                                <option value="">Select laundry…</option>
+                                            </select>
+                                        </div>
+                                    )}
+
                                     <div>
                                         <label className="block text-[12px] font-medium text-[#374151] mb-1.5">Email</label>
                                         <input
@@ -458,6 +520,104 @@ export default function UsersPage() {
                                                     <RiEditLine size={14} />
                                                     {editId ? 'Save Changes' : 'Create User'}
                                                 </>
+                                            )}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
+            {/* Change Password Modal */}
+            <AnimatePresence>
+                {showChangePw && (
+                    <>
+                        <motion.div
+                            key="change-pw-backdrop"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+                            onClick={() => setShowChangePw(false)}
+                        />
+                        <motion.div
+                            key="change-pw-modal"
+                            initial={{ opacity: 0, scale: 0.96, y: 12 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.96, y: 12 }}
+                            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                        >
+                            <div className="w-full max-w-md rounded-2xl border border-[#E4E7EC] bg-white shadow-2xl overflow-hidden">
+                                <div className="flex items-center justify-between px-6 py-4 border-b border-[#F2F4F7]">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#101828] text-white">
+                                            <RiShieldCheckLine size={16} />
+                                        </div>
+                                        <div>
+                                            <p className="text-[14px] font-bold text-[#101828]">Change Password</p>
+                                            <p className="text-[11px] text-[#6B7280]">Rotate your own account credentials</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowChangePw(false)}
+                                        className="flex h-7 w-7 items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#F3F4F7] transition-colors"
+                                    >
+                                        <RiCloseLine size={16} />
+                                    </button>
+                                </div>
+
+                                <form onSubmit={handleChangePassword} className="p-6 space-y-4">
+                                    <div>
+                                        <label className="block text-[12px] font-medium text-[#374151] mb-1.5">
+                                            Current Password <span className="text-[#DC2626]">*</span>
+                                        </label>
+                                        <input
+                                            type="password"
+                                            value={changePw.current_password}
+                                            onChange={e => setChangePw({ ...changePw, current_password: e.target.value })}
+                                            className={inputClass}
+                                            placeholder="Current password"
+                                            required
+                                            autoFocus
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[12px] font-medium text-[#374151] mb-1.5">
+                                            New Password <span className="text-[#DC2626]">*</span>
+                                        </label>
+                                        <input
+                                            type="password"
+                                            value={changePw.new_password}
+                                            onChange={e => setChangePw({ ...changePw, new_password: e.target.value })}
+                                            className={inputClass}
+                                            placeholder="At least 8 characters"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="flex items-center gap-3 pt-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowChangePw(false)}
+                                            className="flex-1 h-10 rounded-xl border border-[#E4E7EC] bg-white text-[13px] font-medium text-[#374151] hover:bg-[#F9FAFB] transition-colors"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={changePwSaving}
+                                            className="flex-1 h-10 rounded-xl bg-[#101828] text-[13px] font-medium text-white hover:bg-[#1D2939] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                        >
+                                            {changePwSaving ? (
+                                                <>
+                                                    <RiRefreshLine size={14} className="animate-spin" />
+                                                    Saving…
+                                                </>
+                                            ) : (
+                                                'Update Password'
                                             )}
                                         </button>
                                     </div>
