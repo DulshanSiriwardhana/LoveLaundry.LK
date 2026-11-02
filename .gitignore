@@ -13,6 +13,11 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
+# Any other real env file, e.g. deploy/backend.env. Templates stay tracked.
+*.env
+.env.*
+!.env.example
+!*.env.example
 
 # Logs
 *.log

@@ -1,0 +1,128 @@
+name: lovelaundry
+
+services:
+  quotation-backend:
+    build:
+      context: ../quotation-service
+    env_file: ./backend.env
+    environment:
+      MONGODB_COLLECTION: quotations
+      CHAT_API_KEY: ${CHAT_API_KEY:-}
+    restart: unless-stopped
+    mem_limit: 256m
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks: [app]
+
+  bills-backend:
+    build:
+      context: ../bill_service
+    env_file: ./backend.env
+    restart: unless-stopped
+    mem_limit: 256m
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks: [app]
+
+  user-backend:
+    build:
+      context: ../user-service
+    env_file: ./backend.env
+    environment:
+      MONGODB_COLLECTION: users
+    restart: unless-stopped
+    mem_limit: 256m
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks: [app]
+
+  workers-backend:
+    build:
+      context: ../worker-service
+    env_file: ./backend.env
+    restart: unless-stopped
+    mem_limit: 256m
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks: [app]
+
+  mgmt-backend:
+    build:
+      context: ../laundry-management
+    env_file: ./backend.env
+    restart: unless-stopped
+    mem_limit: 256m
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks: [app]
+
+  ai-backend:
+    build:
+      context: ../love-ai
+    env_file: ./backend.env
+    environment:
+      LOVE_AI_API_KEYS: ${LOVE_AI_API_KEYS:-}
+    restart: unless-stopped
+    mem_limit: 256m
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks: [app]
+
+  web:
+    build:
+      context: ../quotations-ui
+      args:
+        VITE_API_URL: /api/quotation
+        VITE_BILLS_API_URL: /api/bills
+        VITE_USER_API_URL: /api/user
+        VITE_WORKERS_API_URL: /api/workers
+        VITE_MGMT_API_URL: /api/mgmt
+        VITE_AI_API_URL: /
+        # Vite build arguments are public; never inject server-side API keys here.
+        VITE_APP_TITLE: LoveLaundry Management System
+    ports:
+      - "80:80"
+    depends_on:
+      quotation-backend:
+        condition: service_healthy
+      bills-backend:
+        condition: service_healthy
+      user-backend:
+        condition: service_healthy
+      workers-backend:
+        condition: service_healthy
+      mgmt-backend:
+        condition: service_healthy
+      ai-backend:
+        condition: service_healthy
+    restart: unless-stopped
+    mem_limit: 256m
+    networks: [app]
+
+networks:
+  app:
+    driver: bridge
