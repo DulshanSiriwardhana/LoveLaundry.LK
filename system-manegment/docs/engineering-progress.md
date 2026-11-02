@@ -172,6 +172,39 @@ Tests after fix: **217 passed** (208 original + 9 restored).
   navigation wiring, and production env base URLs in quotations-ui
   (`http://localhost:8001` mgmt API / `http://localhost:8009` AI fallbacks).
 
+## Linen lifecycle programme (2026-11-02)
+
+Tracked in its own document, not this ledger: **`docs/linen-lifecycle-investigation.md`**
+(Phase 1 investigation of the real-time linen scanning / handover / reconciliation
+redesign — current architecture, 31 catalogued defects, the real-time root cause,
+proposed model, and the Phase 0-9 sequence).
+
+- [x] Scanner robustness (tag normalisation shared web/mobile, repeat-scan recovery,
+      camera frame loop, distinct failure outcomes, `Permissions-Policy: camera=(self)`).
+- [x] Phase 0 — green baseline `bill-service 433 passed / 2 skipped`,
+      `quotations-ui 25 passed`; production registry frozen (§7 of the investigation);
+      response-shape contract guard added (`tests/test_linen_contract_baseline.py`).
+- [x] State machine moved to the server — `GET /linens/transitions` returns the
+      action→status contract grouped by custody (hotel / laundry / exception). The
+      hardcoded `SCAN_ACTIONS` list is deleted from the web app; scanner, bulk scan
+      and profile all render from the endpoint, so a backend state change needs no
+      frontend release. Covered by `tests/test_linen_transitions.py` (9).
+- [x] Frontend scan session (`/linen/session`) — square state cards chosen from the
+      server catalogue, continuous scanning with focus restored after every read,
+      camera via the shared `useLinenCamera` hook, live counters, searchable
+      per-scan history, and a resumable summary with an explicit unresolved list.
+      Session logic is pure and unit-tested (`lib/scan-session.test.ts`, 11,
+      including a 1,000-scan session).
+- [ ] Not yet verified on screen while signed in: the running stack is fed by the
+      shared Atlas cluster, so an authenticated test scan would mutate real linen
+      documents and I will not create an account there without consent.
+- [ ] Phases 2/5/6 (CAS writes, per-linen manifests, reconciliation, outbox + SSE)
+      are blocked on three decisions recorded in the investigation §9
+      (A: authoritative registry `bill_db` vs `laundry_management`;
+      B: the brief's "4 Hotel Hands + 4 Laundry Hands" does not exist in code —
+      10 actions / 12 statuses, no custody partition;
+      C: event plane = Mongo change streams + SSE, or add a broker).
+
 ## Next concrete tasks
 
 1. Fix laundry-management H2/H3/H5/H6 (payroll dead overrides, salary finalize, advance race).
