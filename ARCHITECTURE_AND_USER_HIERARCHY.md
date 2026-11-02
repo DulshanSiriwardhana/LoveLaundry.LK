@@ -30,30 +30,37 @@ schema-per-tenant — none justified on MongoDB Atlas + Vercel serverless.
 
 ```
 LoveLaundry.LK/                        # git root
-├── user-service/                       # identity, auth, laundry registry, memberships (FastAPI)
-├── laundry-management/                 # core business/finance/HR (FastAPI)
-├── bill-service/                       # gate passes, deliveries, bills, payments (FastAPI)
-├── quotation-service/                  # quotations, garment tags, chat (FastAPI)
-├── worker-service/                     # background jobs/sync (FastAPI, sync pymongo)
-├── love-ai/                            # AI insights (FastAPI)
-├── love-bot/, skaner/                  # auxiliary services
-├── quotations-ui/                      # React + Vite web app (manager/super-admin UI)
-├── public.lovelaundry.lk/              # public storefront
+├── system-manegment/                   # THE LIVE MONOREPO — every service lives here
+│   ├── user-service/                   # identity, auth, laundry registry, memberships (FastAPI)
+│   ├── laundry-management/             # core business/finance/HR (FastAPI)
+│   ├── bill-service/                   # gate passes, deliveries, bills, payments (FastAPI)
+│   ├── quotation-service/              # quotations, garment tags, chat (FastAPI)
+│   ├── worker-service/                 # background jobs/sync (FastAPI, sync pymongo)
+│   ├── love-ai/                        # AI insights (FastAPI)
+│   ├── love-bot/, skaner/              # auxiliary services (bot, Flutter linen scanner)
+│   ├── monolith/                       # read-only merge of the services for one-shot deploys
+│   ├── quotations-ui/                  # React + Vite web app (manager/super-admin UI)
+│   ├── docs/, scripts/, deploy/, release/
+│   └── .venv/                          # shared Python environment used by every service's tests
 ├── client-pub/                         # client publication
+├── public.lovelaundry.lk/              # public storefront
 ├── architecture_updated_system/        # ADRs, audits, migration plan, scanner, docs
 │   └── ARCHITECTURE.md                 # tenancy isolation decision record
-├── system-manegment/                   # historical checkout (duplicate services + docs)
-└── system-managment/                   # historical checkout (typo'd twin)
+├── deploy/, release/                   # root-level deploy/release wrappers
+└── system-managment/                   # STALE historical checkout (typo'd twin) — do not edit
 ```
 
-Key file map (canonical):
-- `user-service/src/user_service/main.py` — all auth + laundries + users HTTP routes.
-- `user-service/src/user_service/tenancy.py` — laundry registry, memberships, `build_tenant_claims`, `active_membership`, `ensure_lovelaundry`, `is_platform_admin_token`.
-- `user-service/src/user_service/auth_helper.py` — JWT create/verify, `get_current_user`, `require_role` (PLATFORM_ADMIN ⊇ ADMIN).
-- `user-service/src/user_service/schemas.py` — request/response pydantic models.
-- `laundry-management/src/auth_helper.py` — `ROLE_CAPABILITIES` + `require_capability`.
+`system-manegment/` is authoritative. `system-managment/` is an older duplicate
+kept for reference; changes there have no effect on what is deployed.
+
+Key file map (canonical, all relative to the git root):
+- `system-manegment/user-service/src/user_service/main.py` — all auth + laundries + users HTTP routes.
+- `system-manegment/user-service/src/user_service/tenancy.py` — laundry registry, memberships, `build_tenant_claims`, `active_membership`, `ensure_lovelaundry`, `is_platform_admin_token`.
+- `system-manegment/user-service/src/user_service/auth_helper.py` — JWT create/verify, `get_current_user`, `require_role` (PLATFORM_ADMIN ⊇ ADMIN).
+- `system-manegment/user-service/src/user_service/schemas.py` — request/response pydantic models.
+- `system-manegment/laundry-management/src/auth_helper.py` — `ROLE_CAPABILITIES` + `require_capability`.
 - Each resource service has its own `tenancy.py` (`bill-service/`, `quotation-service/`, `worker-service/`, `laundry-management/`, `love-ai/`) implementing `resolve_laundry_id`, `laundry_match`, `scoped_query`, `owned_filter`, `assert_same_laundry`, `match_stage`, `stamp_missing_laundry_ids`.
-- `quotations-ui/src/` — feature folders (`features/platform`, `features/quotations`, …), `context/AuthContext.tsx`, `components/layout/*-route.tsx`, `api/auth-api.ts`, `features/ai/api/ai-api.ts`.
+- `system-manegment/quotations-ui/src/` — feature folders (`features/platform`, `features/quotations`, …), `context/AuthContext.tsx`, `components/layout/*-route.tsx`, `api/auth-api.ts`, `features/ai/api/ai-api.ts`.
 
 ---
 

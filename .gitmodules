@@ -1,6 +1,54 @@
+[submodule "public.lovelaundry.lk"]
+	path = public.lovelaundry.lk
+	url = https://github.com/LoveLaundry/public.lovelaundry.lk.git
+	branch = main
+[submodule "system-managment/bill-service"]
+	path = system-managment/bill-service
+	url = https://github.com/LoveLaundry/bill-service.git
+	branch = main
+[submodule "system-managment/laundry-management"]
+	path = system-managment/laundry-management
+	url = https://github.com/LoveLaundry/laundry-management.git
+	branch = main
+[submodule "system-managment/love-ai"]
+	path = system-managment/love-ai
+	url = https://github.com/LoveLaundry/love-ai.git
+	branch = main
+[submodule "system-managment/love-bot"]
+	path = system-managment/love-bot
+	url = https://github.com/LoveLaundry/love-bot.git
+	branch = main
+[submodule "system-managment/quotation-service"]
+	path = system-managment/quotation-service
+	url = https://github.com/LoveLaundry/quotation-service.git
+	branch = main
+[submodule "system-managment/skaner"]
+	path = system-managment/skaner
+	url = https://github.com/LoveLaundry/skaner.git
+	branch = main
+[submodule "system-managment/user-service"]
+	path = system-managment/user-service
+	url = https://github.com/LoveLaundry/user-service.git
+	branch = main
+[submodule "system-managment/worker-service"]
+	path = system-managment/worker-service
+	url = https://github.com/LoveLaundry/worker-service.git
+	branch = main
 [submodule "system-manegment/bill-service"]
 	path = system-manegment/bill-service
 	url = https://github.com/LoveLaundry/bill-service.git
+	branch = main
+[submodule "system-manegment/laundry-management"]
+	path = system-manegment/laundry-management
+	url = https://github.com/LoveLaundry/laundry-management.git
+	branch = main
+[submodule "system-manegment/love-ai"]
+	path = system-manegment/love-ai
+	url = https://github.com/LoveLaundry/love-ai.git
+	branch = main
+[submodule "system-manegment/love-bot"]
+	path = system-manegment/love-bot
+	url = https://github.com/LoveLaundry/love-bot.git
 	branch = main
 [submodule "system-manegment/quotation-service"]
 	path = system-manegment/quotation-service
@@ -10,28 +58,15 @@
 	path = system-manegment/quotations-ui
 	url = https://github.com/LoveLaundry/quotations-ui.git
 	branch = main
-[submodule "system-managment/user-service"]
-	path = system-manegment/user-service
-	url = https://github.com/LoveLaundry/user-service.git
-	branch = main
-[submodule "system-manegment/laundry-management"]
-	path = system-manegment/laundry-management
-	url = https://github.com/LoveLaundry/laundry-management.git
-	branch = main
-[submodule "system-manegment/love-ai"]
-	path = system-managment/love-ai
-	url = https://github.com/LoveLaundry/love-ai.git
-	branch = main
-[submodule "system-manegment/love-bot"]
-	path = system-managment/love-bot
-	url = https://github.com/LoveLaundry/love-bot.git
-	branch = main
-[submodule "system-managment/skaner"]
+[submodule "system-manegment/skaner"]
 	path = system-manegment/skaner
 	url = https://github.com/LoveLaundry/skaner.git
 	branch = main
+[submodule "system-manegment/user-service"]
+	path = system-manegment/user-service
+	url = https://github.com/LoveLaundry/user-service.git
+	branch = main
 [submodule "system-manegment/worker-service"]
-	path = system-mangment/worker-service
+	path = system-manegment/worker-service
 	url = https://github.com/LoveLaundry/worker-service.git
 	branch = main
-
