@@ -14,7 +14,21 @@ class Settings(BaseSettings):
     jwt_expires_hours: int = Field(default=24, validation_alias="JWT_EXPIRES_HOURS")
     jwt_algorithm: str = Field(default="HS256", validation_alias="JWT_ALGORITHM")
 
-    cors_origins: list[str] = Field(default=["*"], validation_alias="ALLOWED_ORIGINS")
+    cors_origins: list[str] = Field(
+        default=[
+            "https://lovelaundry-manager.vercel.app",
+            "https://hotels-manager.vercel.app",
+            "https://hotels-manager-amber.vercel.app",
+            "https://shops-manager.vercel.app",
+            "https://system-lovelaundry-lk.vercel.app",
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "http://localhost:5175",
+            "http://localhost:5176",
+            "http://localhost:3000",
+        ],
+        validation_alias="ALLOWED_ORIGINS",
+    )
 
     central_system_uri: str = Field(
         default="mongodb://127.0.0.1:27017", validation_alias="MONGODB_CENTRAL_URI"
