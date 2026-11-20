@@ -135,6 +135,7 @@ export function App() {
         <h2>Adjustments awaiting approval</h2>
         {adjLoading ? <p>Loading adjustments…</p> : null}
         {adjError ? <p role="alert">{adjError}</p> : null}
+        {adjustments.length === 0 && !adjLoading ? <p>No adjustments awaiting approval.</p> : null}
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
           {adjustments.map((a) => (
             <li key={a.id} style={{ borderBottom: "1px solid #e5e7eb", padding: "0.5rem 0" }}>
