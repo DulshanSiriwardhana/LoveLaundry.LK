@@ -1,0 +1,154 @@
+{
+  "database": "central_system",
+  "version": 1,
+  "collections": [
+    {
+      "name": "users",
+      "validator": {
+        "$jsonSchema": {
+          "required": ["auth_id", "user_name", "status"],
+          "properties": {
+            "auth_id": {"bsonType": "string"},
+            "user_name": {"bsonType": "string"},
+            "email": {"bsonType": "string", "optional": true},
+            "password_hash": {"bsonType": "string", "optional": true},
+            "role_ids": {"bsonType": "array", "items": {"bsonType": "string"}, "optional": true},
+            "organization_id": {"bsonType": "string", "optional": true},
+            "status": {"bsonType": "string"},
+            "created_at": {"bsonType": "date"},
+            "updated_at": {"bsonType": "date"}
+          }
+        }
+      }
+    },
+    {
+      "name": "roles",
+      "validator": {
+        "$jsonSchema": {
+          "required": ["role_id", "name"],
+          "properties": {
+            "role_id": {"bsonType": "string"},
+            "name": {"bsonType": "string"},
+            "capabilities": {"bsonType": "array", "items": {"bsonType": "string"}, "optional": true},
+            "created_at": {"bsonType": "date"}
+          }
+        }
+      }
+    },
+    {
+      "name": "permissions",
+      "validator": {
+        "$jsonSchema": {
+          "required": ["permission_id", "name"],
+          "properties": {
+            "permission_id": {"bsonType": "string"},
+            "name": {"bsonType": "string"},
+            "description": {"bsonType": "string", "optional": true}
+          }
+        }
+      }
+    },
+    {
+      "name": "organizations",
+      "validator": {
+        "$jsonSchema": {
+          "required": ["organization_id", "name"],
+          "properties": {
+            "organization_id": {"bsonType": "string"},
+            "name": {"bsonType": "string"},
+            "created_at": {"bsonType": "date"}
+          }
+        }
+      }
+    },
+    {
+      "name": "memberships",
+      "validator": {
+        "$jsonSchema": {
+          "required": ["membership_id", "user_id", "organization_id"],
+          "properties": {
+            "membership_id": {"bsonType": "string"},
+            "user_id": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "status": {"bsonType": "string", "optional": true},
+            "created_at": {"bsonType": "date"}
+          }
+        }
+      }
+    },
+    {
+      "name": "devices",
+      "validator": {
+        "$jsonSchema": {
+          "required": ["device_id", "organization_id"],
+          "properties": {
+            "device_id": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "platform": {"bsonType": "string", "optional": true},
+            "status": {"bsonType": "string", "optional": true},
+            "created_at": {"bsonType": "date"}
+          }
+        }
+      }
+    },
+    {
+      "name": "sessions",
+      "validator": {
+        "$jsonSchema": {
+          "required": ["session_id", "user_id", "token_jti", "expires_at"],
+          "properties": {
+            "session_id": {"bsonType": "string"},
+            "user_id": {"bsonType": "string"},
+            "token_jti": {"bsonType": "string"},
+            "expires_at": {"bsonType": "date"},
+            "created_at": {"bsonType": "date"}
+          }
+        }
+      }
+    },
+    {
+      "name": "security_logs",
+      "validator": {
+        "$jsonSchema": {
+          "required": ["log_id", "event", "created_at"],
+          "properties": {
+            "log_id": {"bsonType": "string"},
+            "event": {"bsonType": "string"},
+            "actor_id": {"bsonType": "string", "optional": true},
+            "detail": {"bsonType": "object", "optional": true},
+            "created_at": {"bsonType": "date"}
+          }
+        }
+      }
+    },
+    {
+      "name": "audit_logs",
+      "validator": {
+        "$jsonSchema": {
+          "required": ["audit_id", "actor_id", "action", "created_at"],
+          "properties": {
+            "audit_id": {"bsonType": "string"},
+            "actor_id": {"bsonType": "string"},
+            "action": {"bsonType": "string"},
+            "target_id": {"bsonType": "string", "optional": true},
+            "detail": {"bsonType": "object", "optional": true},
+            "created_at": {"bsonType": "date"}
+          }
+        }
+      }
+    },
+    {
+      "name": "system_configs",
+      "validator": {
+        "$jsonSchema": {
+          "required": ["config_key", "value"],
+          "properties": {
+            "config_key": {"bsonType": "string"},
+            "value": {"bsonType": "object"},
+            "updated_at": {"bsonType": "date", "optional": true}
+          }
+        }
+      }
+    }
+  ]
+}

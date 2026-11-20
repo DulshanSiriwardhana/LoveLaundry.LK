@@ -1,0 +1,3 @@
+MONGO_INITDB_DATABASE: central_system
+MONGO_INITDB_DATABASE_laundry: laundry_internal
+MONGO_INITDB_DATABASE_linen: linen_tracking

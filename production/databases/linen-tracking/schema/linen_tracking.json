@@ -1,0 +1,95 @@
+{
+  "database": "linen_tracking",
+  "version": 1,
+  "collections": [
+    {
+      "name": "linens",
+      "validator": {
+        "$jsonSchema": {
+          "required": ["linen_id", "organization_id", "code", "status"],
+          "properties": {
+            "linen_id": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "code": {"bsonType": "string"},
+            "status": {"bsonType": "string"},
+            "category": {"bsonType": "string", "optional": true},
+            "created_at": {"bsonType": "date"}
+          }
+        }
+      }
+    },
+    {
+      "name": "movements",
+      "validator": {
+        "$jsonSchema": {
+          "required": ["movement_id", "linen_id", "from_org", "to_org", "reason", "created_at"],
+          "properties": {
+            "movement_id": {"bsonType": "string"},
+            "linen_id": {"bsonType": "string"},
+            "from_org": {"bsonType": "string"},
+            "to_org": {"bsonType": "string"},
+            "reason": {"bsonType": "string"},
+            "created_at": {"bsonType": "date"}
+          }
+        }
+      }
+    },
+    {
+      "name": "scans",
+      "validator": {
+        "$jsonSchema": {
+          "required": ["scan_id", "linen_id", "scanner_id", "stage", "created_at"],
+          "properties": {
+            "scan_id": {"bsonType": "string"},
+            "linen_id": {"bsonType": "string"},
+            "scanner_id": {"bsonType": "string"},
+            "stage": {"bsonType": "string"},
+            "created_at": {"bsonType": "date"}
+          }
+        }
+      }
+    },
+    {
+      "name": "allocations",
+      "validator": {
+        "$jsonSchema": {
+          "required": ["allocation_id", "linen_id", "owner_org", "purpose", "created_at"],
+          "properties": {
+            "allocation_id": {"bsonType": "string"},
+            "linen_id": {"bsonType": "string"},
+            "owner_org": {"bsonType": "string"},
+            "purpose": {"bsonType": "string"},
+            "created_at": {"bsonType": "date"}
+          }
+        }
+      }
+    },
+    {
+      "name": "damages",
+      "validator": {
+        "$jsonSchema": {
+          "required": ["damage_id", "linen_id", "severity", "created_at"],
+          "properties": {
+            "damage_id": {"bsonType": "string"},
+            "linen_id": {"bsonType": "string"},
+            "severity": {"bsonType": "string"},
+            "created_at": {"bsonType": "date"}
+          }
+        }
+      }
+    },
+    {
+      "name": "reconciliations",
+      "validator": {
+        "$jsonSchema": {
+          "required": ["reconciliation_id", "period", "created_at"],
+          "properties": {
+            "reconciliation_id": {"bsonType": "string"},
+            "period": {"bsonType": "string"},
+            "created_at": {"bsonType": "date"}
+          }
+        }
+      }
+    }
+  ]
+}
