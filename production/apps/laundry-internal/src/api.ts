@@ -38,6 +38,25 @@ export interface InvoiceEditResult {
   monthly_operations: MonthlyOperations;
 }
 
+export interface Adjustment {
+  id: string;
+  gate_pass_id: string;
+  item_name: string;
+  specification: string;
+  original_qty: number;
+  corrected_qty: number;
+  reason: string;
+  status: string;
+  requested_by: string;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface AdjustmentDecision {
+  id: string;
+  status: string;
+}
+
 const API_BASE = "http://localhost:8000";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -83,5 +102,30 @@ export function editInvoice(
   return request<InvoiceEditResult>(`/invoices/${encodeURIComponent(invoiceId)}/edit`, {
     method: "POST",
     body: JSON.stringify({ total, reason, actor_id: actorId }),
+  });
+}
+
+export function fetchAdjustments(status?: string): Promise<Adjustment[]> {
+  const qs = status ? `?status=${encodeURIComponent(status)}` : "";
+  return request<Adjustment[]>(`/adjustments${qs}`);
+}
+
+export function approveAdjustment(
+  adjustmentId: string,
+  approver: { auth_id: string; user_name: string },
+): Promise<AdjustmentDecision> {
+  return request<AdjustmentDecision>(`/adjustments/${encodeURIComponent(adjustmentId)}/approve`, {
+    method: "POST",
+    body: JSON.stringify(approver),
+  });
+}
+
+export function rejectAdjustment(
+  adjustmentId: string,
+  actor: { auth_id: string; user_name: string },
+): Promise<AdjustmentDecision> {
+  return request<AdjustmentDecision>(`/adjustments/${encodeURIComponent(adjustmentId)}/reject`, {
+    method: "POST",
+    body: JSON.stringify(actor),
   });
 }

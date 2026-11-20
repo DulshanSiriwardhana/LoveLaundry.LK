@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import __version__
-from .api import bills_router, health_router, integration_router, linen_router
+from .api import adjustments_router, bills_router, health_router, integration_router, linen_router
 from .authentication.router import router as auth_router
 from .core.config import get_settings
 from .core.errors import install_error_handlers
@@ -37,6 +37,7 @@ def create_app(user_lookup=None) -> FastAPI:
     app.include_router(bills_router)
     app.include_router(linen_router)
     app.include_router(integration_router)
+    app.include_router(adjustments_router)
     app.include_router(auth_router)
     if user_lookup is not None:
         from .core.security import set_user_lookup

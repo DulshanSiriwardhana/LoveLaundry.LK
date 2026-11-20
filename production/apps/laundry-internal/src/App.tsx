@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
-import { editBill, editInvoice, fetchMonthlyOperations, type MonthlyOperations } from "./api";
+import {
+  approveAdjustment,
+  editBill,
+  editInvoice,
+  fetchAdjustments,
+  fetchMonthlyOperations,
+  rejectAdjustment,
+  type Adjustment,
+  type MonthlyOperations,
+} from "./api";
 
 const CURRENT_PERIOD = new Date().toISOString().slice(0, 7);
 
@@ -12,6 +21,9 @@ export function App() {
   const [reason, setReason] = useState("");
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [adjustments, setAdjustments] = useState<Adjustment[]>([]);
+  const [adjLoading, setAdjLoading] = useState(false);
+  const [adjError, setAdjError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -26,9 +38,26 @@ export function App() {
     }
   }, [period]);
 
+  const loadAdjustments = useCallback(async () => {
+    setAdjLoading(true);
+    setAdjError(null);
+    try {
+      const data = await fetchAdjustments("REQUESTED");
+      setAdjustments(data);
+    } catch (err) {
+      setAdjError(err instanceof Error ? err.message : "Failed to load adjustments");
+    } finally {
+      setAdjLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    void loadAdjustments();
+  }, [loadAdjustments]);
 
   const saveEdit = async () => {
     if (!edit) {
@@ -56,6 +85,13 @@ export function App() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const decide = async (adjustment: Adjustment, approve: boolean) => {
+    const actor = approve ? { auth_id: "approver-1", user_name: "approver-1" } : { auth_id: "approver-2", user_name: "approver-2" };
+    const decision = approve ? await approveAdjustment(adjustment.id, actor) : await rejectAdjustment(adjustment.id, actor);
+    setNotice(`Adjustment ${adjustment.id} ${decision.status}.`);
+    await loadAdjustments();
   };
 
   const tiles = operations
@@ -93,6 +129,25 @@ export function App() {
             <p style={{ margin: "0.25rem 0 0", fontSize: "1.25rem", fontWeight: 600 }}>{tile.value.toFixed(2)}</p>
           </div>
         ))}
+      </section>
+
+      <section style={{ marginTop: "1.5rem", border: "1px solid #d1d5db", borderRadius: "0.5rem", padding: "1rem" }}>
+        <h2>Adjustments awaiting approval</h2>
+        {adjLoading ? <p>Loading adjustments…</p> : null}
+        {adjError ? <p role="alert">{adjError}</p> : null}
+        <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+          {adjustments.map((a) => (
+            <li key={a.id} style={{ borderBottom: "1px solid #e5e7eb", padding: "0.5rem 0" }}>
+              <strong>{a.item_name}</strong>
+              {a.specification ? ` (${a.specification})` : ""} — {a.original_qty} → {a.corrected_qty}
+              <span style={{ marginLeft: "0.5rem" }}>reason: {a.reason}</span>
+              <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.35rem" }}>
+                <button type="button" onClick={() => void decide(a, true)}>Approve</button>
+                <button type="button" onClick={() => void decide(a, false)}>Reject</button>
+              </div>
+            </li>
+          ))}
+        </ul>
       </section>
 
       {edit ? (
