@@ -1,0 +1,52 @@
+{
+  "database": "lovelaundry_inventory",
+  "sourceWorkbook": "Camelot_October_2026_restructured.xlsx",
+  "reportId": "monthly-report-2026-10",
+  "collections": {
+    "laundries": {
+      "documents": 1,
+      "file": "collections/laundries.json"
+    },
+    "inventory_sections": {
+      "documents": 5,
+      "file": "collections/inventory_sections.json"
+    },
+    "inventory_items": {
+      "documents": 71,
+      "file": "collections/inventory_items.json"
+    },
+    "billing_categories": {
+      "documents": 40,
+      "file": "collections/billing_categories.json"
+    },
+    "item_rate_history": {
+      "documents": 68,
+      "file": "collections/item_rate_history.json"
+    },
+    "monthly_reports": {
+      "documents": 1,
+      "file": "collections/monthly_reports.json"
+    },
+    "daily_inventory_entries": {
+      "documents": 806,
+      "file": "collections/daily_inventory_entries.json"
+    },
+    "monthly_report_summaries": {
+      "documents": 1,
+      "file": "collections/monthly_report_summaries.json"
+    }
+  },
+  "totals": {
+    "quantity": 7856,
+    "amountLkr": 381624.0,
+    "unpricedQuantity": 2,
+    "dailyEntryDocuments": 806
+  },
+  "verification": {
+    "allSectionTotalsMatch": true,
+    "allBillingCategoryTotalsMatch": true,
+    "dailyQuantitySum": 7856,
+    "dailyCostSumLkr": 381624.0,
+    "formulaOrDataValidationErrors": 0
+  }
+}

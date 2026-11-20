@@ -33,6 +33,22 @@ def test_create_adjustment_requires_reason(client) -> None:
     assert response.json()["detail"] == "A reason is required to request an adjustment"
 
 
+def test_create_adjustment_rejects_duplicate_id(client) -> None:
+    payload = {
+        "adjustment_id": "adj-duplicate",
+        "gate_pass_id": "gp-duplicate",
+        "item_name": "Towel",
+        "original_qty": 4,
+        "corrected_qty": 3,
+        "reason": "Stained",
+        "actor_id": "requester-9",
+    }
+    assert _create(client, payload).status_code == 200
+    conflict = _create(client, payload)
+    assert conflict.status_code == 409
+    assert conflict.json()["detail"] == "Adjustment adj-duplicate already exists."
+
+
 def test_adjustment_lifecycle(client) -> None:
     created = _create(
         client,
@@ -146,4 +162,4 @@ def test_approve_updates_bills_and_monthly_operations_together(client) -> None:
     assert body["monthly_operations"]["period"] == "2026-12"
 
     operations = client.get("/operations/monthly", params={"period": "2026-12"}).json()
-    assert operations["outstanding"] == 7.0
+    assert operations["outstanding"] == 70.0

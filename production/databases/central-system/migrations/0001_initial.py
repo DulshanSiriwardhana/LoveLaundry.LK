@@ -1,25 +1,21 @@
 import os
+import sys
+from pathlib import Path
 
 from motor.motor_asyncio import AsyncIOMotorClient
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from apply_schema import apply_schema
+
+SCHEMA_PATH = Path(__file__).resolve().parents[1] / "schema" / "central_system.json"
+
 
 async def apply() -> None:
-    client = AsyncIOMotorClient(os.getenv("MONGODB_CENTRAL_URI", "mongodb://127.0.0.1:27017"))
-    database = client[os.getenv("MONGODB_CENTRAL_DB", "central_system")]
-    names = await database.list_collection_names()
-    for name in (
-        "users",
-        "roles",
-        "permissions",
-        "organizations",
-        "memberships",
-        "devices",
-        "sessions",
-        "security_logs",
-        "audit_logs",
-        "system_configs",
-    ):
-        if name not in names:
-            await database.create_collection(name)
-    await database["system_configs"].create_index("config_key", unique=True)
-    await database["sessions"].create_index("token_jti", unique=True)
+    client = AsyncIOMotorClient(
+        os.getenv("MONGODB_CENTRAL_URI", "mongodb://127.0.0.1:27017")
+    )
+    try:
+        database = client[os.getenv("MONGODB_CENTRAL_DB", "central_system")]
+        await apply_schema(database, SCHEMA_PATH)
+    finally:
+        client.close()

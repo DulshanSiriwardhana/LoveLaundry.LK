@@ -41,9 +41,19 @@ export function getTodayStr(): string {
   return now.toISOString().slice(0, 10)
 }
 
-const userBase = (): string => import.meta.env.VITE_USER_API_URL ?? 'http://localhost:8002'
-const billsBase = (): string => import.meta.env.VITE_BILLS_API_URL ?? 'http://localhost:8001'
-const mgmtBase = (): string => import.meta.env.VITE_MGMT_API_URL ?? 'http://localhost:8001'
+/** Service URLs must come from the build environment; there is no local fallback. */
+function requiredApiUrl(name: string, value: string | undefined): string {
+  const url = value?.trim()
+  if (!url) {
+    throw new Error(`${name} is not configured. Set it to the deployed service URL before using this app.`)
+  }
+  return url.replace(/\/+$/, '')
+}
+
+// Static property access keeps these values inlined by Vite in production builds.
+const userBase = (): string => requiredApiUrl('VITE_USER_API_URL', import.meta.env.VITE_USER_API_URL)
+const billsBase = (): string => requiredApiUrl('VITE_BILLS_API_URL', import.meta.env.VITE_BILLS_API_URL)
+const mgmtBase = (): string => requiredApiUrl('VITE_MGMT_API_URL', import.meta.env.VITE_MGMT_API_URL)
 
 const authHeaders = (token: string): HeadersInit => ({ Authorization: `Bearer ${token}` })
 

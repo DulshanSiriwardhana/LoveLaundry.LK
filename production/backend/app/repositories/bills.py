@@ -18,3 +18,6 @@ class InvoiceRepository:
 
     async def save(self, invoice: dict) -> dict:
         raise NotImplementedError
+
+    async def list_by_period(self, period: str) -> list[dict]:
+        raise NotImplementedError

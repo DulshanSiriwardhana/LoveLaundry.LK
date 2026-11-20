@@ -21,6 +21,13 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(`${BASE}${path}`, { ...init, headers });
   if (!res.ok) {
     const body = await res.text();
+    if (res.status === 401) {
+      setToken(null);
+      if (!window.location.pathname.startsWith("/login")) {
+        window.location.replace("/login");
+      }
+      throw new Error(body || "Session expired. Please sign in again.");
+    }
     throw new Error(body || `Request failed: ${res.status}`);
   }
   return (await res.json()) as T;

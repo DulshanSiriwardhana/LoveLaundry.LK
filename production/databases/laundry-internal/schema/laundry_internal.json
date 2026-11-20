@@ -1,145 +1,183 @@
 {
   "database": "laundry_internal",
-  "version": 1,
+  "version": 2,
   "collections": [
     {
       "name": "customers",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["customer_id", "organization_id", "name"],
           "properties": {
             "customer_id": {"bsonType": "string"},
             "organization_id": {"bsonType": "string"},
             "name": {"bsonType": "string"},
-            "phone": {"bsonType": "string", "optional": true},
-            "created_at": {"bsonType": "date"}
+            "phone": {"bsonType": "string"},
+            "created_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"organization_id": 1}, "name": "org"}]
     },
     {
       "name": "items",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["item_id", "organization_id", "name"],
           "properties": {
             "item_id": {"bsonType": "string"},
             "organization_id": {"bsonType": "string"},
             "name": {"bsonType": "string"},
             "unit": {"bsonType": "string"},
-            "created_at": {"bsonType": "date"}
+            "created_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"organization_id": 1}, "name": "org"}]
     },
     {
       "name": "orders",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["order_id", "organization_id", "customer_id", "status"],
           "properties": {
             "order_id": {"bsonType": "string"},
             "organization_id": {"bsonType": "string"},
             "customer_id": {"bsonType": "string"},
             "status": {"bsonType": "string"},
-            "created_at": {"bsonType": "date"}
+            "created_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"organization_id": 1, "status": 1}, "name": "org_status"}]
     },
     {
       "name": "bills",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["bill_id", "organization_id", "order_id", "status"],
           "properties": {
             "bill_id": {"bsonType": "string"},
             "organization_id": {"bsonType": "string"},
             "order_id": {"bsonType": "string"},
             "status": {"bsonType": "string"},
-            "amount": {"bsonType": "double", "optional": true},
-            "created_at": {"bsonType": "date"}
+            "amount": {"bsonType": "double"},
+            "period": {"bsonType": "string"},
+            "gate_pass_id": {"bsonType": "string"},
+            "corrected_qty": {"bsonType": "double"},
+            "unit_price": {"bsonType": "double"},
+            "edit_reason": {"bsonType": "string"},
+            "edited_by": {"bsonType": "string"},
+            "created_at": {"bsonType": "string"},
+            "updated_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [
+        {"keys": {"bill_id": 1}, "name": "bill_id", "unique": true},
+        {"keys": {"organization_id": 1, "status": 1}, "name": "org_status"},
+        {"keys": {"period": 1}, "name": "period"},
+        {"keys": {"gate_pass_id": 1}, "name": "gate_pass"}
+      ]
     },
     {
       "name": "invoices",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["invoice_id", "organization_id", "bill_id"],
           "properties": {
             "invoice_id": {"bsonType": "string"},
             "organization_id": {"bsonType": "string"},
             "bill_id": {"bsonType": "string"},
             "status": {"bsonType": "string"},
-            "total": {"bsonType": "double", "optional": true},
-            "created_at": {"bsonType": "date"}
+            "total": {"bsonType": "double"},
+            "period": {"bsonType": "string"},
+            "edit_reason": {"bsonType": "string"},
+            "edited_by": {"bsonType": "string"},
+            "created_at": {"bsonType": "string"},
+            "updated_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [
+        {"keys": {"invoice_id": 1}, "name": "invoice_id", "unique": true},
+        {"keys": {"organization_id": 1}, "name": "org_invoices"},
+        {"keys": {"bill_id": 1}, "name": "bill"}
+      ]
     },
     {
       "name": "payments",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["payment_id", "organization_id", "invoice_id", "status"],
           "properties": {
             "payment_id": {"bsonType": "string"},
             "organization_id": {"bsonType": "string"},
             "invoice_id": {"bsonType": "string"},
             "status": {"bsonType": "string"},
-            "amount": {"bsonType": "double", "optional": true},
-            "created_at": {"bsonType": "date"}
+            "amount": {"bsonType": "double"},
+            "created_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"invoice_id": 1}, "name": "invoice"}]
     },
     {
       "name": "employees",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["employee_id", "organization_id", "name"],
           "properties": {
             "employee_id": {"bsonType": "string"},
             "organization_id": {"bsonType": "string"},
             "name": {"bsonType": "string"},
-            "role": {"bsonType": "string", "optional": true},
-            "created_at": {"bsonType": "date"}
+            "role": {"bsonType": "string"},
+            "created_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"organization_id": 1}, "name": "org"}]
     },
     {
       "name": "payroll_records",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["payroll_id", "organization_id", "employee_id", "period"],
           "properties": {
             "payroll_id": {"bsonType": "string"},
             "organization_id": {"bsonType": "string"},
             "employee_id": {"bsonType": "string"},
             "period": {"bsonType": "string"},
-            "amount": {"bsonType": "double", "optional": true},
-            "created_at": {"bsonType": "date"}
+            "amount": {"bsonType": "double"},
+            "created_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"organization_id": 1, "period": 1}, "name": "org_period"}]
     },
     {
       "name": "expenses",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["expense_id", "organization_id", "category", "amount"],
           "properties": {
             "expense_id": {"bsonType": "string"},
             "organization_id": {"bsonType": "string"},
             "category": {"bsonType": "string"},
             "amount": {"bsonType": "double"},
-            "created_at": {"bsonType": "date"}
+            "created_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"organization_id": 1, "category": 1}, "name": "org_category"}]
     }
   ]
 }

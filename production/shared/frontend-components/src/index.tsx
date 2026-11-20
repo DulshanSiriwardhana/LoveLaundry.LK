@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { cx } from "../utilities";
+import { cx } from "./utilities";
 
 export function Panel(props: { title?: string; children: ReactNode }) {
   return (

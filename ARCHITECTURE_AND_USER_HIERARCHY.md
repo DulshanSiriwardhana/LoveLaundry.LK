@@ -126,25 +126,33 @@ Within one laundry (TENANT_ROLES):
    ADMIN (TENANT_ADMIN) # full control of exactly one laundry; manages its members
    MANAGER              # operations + payroll/HR/expenses/reports
    STAFF                # counter/cashier; day operations only
+
+Client-side sub-admins (entity-scoped, from user-service `main.py` / `client_accounts.py`):
+   HOTEL_ADMIN          # admin of one hotel client; manages that hotel's non-admin staff
+   SHOP_ADMIN           # admin of one shop client; manages that shop's non-admin staff
 ```
 
-- `TENANT_ROLES = ("ADMIN", "MANAGER", "STAFF")`.
-- `PLATFORM_ADMIN` is a strict superset of `ADMIN`: anywhere `ADMIN` is accepted, `PLATFORM_ADMIN` passes (`auth_helper.py:105`). The reverse is never true.
+- `TENANT_ROLES = ("ADMIN", "MANAGER", "STAFF")`; client accounts add `CLIENT_ROLES["HOTEL"] = {HOTEL_ADMIN, HOTEL_MANAGER}` and `CLIENT_ROLES["SHOP"] = {SHOP_ADMIN, SHOP_STAFF}`. The two client sides are disjoint: no role spans hotel and shop.
+- `PLATFORM_ADMIN` is a strict superset of `ADMIN`: anywhere `ADMIN` is accepted, `PLATFORM_ADMIN` passes (`auth_helper.py:147`). The reverse is never true.
+- `HOTEL_ADMIN` / `SHOP_ADMIN` are scoped sub-admins, not tenant `ADMIN`s: they are accepted alongside `ADMIN` on the shared client-membership endpoints (`POST /users/{id}/hotels`, `POST /users/{id}/shops`), but only `PLATFORM_ADMIN` may create or promote them and only `PLATFORM_ADMIN` may grant the same sub-admin role. They cannot act outside their own hotel/shop and do not inherit `ADMIN`-only routes (`require_role` promotes only `PLATFORM_ADMIN` to `ADMIN`). A tenant `ADMIN` can use those membership endpoints but cannot mint client sub-admins.
 - `PLATFORM_ADMIN` is never a tenant member of a laundry; it enters a laundry only via `POST /laundries/{id}/enter` (audited).
 
-### 6.2 Capabilities (fine-grained, from `laundry-management/src/auth_helper.py`)
+### 6.2 Capabilities (fine-grained, from `laundry-management/src/auth_helper.py` plus user-service client scope)
 
-`ROLE_CAPABILITIES` maps each role to capabilities checked by `require_capability`:
+`ROLE_CAPABILITIES` maps the laundry roles to capabilities checked by `require_capability`; `HOTEL_ADMIN` / `SHOP_ADMIN` are additionally scoped by user-service entity checks:
 
 | Role | Capabilities |
 |---|---|
 | ADMIN | management r/w, customer r/w, item r/w, transaction r/w, expense r/w, employee r/w, salary r/w, payment r/w, report r/w, dashboard read, import write |
 | MANAGER | identical to ADMIN |
 | STAFF | management read, customer r/w, item read, transaction r/w, payment read, dashboard read (no payroll/HR/expenses/reports write) |
-| PLATFORM_ADMIN | = full ADMIN set (`ROLE_CAPABILITIES["PLATFORM_ADMIN"] = list(ADMIN)`) |
+| HOTEL_ADMIN | entity-scoped admin: manages non-admin memberships of its own hotel only; cannot grant `HOTEL_ADMIN` or cross hotels; no tenant ADMIN capabilities |
+| SHOP_ADMIN | entity-scoped admin: manages non-admin memberships of its own shop only; cannot grant `SHOP_ADMIN` or cross shops; no tenant ADMIN capabilities |
+| PLATFORM_ADMIN | = full ADMIN set (`ROLE_CAPABILITIES["PLATFORM_ADMIN"] = list(ADMIN)`), plus registry/client-administration endpoints |
 
 Frontend route guards mirror this: `AdminRoute` (ADMIN|PLATFORM_ADMIN),
 `ManagerRoute` (ADMIN|MANAGER|PLATFORM_ADMIN), `PlatformAdminRoute` (PLATFORM_ADMIN only).
+Frontend permission helpers treat `HOTEL_ADMIN` / `SHOP_ADMIN` as admin-like roles alongside `ADMIN` / `PLATFORM_ADMIN`; API authorization still scopes them to their own `hotel_id` / `shop_id`.
 
 ### 6.3 Support entry
 

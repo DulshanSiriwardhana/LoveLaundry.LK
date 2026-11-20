@@ -29,17 +29,49 @@ export interface MovementPayload {
   actor_id: string;
 }
 
-const API_BASE = "http://localhost:8000";
+export const TOKEN_STORAGE_KEY = "lovelaundry_token";
+export const USER_STORAGE_KEY = "lovelaundry_user";
+
+export const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "/api";
+
+export function getAuthToken(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  return window.localStorage.getItem(TOKEN_STORAGE_KEY);
+}
+
+export function buildRequestHeaders(headers?: HeadersInit): Record<string, string> {
+  const merged: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...((headers ?? {}) as Record<string, string>),
+  };
+  const token = getAuthToken();
+  if (token && !("Authorization" in merged)) {
+    merged.Authorization = `Bearer ${token}`;
+  }
+  return merged;
+}
+
+function handleUnauthorized(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+  window.localStorage.removeItem(TOKEN_STORAGE_KEY);
+  window.localStorage.removeItem(USER_STORAGE_KEY);
+  window.location.assign("/login");
+}
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
+    headers: buildRequestHeaders(init?.headers),
     body: init?.body ? String(init.body) : undefined,
   });
+
+  if (response.status === 401) {
+    handleUnauthorized();
+  }
 
   if (!response.ok) {
     const detail = await response.json().catch(() => null);

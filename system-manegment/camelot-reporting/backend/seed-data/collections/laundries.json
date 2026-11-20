@@ -1,0 +1,12 @@
+[
+  {
+    "_id": "love-laundry",
+    "name": "Love Laundry",
+    "code": "LOVE_LAUNDRY",
+    "currency": "LKR",
+    "timezone": "Asia/Colombo",
+    "active": true,
+    "createdAt": "2026-11-02T00:00:00+05:30",
+    "notes": "Initial MongoDB seed created from the October 2026 inventory workbook."
+  }
+]

@@ -3,7 +3,19 @@
   "builds": [
     {
       "src": "api/index.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "includeFiles": [
+          "src/**",
+          "requirements.txt",
+          "../bill-service/src/bill_service/**",
+          "../user-service/src/user_service/**",
+          "../quotation-service/src/quotation_service/**",
+          "../worker-service/src/worker_service/**",
+          "../laundry-management/src/**",
+          "../love-ai/src/**"
+        ]
+      }
     }
   ],
   "routes": [

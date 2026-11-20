@@ -1,10 +1,3 @@
-from datetime import datetime, timezone
-
-
-def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
-
-
 def compute_monthly_operations(bills: list[dict]) -> dict:
     delivered = 0.0
     outstanding = 0.0

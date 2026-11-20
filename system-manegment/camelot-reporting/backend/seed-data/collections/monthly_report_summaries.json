@@ -1,0 +1,1634 @@
+[
+  {
+    "_id": "monthly-summary-2026-10",
+    "organizationId": "love-laundry",
+    "reportId": "monthly-report-2026-10",
+    "monthKey": "2026-10",
+    "currency": "LKR",
+    "totalQuantity": 7856,
+    "totalAmountLkr": 381624.0,
+    "unpricedQuantity": 2,
+    "sectionTotals": [
+      {
+        "sectionCode": "UNIFORMS",
+        "sectionName": "Uniforms",
+        "totalQuantity": 3477,
+        "totalAmountLkr": 260255.0,
+        "itemCount": 38
+      },
+      {
+        "sectionCode": "INTERNAL_ITEMS",
+        "sectionName": "Internal Items",
+        "totalQuantity": 224,
+        "totalAmountLkr": 4298.0,
+        "itemCount": 8
+      },
+      {
+        "sectionCode": "BEDDING",
+        "sectionName": "Bedding",
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "itemCount": 8
+      },
+      {
+        "sectionCode": "FNB_LINEN",
+        "sectionName": "F&B Linen",
+        "totalQuantity": 4155,
+        "totalAmountLkr": 117071.0,
+        "itemCount": 15
+      },
+      {
+        "sectionCode": "PRESSING_ONLY",
+        "sectionName": "Pressing Only",
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "itemCount": 2
+      }
+    ],
+    "billingCategoryTotals": [
+      {
+        "billingCategoryCode": "SHIRT",
+        "billingCategoryName": "Shirt",
+        "sortOrder": 10,
+        "totalQuantity": 1348,
+        "totalAmountLkr": 107840.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "TROUSERS",
+        "billingCategoryName": "Trousers",
+        "sortOrder": 20,
+        "totalQuantity": 1152,
+        "totalAmountLkr": 86400.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "T_SHIRT",
+        "billingCategoryName": "T-Shirt",
+        "sortOrder": 30,
+        "totalQuantity": 236,
+        "totalAmountLkr": 15340.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "SHORT",
+        "billingCategoryName": "Shorts",
+        "sortOrder": 40,
+        "totalQuantity": 89,
+        "totalAmountLkr": 5340.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "BLOUSE",
+        "billingCategoryName": "Blouse",
+        "sortOrder": 50,
+        "totalQuantity": 23,
+        "totalAmountLkr": 1495.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "WRAPAROUND",
+        "billingCategoryName": "Wraparound",
+        "sortOrder": 60,
+        "totalQuantity": 15,
+        "totalAmountLkr": 1125.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "CHEF_COAT",
+        "billingCategoryName": "Chef Coat",
+        "sortOrder": 70,
+        "totalQuantity": 468,
+        "totalAmountLkr": 37440.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "APRON",
+        "billingCategoryName": "Apron",
+        "sortOrder": 80,
+        "totalQuantity": 140,
+        "totalAmountLkr": 4900.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "OTHER_UNIFORMS",
+        "billingCategoryName": "Other Uniforms",
+        "sortOrder": 90,
+        "totalQuantity": 5,
+        "totalAmountLkr": 300.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "SERVIETTE",
+        "billingCategoryName": "Serviette",
+        "sortOrder": 100,
+        "totalQuantity": 3247,
+        "totalAmountLkr": 68187.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "TABLE_CLOTH",
+        "billingCategoryName": "Table Cloth",
+        "sortOrder": 110,
+        "totalQuantity": 586,
+        "totalAmountLkr": 36332.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "TABLE_RUNNER",
+        "billingCategoryName": "Table Runner",
+        "sortOrder": 120,
+        "totalQuantity": 3,
+        "totalAmountLkr": 180.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "TRAY_MAT",
+        "billingCategoryName": "Tray Mat",
+        "sortOrder": 130,
+        "totalQuantity": 15,
+        "totalAmountLkr": 405.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "FRILL_CLOTH",
+        "billingCategoryName": "Frill Cloth",
+        "sortOrder": 140,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "SATIN_CLOTH",
+        "billingCategoryName": "Satin Cloth",
+        "sortOrder": 150,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "SLIP_CLOTH",
+        "billingCategoryName": "Slip Cloth",
+        "sortOrder": 160,
+        "totalQuantity": 48,
+        "totalAmountLkr": 1920.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "CLOTH",
+        "billingCategoryName": "Cloth",
+        "sortOrder": 170,
+        "totalQuantity": 2,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 2,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "DUSTER",
+        "billingCategoryName": "Duster",
+        "sortOrder": 180,
+        "totalQuantity": 310,
+        "totalAmountLkr": 5890.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "MOP",
+        "billingCategoryName": "Mop",
+        "sortOrder": 190,
+        "totalQuantity": 7,
+        "totalAmountLkr": 175.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "CHAIR_BAND",
+        "billingCategoryName": "Chair Band",
+        "sortOrder": 200,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "CURTAIN_FB",
+        "billingCategoryName": "Curtain F&B",
+        "sortOrder": 210,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "BANQUET_CHAIR_COVER",
+        "billingCategoryName": "Banquet Chair Cover",
+        "sortOrder": 220,
+        "totalQuantity": 161,
+        "totalAmountLkr": 8280.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "BOTTOM",
+        "billingCategoryName": "Bottom",
+        "sortOrder": 230,
+        "totalQuantity": 1,
+        "totalAmountLkr": 75.0,
+        "unpricedQuantity": 0,
+        "hasActivity": true
+      },
+      {
+        "billingCategoryCode": "JERSEY",
+        "billingCategoryName": "Jersey",
+        "sortOrder": 240,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "SARONG",
+        "billingCategoryName": "Sarong",
+        "sortOrder": 250,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "VEST",
+        "billingCategoryName": "Vest",
+        "sortOrder": 260,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "SAREE",
+        "billingCategoryName": "Saree",
+        "sortOrder": 270,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "CUSHION_COVER",
+        "billingCategoryName": "Cushion Cover",
+        "sortOrder": 280,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "FLAGS",
+        "billingCategoryName": "Flags",
+        "sortOrder": 290,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "PILLOWS",
+        "billingCategoryName": "Pillows",
+        "sortOrder": 300,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "BED_SHEET_SINGLE",
+        "billingCategoryName": "Bed Sheet (Single)",
+        "sortOrder": 310,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "BED_SHEET_DOUBLE",
+        "billingCategoryName": "Bed Sheet (Double)",
+        "sortOrder": 320,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "DUVET_COVER_SINGLE",
+        "billingCategoryName": "Duvet Cover (Single)",
+        "sortOrder": 330,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "DUVET_COVER_DOUBLE",
+        "billingCategoryName": "Duvet Cover (Double)",
+        "sortOrder": 340,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "PILLOW_CASE",
+        "billingCategoryName": "Pillow Case",
+        "sortOrder": 350,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "FACE_TOWEL",
+        "billingCategoryName": "Face Towel",
+        "sortOrder": 360,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "BATH_TOWEL",
+        "billingCategoryName": "Bath Towel",
+        "sortOrder": 370,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "BATH_MAT",
+        "billingCategoryName": "Bath Mat",
+        "sortOrder": 380,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "TABLE_CLOTH_PRESSING",
+        "billingCategoryName": "Table Cloth — Pressing Only",
+        "sortOrder": 390,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      },
+      {
+        "billingCategoryCode": "TABLE_RUNNER_PRESSING",
+        "billingCategoryName": "Table Runner — Pressing Only",
+        "sortOrder": 400,
+        "totalQuantity": 0,
+        "totalAmountLkr": 0.0,
+        "unpricedQuantity": 0,
+        "hasActivity": false
+      }
+    ],
+    "dailyTotals": [
+      {
+        "serviceDate": "2026-10-01",
+        "dayOfMonth": 1,
+        "totalQuantity": 149,
+        "totalAmountLkr": 10735.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 126,
+            "amountLkr": 9375
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 23,
+            "amountLkr": 1360
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-02",
+        "dayOfMonth": 2,
+        "totalQuantity": 165,
+        "totalAmountLkr": 9764.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 104,
+            "amountLkr": 7850
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 23,
+            "amountLkr": 449
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 38,
+            "amountLkr": 1465
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-03",
+        "dayOfMonth": 3,
+        "totalQuantity": 469,
+        "totalAmountLkr": 16181.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 118,
+            "amountLkr": 8795
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 11,
+            "amountLkr": 215
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 340,
+            "amountLkr": 7171
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-04",
+        "dayOfMonth": 4,
+        "totalQuantity": 233,
+        "totalAmountLkr": 12441.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 124,
+            "amountLkr": 9215
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 109,
+            "amountLkr": 3226
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-05",
+        "dayOfMonth": 5,
+        "totalQuantity": 186,
+        "totalAmountLkr": 14584.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 121,
+            "amountLkr": 8880
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 65,
+            "amountLkr": 5704
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-06",
+        "dayOfMonth": 6,
+        "totalQuantity": 89,
+        "totalAmountLkr": 6720.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 89,
+            "amountLkr": 6720
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-07",
+        "dayOfMonth": 7,
+        "totalQuantity": 371,
+        "totalAmountLkr": 21979.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 96,
+            "amountLkr": 7210
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 43,
+            "amountLkr": 817
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 232,
+            "amountLkr": 13952
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-08",
+        "dayOfMonth": 8,
+        "totalQuantity": 117,
+        "totalAmountLkr": 8635.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 117,
+            "amountLkr": 8635
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-09",
+        "dayOfMonth": 9,
+        "totalQuantity": 232,
+        "totalAmountLkr": 11057.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 111,
+            "amountLkr": 8365
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 11,
+            "amountLkr": 209
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 110,
+            "amountLkr": 2483
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-10",
+        "dayOfMonth": 10,
+        "totalQuantity": 100,
+        "totalAmountLkr": 7415.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 100,
+            "amountLkr": 7415
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-11",
+        "dayOfMonth": 11,
+        "totalQuantity": 664,
+        "totalAmountLkr": 21945.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 134,
+            "amountLkr": 10120
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 34,
+            "amountLkr": 658
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 496,
+            "amountLkr": 11167
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-12",
+        "dayOfMonth": 12,
+        "totalQuantity": 169,
+        "totalAmountLkr": 11491.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 128,
+            "amountLkr": 9445
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 10,
+            "amountLkr": 190
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 31,
+            "amountLkr": 1856
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-13",
+        "dayOfMonth": 13,
+        "totalQuantity": 97,
+        "totalAmountLkr": 7270.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 97,
+            "amountLkr": 7270
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-14",
+        "dayOfMonth": 14,
+        "totalQuantity": 410,
+        "totalAmountLkr": 14290.0,
+        "unpricedQuantity": 1,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 102,
+            "amountLkr": 7755
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 16,
+            "amountLkr": 304
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 292,
+            "amountLkr": 6231.0
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-15",
+        "dayOfMonth": 15,
+        "totalQuantity": 101,
+        "totalAmountLkr": 7515.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 101,
+            "amountLkr": 7515
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-16",
+        "dayOfMonth": 16,
+        "totalQuantity": 112,
+        "totalAmountLkr": 8485.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 112,
+            "amountLkr": 8485
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-17",
+        "dayOfMonth": 17,
+        "totalQuantity": 129,
+        "totalAmountLkr": 9865.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 129,
+            "amountLkr": 9865
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-18",
+        "dayOfMonth": 18,
+        "totalQuantity": 835,
+        "totalAmountLkr": 30002.0,
+        "unpricedQuantity": 1,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 158,
+            "amountLkr": 11765
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 3,
+            "amountLkr": 69
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 674,
+            "amountLkr": 18168.0
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-19",
+        "dayOfMonth": 19,
+        "totalQuantity": 179,
+        "totalAmountLkr": 11206.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 124,
+            "amountLkr": 9295
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 32,
+            "amountLkr": 608
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 23,
+            "amountLkr": 1303
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-20",
+        "dayOfMonth": 20,
+        "totalQuantity": 120,
+        "totalAmountLkr": 8880.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 120,
+            "amountLkr": 8880
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-21",
+        "dayOfMonth": 21,
+        "totalQuantity": 568,
+        "totalAmountLkr": 18658.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 122,
+            "amountLkr": 9040
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 446,
+            "amountLkr": 9618
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-22",
+        "dayOfMonth": 22,
+        "totalQuantity": 101,
+        "totalAmountLkr": 7470.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 101,
+            "amountLkr": 7470
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-23",
+        "dayOfMonth": 23,
+        "totalQuantity": 95,
+        "totalAmountLkr": 7105.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 95,
+            "amountLkr": 7105
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-24",
+        "dayOfMonth": 24,
+        "totalQuantity": 92,
+        "totalAmountLkr": 6865.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 92,
+            "amountLkr": 6865
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-25",
+        "dayOfMonth": 25,
+        "totalQuantity": 708,
+        "totalAmountLkr": 24671.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 133,
+            "amountLkr": 10120
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 30,
+            "amountLkr": 570
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 545,
+            "amountLkr": 13981
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-26",
+        "dayOfMonth": 26,
+        "totalQuantity": 123,
+        "totalAmountLkr": 9065.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 123,
+            "amountLkr": 9065
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-27",
+        "dayOfMonth": 27,
+        "totalQuantity": 105,
+        "totalAmountLkr": 8010.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 105,
+            "amountLkr": 8010
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-28",
+        "dayOfMonth": 28,
+        "totalQuantity": 612,
+        "totalAmountLkr": 19322.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 103,
+            "amountLkr": 7660
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 509,
+            "amountLkr": 11662
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-29",
+        "dayOfMonth": 29,
+        "totalQuantity": 329,
+        "totalAmountLkr": 15083.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 96,
+            "amountLkr": 7150
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 11,
+            "amountLkr": 209
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 222,
+            "amountLkr": 7724
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-30",
+        "dayOfMonth": 30,
+        "totalQuantity": 99,
+        "totalAmountLkr": 7515.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 99,
+            "amountLkr": 7515
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      },
+      {
+        "serviceDate": "2026-10-31",
+        "dayOfMonth": 31,
+        "totalQuantity": 97,
+        "totalAmountLkr": 7400.0,
+        "unpricedQuantity": 0,
+        "sections": [
+          {
+            "sectionCode": "UNIFORMS",
+            "sectionName": "Uniforms",
+            "quantity": 97,
+            "amountLkr": 7400
+          },
+          {
+            "sectionCode": "INTERNAL_ITEMS",
+            "sectionName": "Internal Items",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "BEDDING",
+            "sectionName": "Bedding",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "FNB_LINEN",
+            "sectionName": "F&B Linen",
+            "quantity": 0,
+            "amountLkr": 0
+          },
+          {
+            "sectionCode": "PRESSING_ONLY",
+            "sectionName": "Pressing Only",
+            "quantity": 0,
+            "amountLkr": 0
+          }
+        ]
+      }
+    ],
+    "reconciliation": {
+      "dailySumQuantity": 7856,
+      "dailySumAmountLkr": 381624.0,
+      "sectionSumQuantity": 7856,
+      "sectionSumAmountLkr": 381624.0,
+      "billingCategorySumQuantity": 7856,
+      "billingCategorySumAmountLkr": 381624.0,
+      "quantityVariance": 0,
+      "amountVarianceLkr": 0,
+      "passed": true
+    },
+    "generatedAt": "2026-11-02T00:00:00+05:30"
+  }
+]

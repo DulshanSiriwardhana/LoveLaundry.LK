@@ -17,7 +17,8 @@ services:
 
   backend:
     build:
-      context: ../backend
+      context: ..
+      dockerfile: backend/Dockerfile
     restart: unless-stopped
     environment:
       APP_ENV: production
@@ -47,7 +48,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ../reverse-proxy/nginx.conf:/etc/nginx/nginx.conf:ro
       - backend_api:/var/cache/nginx
     depends_on:
       backend:

@@ -1,95 +1,121 @@
 {
   "database": "linen_tracking",
-  "version": 1,
+  "version": 2,
   "collections": [
     {
       "name": "linens",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["linen_id", "organization_id", "code", "status"],
           "properties": {
             "linen_id": {"bsonType": "string"},
             "organization_id": {"bsonType": "string"},
             "code": {"bsonType": "string"},
             "status": {"bsonType": "string"},
-            "category": {"bsonType": "string", "optional": true},
-            "created_at": {"bsonType": "date"}
+            "category": {"bsonType": "string"},
+            "created_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [
+        {"keys": {"organization_id": 1, "code": 1}, "name": "org_code", "unique": true},
+        {"keys": {"linen_id": 1}, "name": "linen_id", "unique": true}
+      ]
     },
     {
       "name": "movements",
       "validator": {
         "$jsonSchema": {
-          "required": ["movement_id", "linen_id", "from_org", "to_org", "reason", "created_at"],
+          "bsonType": "object",
+          "required": ["movement_id", "linen_id", "direction", "quantity", "reason"],
           "properties": {
             "movement_id": {"bsonType": "string"},
             "linen_id": {"bsonType": "string"},
+            "direction": {"bsonType": "string", "enum": ["in", "out"]},
+            "quantity": {"bsonType": "double"},
             "from_org": {"bsonType": "string"},
             "to_org": {"bsonType": "string"},
             "reason": {"bsonType": "string"},
-            "created_at": {"bsonType": "date"}
+            "period": {"bsonType": "string"},
+            "actor_id": {"bsonType": "string"},
+            "edited_by": {"bsonType": "string"},
+            "created_at": {"bsonType": "string"},
+            "updated_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [
+        {"keys": {"movement_id": 1}, "name": "movement_id", "unique": true},
+        {"keys": {"period": 1}, "name": "period"},
+        {"keys": {"linen_id": 1}, "name": "linen"},
+        {"keys": {"direction": 1, "period": 1}, "name": "direction_period"}
+      ]
     },
     {
       "name": "scans",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["scan_id", "linen_id", "scanner_id", "stage", "created_at"],
           "properties": {
             "scan_id": {"bsonType": "string"},
             "linen_id": {"bsonType": "string"},
             "scanner_id": {"bsonType": "string"},
             "stage": {"bsonType": "string"},
-            "created_at": {"bsonType": "date"}
+            "created_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"linen_id": 1}, "name": "linen_scans"}]
     },
     {
       "name": "allocations",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["allocation_id", "linen_id", "owner_org", "purpose", "created_at"],
           "properties": {
             "allocation_id": {"bsonType": "string"},
             "linen_id": {"bsonType": "string"},
             "owner_org": {"bsonType": "string"},
             "purpose": {"bsonType": "string"},
-            "created_at": {"bsonType": "date"}
+            "created_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"linen_id": 1}, "name": "linen"}]
     },
     {
       "name": "damages",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["damage_id", "linen_id", "severity", "created_at"],
           "properties": {
             "damage_id": {"bsonType": "string"},
             "linen_id": {"bsonType": "string"},
             "severity": {"bsonType": "string"},
-            "created_at": {"bsonType": "date"}
+            "created_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"linen_id": 1}, "name": "linen"}]
     },
     {
       "name": "reconciliations",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["reconciliation_id", "period", "created_at"],
           "properties": {
             "reconciliation_id": {"bsonType": "string"},
             "period": {"bsonType": "string"},
-            "created_at": {"bsonType": "date"}
+            "created_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"period": 1}, "name": "period", "unique": true}]
     }
   ]
 }

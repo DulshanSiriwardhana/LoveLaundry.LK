@@ -1,0 +1,47 @@
+[
+  {
+    "_id": "section-uniforms",
+    "organizationId": "love-laundry",
+    "code": "UNIFORMS",
+    "name": "Uniforms",
+    "sortOrder": 1,
+    "isActive": true,
+    "createdFrom": "October 2026 inventory workbook"
+  },
+  {
+    "_id": "section-internal_items",
+    "organizationId": "love-laundry",
+    "code": "INTERNAL_ITEMS",
+    "name": "Internal Items",
+    "sortOrder": 2,
+    "isActive": true,
+    "createdFrom": "October 2026 inventory workbook"
+  },
+  {
+    "_id": "section-bedding",
+    "organizationId": "love-laundry",
+    "code": "BEDDING",
+    "name": "Bedding",
+    "sortOrder": 3,
+    "isActive": true,
+    "createdFrom": "October 2026 inventory workbook"
+  },
+  {
+    "_id": "section-fnb_linen",
+    "organizationId": "love-laundry",
+    "code": "FNB_LINEN",
+    "name": "F&B Linen",
+    "sortOrder": 4,
+    "isActive": true,
+    "createdFrom": "October 2026 inventory workbook"
+  },
+  {
+    "_id": "section-pressing_only",
+    "organizationId": "love-laundry",
+    "code": "PRESSING_ONLY",
+    "name": "Pressing Only",
+    "sortOrder": 5,
+    "isActive": true,
+    "createdFrom": "October 2026 inventory workbook"
+  }
+]

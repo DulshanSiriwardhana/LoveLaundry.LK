@@ -11,6 +11,12 @@ class BillsService:
         bills = await self.bill_repository.list_by_period(period)
         return {"period": period, **compute_monthly_operations(bills)}
 
+    async def list_bills(self, period: str) -> list[dict]:
+        return await self.bill_repository.list_by_period(period)
+
+    async def list_invoices(self, period: str) -> list[dict]:
+        return await self.invoice_repository.list_by_period(period)
+
     async def edit_bill(self, bill_id: str, amount: float, reason: str, actor_id: str) -> dict:
         clean_reason = (reason or "").strip()
         if not clean_reason:
@@ -49,8 +55,14 @@ class BillsService:
         saved = await self.invoice_repository.save(invoice)
         bill_id = str(invoice.get("bill_id") or "")
         bill = await self.bill_repository.find(bill_id) if bill_id else None
-        period = str(bill.get("period") or invoice.get("period") or "") if bill else str(
-            invoice.get("period") or ""
-        )
+        if bill is not None:
+            bill["amount"] = total
+            bill["updated_at"] = now().isoformat()
+            bill["edit_reason"] = clean_reason
+            bill["edited_by"] = actor_id
+            saved_bill = await self.bill_repository.save(bill)
+            period = str(saved_bill.get("period") or invoice.get("period") or "")
+        else:
+            period = str(invoice.get("period") or "")
         operations = await self.get_monthly_operations(period)
         return {"invoice": saved, "monthly_operations": operations}

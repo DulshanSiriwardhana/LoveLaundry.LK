@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { fetchLinenOperations, recordLinenMovement, type LinenOperations } from "./api";
+import { actorId, getSession, logout, type SessionUser } from "./auth";
+import { LoginScreen } from "./LoginScreen";
 
 const CURRENT_PERIOD = new Date().toISOString().slice(0, 7);
 
 export function App() {
+  const [session, setSession] = useState<SessionUser | null>(() => getSession());
   const [period, setPeriod] = useState(CURRENT_PERIOD);
   const [operations, setOperations] = useState<LinenOperations | null>(null);
   const [loading, setLoading] = useState(false);
@@ -18,7 +21,6 @@ export function App() {
     to_org: "",
     period: CURRENT_PERIOD,
     reason: "",
-    actor_id: "production-app",
   });
   const [saving, setSaving] = useState(false);
 
@@ -36,8 +38,16 @@ export function App() {
   }, [period]);
 
   useEffect(() => {
+    if (!session) {
+      return;
+    }
     void load();
-  }, [load]);
+  }, [load, session]);
+
+  const signOut = () => {
+    logout();
+    setSession(null);
+  };
 
   const saveMovement = async () => {
     const cleanReason = movement.reason.trim();
@@ -53,7 +63,7 @@ export function App() {
     setError(null);
     setNotice(null);
     try {
-      await recordLinenMovement({ ...movement, reason: cleanReason, movement_id: movement.movement_id.trim(), linen_id: movement.linen_id.trim() });
+      await recordLinenMovement({ ...movement, actor_id: actorId(), reason: cleanReason, movement_id: movement.movement_id.trim(), linen_id: movement.linen_id.trim() });
       setNotice(`Movement ${movement.movement_id} recorded.`);
       setMovement({ ...movement, reason: "", quantity: movement.quantity });
       await load();
@@ -63,6 +73,10 @@ export function App() {
       setSaving(false);
     }
   };
+
+  if (!session) {
+    return <LoginScreen onAuthenticated={setSession} />;
+  }
 
   const tiles = operations
     ? [
@@ -74,8 +88,16 @@ export function App() {
 
   return (
     <main style={{ fontFamily: "system-ui", padding: "2rem" }}>
-      <h1>Linen Tracking</h1>
-      <p>LoveLaundry production rebuild surface.</p>
+      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem" }}>
+        <div>
+          <h1 style={{ marginBottom: 0 }}>Linen Tracking</h1>
+          <p style={{ margin: "0.35rem 0" }}>LoveLaundry production rebuild surface.</p>
+          <p style={{ margin: 0 }}>Signed in as {session.user_name}</p>
+        </div>
+        <button type="button" onClick={signOut}>
+          Sign out
+        </button>
+      </header>
 
       <label style={{ display: "block", margin: "1rem 0" }}>
         Period

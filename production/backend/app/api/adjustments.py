@@ -1,6 +1,8 @@
-from fastapi import APIRouter
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends
+from pydantic import BaseModel, Field
 
+from ..core.config import get_settings
+from ..permissions.service import require_capability
 from ..repositories.adjustments import AdjustmentRepository, InMemoryAdjustmentRepository
 from ..services.adjustments import AdjustmentsService
 
@@ -12,8 +14,8 @@ class CreateAdjustmentRequest(BaseModel):
     gate_pass_id: str
     item_name: str
     specification: str = ""
-    original_qty: float
-    corrected_qty: float
+    original_qty: float = Field(ge=0)
+    corrected_qty: float = Field(ge=0)
     reason: str
     actor_id: str = "system"
 
@@ -49,15 +51,19 @@ def _service() -> AdjustmentsService:
     global _service_instance
     if _service_instance is None:
         from ..api.bills import _service as bills_service_factory
-        from ..repositories.adjustments import AdjustmentRepository, InMemoryAdjustmentRepository
 
         bill_service = bills_service_factory()
-        adjustment_repo: AdjustmentRepository = InMemoryAdjustmentRepository()
+        if get_settings().persistence == "mongo":
+            from ..repositories.mongo import MongoAdjustmentRepository
+
+            adjustment_repo: AdjustmentRepository = MongoAdjustmentRepository()
+        else:
+            adjustment_repo = InMemoryAdjustmentRepository()
         _service_instance = AdjustmentsService(adjustment_repo, bill_service)
     return _service_instance
 
 
-@router.post("", response_model= AdjustmentResponse)
+@router.post("", response_model=AdjustmentResponse, dependencies=[Depends(require_capability("edit_adjustments"))])
 async def create_adjustment(payload: CreateAdjustmentRequest) -> AdjustmentResponse:
     service = _service()
     adjustment = await service.create_adjustment(
@@ -75,14 +81,14 @@ async def create_adjustment(payload: CreateAdjustmentRequest) -> AdjustmentRespo
     return AdjustmentResponse(**adjustment)
 
 
-@router.get("", response_model=list[AdjustmentResponse])
+@router.get("", response_model=list[AdjustmentResponse], dependencies=[Depends(require_capability("view_adjustments"))])
 async def list_adjustments(status: str | None = None, gate_pass_id: str | None = None) -> list[AdjustmentResponse]:
     service = _service()
     rows = await service.list_adjustments(status=status, gate_pass_id=gate_pass_id)
     return [AdjustmentResponse(**row) for row in rows]
 
 
-@router.post("/{adjustment_id}/approve")
+@router.post("/{adjustment_id}/approve", dependencies=[Depends(require_capability("approve_adjustments"))])
 async def approve_adjustment(adjustment_id: str, approver: ApproverRequest) -> dict:
     service = _service()
     adjustment = await service.approve_adjustment(adjustment_id, approver.model_dump())
@@ -94,7 +100,7 @@ async def approve_adjustment(adjustment_id: str, approver: ApproverRequest) -> d
     }
 
 
-@router.post("/{adjustment_id}/reject")
+@router.post("/{adjustment_id}/reject", dependencies=[Depends(require_capability("approve_adjustments"))])
 async def reject_adjustment(adjustment_id: str, actor: ActorRequest) -> dict:
     service = _service()
     adjustment = await service.reject_adjustment(adjustment_id, actor.model_dump())

@@ -2,7 +2,7 @@ from cryptography.fernet import Fernet
 
 
 def new_fernet() -> Fernet:
-    return Fernet.generate_key()
+    return Fernet(Fernet.generate_key())
 
 
 def encrypt(fernet: Fernet, plaintext: str) -> str:

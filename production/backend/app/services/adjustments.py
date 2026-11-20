@@ -1,5 +1,7 @@
 from fastapi import HTTPException, status
 
+from ..core.clock import now
+
 
 def _field(obj, key: str, default: str = "") -> str:
     if isinstance(obj, dict):
@@ -18,8 +20,16 @@ class AdjustmentsService:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "A reason is required to request an adjustment")
         if str(payload.get("status") or "REQUESTED") != "REQUESTED":
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Adjustment requests are created as REQUESTED")
+        adjustment_id = str(payload.get("adjustment_id") or payload.get("id") or "").strip()
+        if not adjustment_id:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "An adjustment id is required")
+        if await self.adjustment_repository.find(adjustment_id) is not None:
+            raise HTTPException(
+                status.HTTP_409_CONFLICT,
+                f"Adjustment {adjustment_id} already exists.",
+            )
         adjustment = {
-            "id": str(payload.get("adjustment_id") or payload.get("id") or ""),
+            "id": adjustment_id,
             "gate_pass_id": str(payload.get("gate_pass_id") or ""),
             "item_name": str(payload.get("item_name") or ""),
             "specification": str(payload.get("specification") or ""),
@@ -29,8 +39,8 @@ class AdjustmentsService:
             "status": "REQUESTED",
             "requested_by": str(payload.get("requested_by") or payload.get("actor_id") or "system"),
             "requested_by_id": str(payload.get("requested_by_id") or payload.get("actor_id") or "system"),
-            "created_at": payload.get("created_at") or "1970-01-01T00:00:00+00:00",
-            "updated_at": payload.get("updated_at") or "1970-01-01T00:00:00+00:00",
+            "created_at": payload.get("created_at") or now().isoformat(),
+            "updated_at": payload.get("updated_at") or now().isoformat(),
         }
         return await self.adjustment_repository.save(adjustment)
 
@@ -56,8 +66,8 @@ class AdjustmentsService:
         adjustment["status"] = "APPROVED"
         adjustment["approved_by"] = _field(approver, "user_name") or _field(approver, "auth_id")
         adjustment["approved_by_id"] = approver_id
-        adjustment["approved_at"] = "1970-01-01T00:00:00+00:00"
-        adjustment["updated_at"] = "1970-01-01T00:00:00+00:00"
+        adjustment["approved_at"] = now().isoformat()
+        adjustment["updated_at"] = now().isoformat()
         saved = await self.adjustment_repository.save(adjustment)
 
         # Simultaneous financial propagation: the approved correction re-clamps
@@ -68,10 +78,14 @@ class AdjustmentsService:
             bill = await self.bills_service.bill_repository.find_by_gate_pass(gate_pass_id)
         operations = None
         if bill is not None:
-            corrected = float(saved.get("corrected_qty") or bill.get("corrected_qty") or bill.get("amount") or 0.0)
+            corrected = float(saved.get("corrected_qty") or 0.0)
+            original = float(saved.get("original_qty") or 0.0)
+            billed_amount = float(bill.get("amount") or 0.0)
+            unit_price = billed_amount / original if original > 0 else billed_amount
             bill["corrected_qty"] = corrected
-            bill["amount"] = corrected
-            bill["updated_at"] = "1970-01-01T00:00:00+00:00"
+            bill["unit_price"] = round(unit_price, 4)
+            bill["amount"] = round(unit_price * corrected, 2)
+            bill["updated_at"] = now().isoformat()
             await self.bills_service.bill_repository.save(bill)
             operations = await self.bills_service.get_monthly_operations(str(bill.get("period") or ""))
             saved["bill"] = bill
@@ -90,6 +104,6 @@ class AdjustmentsService:
         adjustment["status"] = "REJECTED"
         adjustment["rejected_by"] = _field(actor, "user_name") or _field(actor, "auth_id")
         adjustment["rejected_by_id"] = _field(actor, "auth_id") or _field(actor, "user_name")
-        adjustment["rejected_at"] = "1970-01-01T00:00:00+00:00"
-        adjustment["updated_at"] = "1970-01-01T00:00:00+00:00"
+        adjustment["rejected_at"] = now().isoformat()
+        adjustment["updated_at"] = now().isoformat()
         return await self.adjustment_repository.save(adjustment)

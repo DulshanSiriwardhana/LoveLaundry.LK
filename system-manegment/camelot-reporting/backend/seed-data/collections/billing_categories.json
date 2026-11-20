@@ -1,0 +1,673 @@
+[
+  {
+    "_id": "billing-category-shirt",
+    "organizationId": "love-laundry",
+    "code": "SHIRT",
+    "name": "Shirt",
+    "displayName": "Shirt",
+    "sortOrder": 10,
+    "itemIds": [
+      "item-uniforms-08-kit-blue-shirts",
+      "item-uniforms-10-garden-shirts",
+      "item-uniforms-12-eng-shirts-brown",
+      "item-uniforms-13-h-k-l-blue-shirts",
+      "item-uniforms-16-red-shirts",
+      "item-uniforms-17-grey-shirts",
+      "item-uniforms-18-orange-shirts",
+      "item-uniforms-19-f-o-shirts-brown",
+      "item-uniforms-22-white-shirts",
+      "item-uniforms-23-acc-shirts",
+      "item-uniforms-27-exec-shirts-l-blue",
+      "item-uniforms-28-exec-shirts-d-blue",
+      "item-uniforms-29-exec-shirts-maroon",
+      "item-uniforms-36-resturant-shirt"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-trousers",
+    "organizationId": "love-laundry",
+    "code": "TROUSERS",
+    "name": "Trousers",
+    "displayName": "Trousers",
+    "sortOrder": 20,
+    "itemIds": [
+      "item-uniforms-04-kitchen-trouser",
+      "item-uniforms-05-black-trouser",
+      "item-uniforms-06-kit-blue-trouser",
+      "item-uniforms-09-garden-trouser",
+      "item-uniforms-11-eng-trouser-brown",
+      "item-uniforms-26-exec-trouser-cream"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-t_shirt",
+    "organizationId": "love-laundry",
+    "code": "T_SHIRT",
+    "name": "T-Shirt",
+    "displayName": "T-Shirt",
+    "sortOrder": 30,
+    "itemIds": [
+      "item-uniforms-07-kit-blue-t-shirt",
+      "item-uniforms-15-red-t-shirts",
+      "item-uniforms-14-h-k-l-blue-t-shirt",
+      "item-uniforms-20-pool-t-shirts",
+      "item-uniforms-24-duck-blue-t-shirt",
+      "item-uniforms-25-orange-t-shirt"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-short",
+    "organizationId": "love-laundry",
+    "code": "SHORT",
+    "name": "Shorts",
+    "displayName": "Shorts",
+    "sortOrder": 40,
+    "itemIds": [
+      "item-uniforms-21-pool-shorts"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-blouse",
+    "organizationId": "love-laundry",
+    "code": "BLOUSE",
+    "name": "Blouse",
+    "displayName": "Blouse",
+    "sortOrder": 50,
+    "itemIds": [
+      "item-uniforms-31-blouse"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-wraparound",
+    "organizationId": "love-laundry",
+    "code": "WRAPAROUND",
+    "name": "Wraparound",
+    "displayName": "Wraparound",
+    "sortOrder": 60,
+    "itemIds": [
+      "item-uniforms-30-wraparound"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-chef_coat",
+    "organizationId": "love-laundry",
+    "code": "CHEF_COAT",
+    "name": "Chef Coat",
+    "displayName": "Chef Coat",
+    "sortOrder": 70,
+    "itemIds": [
+      "item-uniforms-01-kitchen-coat"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-apron",
+    "organizationId": "love-laundry",
+    "code": "APRON",
+    "name": "Apron",
+    "displayName": "Apron",
+    "sortOrder": 80,
+    "itemIds": [
+      "item-uniforms-02-kitchen-apron"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-other_uniforms",
+    "organizationId": "love-laundry",
+    "code": "OTHER_UNIFORMS",
+    "name": "Other Uniforms",
+    "displayName": "Other Uniforms",
+    "sortOrder": 90,
+    "itemIds": [
+      "item-uniforms-32-cap"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-serviette",
+    "organizationId": "love-laundry",
+    "code": "SERVIETTE",
+    "name": "Serviette",
+    "displayName": "Serviette",
+    "sortOrder": 100,
+    "itemIds": [
+      "item-fnb_linen-02-serviette"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-table_cloth",
+    "organizationId": "love-laundry",
+    "code": "TABLE_CLOTH",
+    "name": "Table Cloth",
+    "displayName": "Table Cloth",
+    "sortOrder": 110,
+    "itemIds": [
+      "item-fnb_linen-01-table-cloth",
+      "item-fnb_linen-12-table-cloth-rexing-black"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-table_runner",
+    "organizationId": "love-laundry",
+    "code": "TABLE_RUNNER",
+    "name": "Table Runner",
+    "displayName": "Table Runner",
+    "sortOrder": 120,
+    "itemIds": [
+      "item-fnb_linen-10-table-runner"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-tray_mat",
+    "organizationId": "love-laundry",
+    "code": "TRAY_MAT",
+    "name": "Tray Mat",
+    "displayName": "Tray Mat",
+    "sortOrder": 130,
+    "itemIds": [
+      "item-fnb_linen-13-tray-mat"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-frill_cloth",
+    "organizationId": "love-laundry",
+    "code": "FRILL_CLOTH",
+    "name": "Frill Cloth",
+    "displayName": "Frill Cloth",
+    "sortOrder": 140,
+    "itemIds": [
+      "item-fnb_linen-08-frill-cloth"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-satin_cloth",
+    "organizationId": "love-laundry",
+    "code": "SATIN_CLOTH",
+    "name": "Satin Cloth",
+    "displayName": "Satin Cloth",
+    "sortOrder": 150,
+    "itemIds": [
+      "item-fnb_linen-09-satin-cloth"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-slip_cloth",
+    "organizationId": "love-laundry",
+    "code": "SLIP_CLOTH",
+    "name": "Slip Cloth",
+    "displayName": "Slip Cloth",
+    "sortOrder": 160,
+    "itemIds": [
+      "item-fnb_linen-14-slip-cloth"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-cloth",
+    "organizationId": "love-laundry",
+    "code": "CLOTH",
+    "name": "Cloth",
+    "displayName": "Cloth",
+    "sortOrder": 170,
+    "itemIds": [
+      "item-fnb_linen-15-water-bottle-bags",
+      "item-fnb_linen-07-glass-cloth"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-duster",
+    "organizationId": "love-laundry",
+    "code": "DUSTER",
+    "name": "Duster",
+    "displayName": "Duster",
+    "sortOrder": 180,
+    "itemIds": [
+      "item-internal_items-04-h-k-duster",
+      "item-uniforms-03-kitchen-duster",
+      "item-fnb_linen-06-duster-f-b"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-mop",
+    "organizationId": "love-laundry",
+    "code": "MOP",
+    "name": "Mop",
+    "displayName": "Mop",
+    "sortOrder": 190,
+    "itemIds": [
+      "item-internal_items-05-mop-cloth"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-chair_band",
+    "organizationId": "love-laundry",
+    "code": "CHAIR_BAND",
+    "name": "Chair Band",
+    "displayName": "Chair Band",
+    "sortOrder": 200,
+    "itemIds": [
+      "item-fnb_linen-04-chair-band"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-curtain_fb",
+    "organizationId": "love-laundry",
+    "code": "CURTAIN_FB",
+    "name": "Curtain F&B",
+    "displayName": "Curtain F&B",
+    "sortOrder": 210,
+    "itemIds": [
+      "item-fnb_linen-11-curtain-romantic",
+      "item-internal_items-08-curtain"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-banquet_chair_cover",
+    "organizationId": "love-laundry",
+    "code": "BANQUET_CHAIR_COVER",
+    "name": "Banquet Chair Cover",
+    "displayName": "Banquet Chair Cover",
+    "sortOrder": 220,
+    "itemIds": [
+      "item-fnb_linen-03-chair-cover-white",
+      "item-fnb_linen-05-cushion-chair-cover"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-bottom",
+    "organizationId": "love-laundry",
+    "code": "BOTTOM",
+    "name": "Bottom",
+    "displayName": "Bottom",
+    "sortOrder": 230,
+    "itemIds": [
+      "item-uniforms-37-bottom"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-jersey",
+    "organizationId": "love-laundry",
+    "code": "JERSEY",
+    "name": "Jersey",
+    "displayName": "Jersey",
+    "sortOrder": 240,
+    "itemIds": [
+      "item-uniforms-38-jersey"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-sarong",
+    "organizationId": "love-laundry",
+    "code": "SARONG",
+    "name": "Sarong",
+    "displayName": "Sarong",
+    "sortOrder": 250,
+    "itemIds": [
+      "item-uniforms-33-sarong"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-vest",
+    "organizationId": "love-laundry",
+    "code": "VEST",
+    "name": "Vest",
+    "displayName": "Vest",
+    "sortOrder": 260,
+    "itemIds": [
+      "item-uniforms-34-vest"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-saree",
+    "organizationId": "love-laundry",
+    "code": "SAREE",
+    "name": "Saree",
+    "displayName": "Saree",
+    "sortOrder": 270,
+    "itemIds": [
+      "item-uniforms-35-saree"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-cushion_cover",
+    "organizationId": "love-laundry",
+    "code": "CUSHION_COVER",
+    "name": "Cushion Cover",
+    "displayName": "Cushion Cover",
+    "sortOrder": 280,
+    "itemIds": [
+      "item-internal_items-01-bed-cushion-cover",
+      "item-internal_items-02-chair-cushion-cover",
+      "item-internal_items-03-balcony-cushion-cover"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-flags",
+    "organizationId": "love-laundry",
+    "code": "FLAGS",
+    "name": "Flags",
+    "displayName": "Flags",
+    "sortOrder": 290,
+    "itemIds": [
+      "item-internal_items-06-flags"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-pillows",
+    "organizationId": "love-laundry",
+    "code": "PILLOWS",
+    "name": "Pillows",
+    "displayName": "Pillows",
+    "sortOrder": 300,
+    "itemIds": [
+      "item-internal_items-07-pillows"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-bed_sheet_single",
+    "organizationId": "love-laundry",
+    "code": "BED_SHEET_SINGLE",
+    "name": "Bed Sheet (Single)",
+    "displayName": "Bed Sheet (Single)",
+    "sortOrder": 310,
+    "itemIds": [
+      "item-bedding-01-bed-sheet-s"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-bed_sheet_double",
+    "organizationId": "love-laundry",
+    "code": "BED_SHEET_DOUBLE",
+    "name": "Bed Sheet (Double)",
+    "displayName": "Bed Sheet (Double)",
+    "sortOrder": 320,
+    "itemIds": [
+      "item-bedding-02-bed-sheet-d"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-duvet_cover_single",
+    "organizationId": "love-laundry",
+    "code": "DUVET_COVER_SINGLE",
+    "name": "Duvet Cover (Single)",
+    "displayName": "Duvet Cover (Single)",
+    "sortOrder": 330,
+    "itemIds": [
+      "item-bedding-03-duvet-cover-s"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-duvet_cover_double",
+    "organizationId": "love-laundry",
+    "code": "DUVET_COVER_DOUBLE",
+    "name": "Duvet Cover (Double)",
+    "displayName": "Duvet Cover (Double)",
+    "sortOrder": 340,
+    "itemIds": [
+      "item-bedding-04-duvet-cover-d"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-pillow_case",
+    "organizationId": "love-laundry",
+    "code": "PILLOW_CASE",
+    "name": "Pillow Case",
+    "displayName": "Pillow Case",
+    "sortOrder": 350,
+    "itemIds": [
+      "item-bedding-05-pillow-case"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-face_towel",
+    "organizationId": "love-laundry",
+    "code": "FACE_TOWEL",
+    "name": "Face Towel",
+    "displayName": "Face Towel",
+    "sortOrder": 360,
+    "itemIds": [
+      "item-bedding-06-face-towel"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-bath_towel",
+    "organizationId": "love-laundry",
+    "code": "BATH_TOWEL",
+    "name": "Bath Towel",
+    "displayName": "Bath Towel",
+    "sortOrder": 370,
+    "itemIds": [
+      "item-bedding-07-bath-towel"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-bath_mat",
+    "organizationId": "love-laundry",
+    "code": "BATH_MAT",
+    "name": "Bath Mat",
+    "displayName": "Bath Mat",
+    "sortOrder": 380,
+    "itemIds": [
+      "item-bedding-08-bath-mat"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-table_cloth_pressing",
+    "organizationId": "love-laundry",
+    "code": "TABLE_CLOTH_PRESSING",
+    "name": "Table Cloth — Pressing Only",
+    "displayName": "Table Cloth — Pressing Only",
+    "sortOrder": 390,
+    "itemIds": [
+      "item-pressing_only-15-table-cloth-pressing-only"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  },
+  {
+    "_id": "billing-category-table_runner_pressing",
+    "organizationId": "love-laundry",
+    "code": "TABLE_RUNNER_PRESSING",
+    "name": "Table Runner — Pressing Only",
+    "displayName": "Table Runner — Pressing Only",
+    "sortOrder": 400,
+    "itemIds": [
+      "item-pressing_only-16-table-runner-pressing-only"
+    ],
+    "aggregationMethod": "sum_quantity_and_line_amount",
+    "includeOnInvoice": true,
+    "showWhenZero": false,
+    "active": true,
+    "source": "October 2026 Service Categories worksheet"
+  }
+]

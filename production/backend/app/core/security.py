@@ -2,13 +2,42 @@ from datetime import datetime, timedelta, timezone
 
 import jwt
 from fastapi import HTTPException, Security, status
-from fastapi.security import HTTPBearer
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from .config import get_settings
 
 DISABLED_STATUSES = {"inactive", "disabled", "suspended", "blocked", "deleted"}
 
-security = HTTPBearer(auto_error=True)
+security = HTTPBearer(auto_error=False)
+
+_user_lookup = None
+
+
+def set_user_lookup(fn) -> None:
+    global _user_lookup
+    _user_lookup = fn
+
+
+async def _database_user_lookup(auth_id: str) -> dict | None:
+    from ..db.connection import DatabaseKind, get_database
+
+    database = get_database(DatabaseKind.CENTRAL_SYSTEM)
+    user = await database.users.find_one({"auth_id": auth_id})
+    if user is None:
+        return None
+    user["auth_id"] = str(user.get("auth_id") or auth_id)
+    return user
+
+
+async def get_user_lookup(auth_id: str) -> dict | None:
+    if not auth_id:
+        return None
+    if _user_lookup is not None:
+        return await _user_lookup(auth_id)
+    try:
+        return await _database_user_lookup(auth_id)
+    except Exception:
+        return None
 
 
 def create_access_token(data: dict, expires_in_hours: int | None = None) -> str:
@@ -23,22 +52,34 @@ def create_access_token(data: dict, expires_in_hours: int | None = None) -> str:
 def verify_token(token: str) -> dict:
     settings = get_settings()
     try:
-        return jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+        payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
     except jwt.ExpiredSignatureError as exc:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Token has expired") from exc
     except jwt.InvalidTokenError as exc:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid authentication token") from exc
+    if not payload.get("sub"):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid authentication token")
+    return payload
 
 
-async def get_current_user(credentials: str = Security(security)) -> dict:
-    payload = verify_token(credentials)
-    user = await get_user_lookup(payload.get("sub"))
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials | None = Security(security),
+) -> dict:
+    settings = get_settings()
+    if not settings.auth_required:
+        return {
+            "auth_id": "local",
+            "user_name": "local",
+            "status": "active",
+            "role_ids": ["ADMIN"],
+            "permissions": ["*"],
+        }
+    if credentials is None:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Authentication required")
+    payload = verify_token(credentials.credentials)
+    user = await get_user_lookup(payload["sub"])
     if user is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Account no longer exists.")
     if str(user.get("status") or "unset").strip().lower() in DISABLED_STATUSES:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Account is disabled.")
     return user
-
-
-async def get_user_lookup(_auth_id: str) -> dict | None:
-    raise NotImplementedError

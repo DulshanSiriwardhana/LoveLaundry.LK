@@ -1,7 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   createBrowserRouter,
   Link,
+  Navigate,
   Outlet,
   RouterProvider,
   useNavigate,
@@ -9,8 +17,24 @@ import {
 import { api, getToken, setToken, type LoginResponse } from "./api";
 import { GROUPS, ROUTES } from "./routes";
 
-function useAuth() {
-  const [user, setUser] = useState<LoginResponse["user"] | null>(null);
+type AuthUser = LoginResponse["user"];
+
+interface AuthState {
+  user: AuthUser | null;
+  checked: boolean;
+  setUser: (user: AuthUser | null) => void;
+}
+
+const AuthContext = createContext<AuthState | null>(null);
+
+function useAuth(): AuthState {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+  return ctx;
+}
+
+function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [checked, setChecked] = useState(false);
 
   const refresh = useCallback(async () => {
@@ -32,10 +56,16 @@ function useAuth() {
     void refresh();
   }, [refresh]);
 
-  return { user, setUser, checked };
+  const value = useMemo<AuthState>(
+    () => ({ user, checked, setUser }),
+    [user, checked],
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-function LoginPage({ onLogin }: { onLogin: (u: LoginResponse["user"]) => void }) {
+function LoginPage() {
+  const { setUser } = useAuth();
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +77,7 @@ function LoginPage({ onLogin }: { onLogin: (u: LoginResponse["user"]) => void })
     try {
       const res = await api.login(userName, password);
       setToken(res.access_token);
-      onLogin(res.user);
+      setUser(res.user);
       nav("/dashboard");
     } catch (err) {
       setError((err as Error).message);
@@ -106,7 +136,15 @@ function BacklogPage() {
   );
 }
 
-function Layout({ user, onLogout }: { user: LoginResponse["user"] | null; onLogout: () => void }) {
+function ProtectedRoute() {
+  if (!getToken()) return <Navigate to="/login" replace />;
+  return <Outlet />;
+}
+
+function Layout() {
+  const { user, setUser } = useAuth();
+  const nav = useNavigate();
+
   return (
     <div className="shell">
       <aside className="sidebar">
@@ -127,7 +165,14 @@ function Layout({ user, onLogout }: { user: LoginResponse["user"] | null; onLogo
       <main className="content">
         <header className="content-head">
           <span className="mono muted">{user?.user_name} · {user?.role_id}</span>
-          <button className="link" onClick={onLogout}>
+          <button
+            className="link"
+            onClick={() => {
+              setToken(null);
+              setUser(null);
+              nav("/login", { replace: true });
+            }}
+          >
             Sign out
           </button>
         </header>
@@ -137,35 +182,44 @@ function Layout({ user, onLogout }: { user: LoginResponse["user"] | null; onLogo
   );
 }
 
-function buildRouter(auth: ReturnType<typeof useAuth>) {
+function buildRouter() {
   return createBrowserRouter([
-    { path: "/login", element: <LoginPage onLogin={auth.setUser} /> },
+    { path: "/login", element: <LoginPage /> },
     {
-      path: "/",
-      element: (
-        <Layout
-          user={auth.user}
-          onLogout={() => {
-            setToken(null);
-            auth.setUser(null);
-          }}
-        />
-      ),
+      element: <ProtectedRoute />,
       children: [
-        { index: true, element: <Dashboard /> },
-        { path: "dashboard", element: <Dashboard /> },
-        { path: "management", element: <Management /> },
-        ...ROUTES.filter((r) => !["dashboard", "management"].includes(r.path)).map((r) => ({
-          path: r.path,
-          element: <BacklogPage />,
-        })),
+        {
+          path: "/",
+          element: <Layout />,
+          children: [
+            { index: true, element: <Dashboard /> },
+            { path: "dashboard", element: <Dashboard /> },
+            { path: "management", element: <Management /> },
+            ...ROUTES.filter((r) => !["dashboard", "management"].includes(r.path)).map((r) => ({
+              path: r.path,
+              element: <BacklogPage />,
+            })),
+          ],
+        },
       ],
     },
   ]);
 }
 
+function AppRouter({ router }: { router: ReturnType<typeof createBrowserRouter> }) {
+  const { checked } = useAuth();
+  if (!checked) return <div className="loading">Loading…</div>;
+  return <RouterProvider router={router} />;
+}
+
 export default function App() {
-  const auth = useAuth();
-  if (!auth.checked) return <div className="loading">Loading…</div>;
-  return <RouterProvider router={buildRouter(auth)} />;
+  // The router is created once: rebuilding it on every auth change discarded
+  // navigation state (including the redirect straight after login).
+  const router = useMemo(() => buildRouter(), []);
+
+  return (
+    <AuthProvider>
+      <AppRouter router={router} />
+    </AuthProvider>
+  );
 }

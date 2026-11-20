@@ -1,10 +1,10 @@
 {
-  "name": "@love rebuild/shared-frontend-components",
+  "name": "@lovelaundry/shared-frontend-components",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "tsc -b && vite build",
+    "build": "tsc -b",
     "test": "vitest run"
   },
   "dependencies": {

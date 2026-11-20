@@ -1,0 +1,55 @@
+[
+  {
+    "_id": "monthly-report-2026-10",
+    "organizationId": "love-laundry",
+    "customerId": null,
+    "customerName": null,
+    "siteId": null,
+    "siteName": null,
+    "reportName": "October 2026 Inventory Report",
+    "reportType": "monthly_inventory",
+    "monthKey": "2026-10",
+    "year": 2026,
+    "month": 10,
+    "periodStart": "2026-10-01",
+    "periodEnd": "2026-10-31",
+    "timezone": "Asia/Colombo",
+    "currency": "LKR",
+    "status": "draft",
+    "invoiceStatus": "not_generated",
+    "source": {
+      "type": "existing_workbook_and_photographs",
+      "workbookLabel": "Camelot October 2026",
+      "sourceFiles": [
+        "Camelot_October_2026_restructured.xlsx",
+        "20261102_055107.jpg.jpeg",
+        "20261102_055118.jpg.jpeg"
+      ],
+      "importedAt": "2026-11-02T00:00:00+05:30",
+      "quantitySourceOfTruth": "item_level_daily_entries"
+    },
+    "totals": {
+      "totalQuantity": 7856,
+      "totalAmountLkr": 381624.0,
+      "unpricedQuantity": 2,
+      "pricedQuantity": 7854,
+      "entryCount": 806,
+      "activeDayCount": 31
+    },
+    "validation": {
+      "itemQuantitiesReconciled": true,
+      "sectionTotalsReconciled": true,
+      "billingCategoryTotalsReconciled": true,
+      "formulaErrorsInSourceWorkbook": 0,
+      "invoiceReady": false,
+      "blockingIssues": [
+        "2 Water Bottle Bags have no unit rate.",
+        "Customer is not assigned; select a customer before generating an invoice."
+      ],
+      "sourceFooterNote": "Daily quantities are calculated from item-level entries. Where printed daily footer totals differ from item rows, the item-level quantities are retained.",
+      "unmappedPositiveQuantity": 0
+    },
+    "createdAt": "2026-11-02T00:00:00+05:30",
+    "updatedAt": "2026-11-02T00:00:00+05:30"
+  }
+]

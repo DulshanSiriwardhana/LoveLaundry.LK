@@ -1,154 +1,213 @@
 {
   "database": "central_system",
-  "version": 1,
+  "version": 2,
   "collections": [
     {
       "name": "users",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["auth_id", "user_name", "status"],
           "properties": {
             "auth_id": {"bsonType": "string"},
             "user_name": {"bsonType": "string"},
-            "email": {"bsonType": "string", "optional": true},
-            "password_hash": {"bsonType": "string", "optional": true},
-            "role_ids": {"bsonType": "array", "items": {"bsonType": "string"}, "optional": true},
-            "organization_id": {"bsonType": "string", "optional": true},
+            "email": {"bsonType": "string"},
+            "password_hash": {"bsonType": "string"},
+            "role_ids": {"bsonType": "array", "items": {"bsonType": "string"}},
+            "permissions": {"bsonType": "array", "items": {"bsonType": "string"}},
+            "organization_id": {"bsonType": "string"},
+            "laundry_id": {"bsonType": "string"},
+            "hotel_id": {"bsonType": "string"},
+            "shop_id": {"bsonType": "string"},
             "status": {"bsonType": "string"},
-            "created_at": {"bsonType": "date"},
-            "updated_at": {"bsonType": "date"}
+            "created_at": {"bsonType": "string"},
+            "updated_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [
+        {"keys": {"auth_id": 1}, "name": "auth_id", "unique": true},
+        {"keys": {"user_name": 1}, "name": "user_name", "unique": true}
+      ]
     },
     {
       "name": "roles",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["role_id", "name"],
           "properties": {
             "role_id": {"bsonType": "string"},
             "name": {"bsonType": "string"},
-            "capabilities": {"bsonType": "array", "items": {"bsonType": "string"}, "optional": true},
-            "created_at": {"bsonType": "date"}
+            "capabilities": {"bsonType": "array", "items": {"bsonType": "string"}}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"role_id": 1}, "name": "role_id", "unique": true}]
     },
     {
       "name": "permissions",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["permission_id", "name"],
           "properties": {
             "permission_id": {"bsonType": "string"},
             "name": {"bsonType": "string"},
-            "description": {"bsonType": "string", "optional": true}
+            "description": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"permission_id": 1}, "name": "permission_id", "unique": true}]
     },
     {
       "name": "organizations",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["organization_id", "name"],
           "properties": {
             "organization_id": {"bsonType": "string"},
-            "name": {"bsonType": "string"},
-            "created_at": {"bsonType": "date"}
+            "name": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"organization_id": 1}, "name": "organization_id", "unique": true}]
     },
     {
       "name": "memberships",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["membership_id", "user_id", "organization_id"],
           "properties": {
             "membership_id": {"bsonType": "string"},
             "user_id": {"bsonType": "string"},
             "organization_id": {"bsonType": "string"},
-            "status": {"bsonType": "string", "optional": true},
-            "created_at": {"bsonType": "date"}
+            "status": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"user_id": 1, "organization_id": 1}, "name": "user_org"}]
     },
     {
       "name": "devices",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["device_id", "organization_id"],
           "properties": {
             "device_id": {"bsonType": "string"},
             "organization_id": {"bsonType": "string"},
-            "platform": {"bsonType": "string", "optional": true},
-            "status": {"bsonType": "string", "optional": true},
-            "created_at": {"bsonType": "date"}
+            "platform": {"bsonType": "string"},
+            "status": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"device_id": 1}, "name": "device_id", "unique": true}]
     },
     {
       "name": "sessions",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["session_id", "user_id", "token_jti", "expires_at"],
           "properties": {
             "session_id": {"bsonType": "string"},
             "user_id": {"bsonType": "string"},
             "token_jti": {"bsonType": "string"},
-            "expires_at": {"bsonType": "date"},
-            "created_at": {"bsonType": "date"}
+            "expires_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [
+        {"keys": {"token_jti": 1}, "name": "token_jti", "unique": true},
+        {"keys": {"session_id": 1}, "name": "session_id", "unique": true}
+      ]
+    },
+    {
+      "name": "adjustments",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["id", "gate_pass_id", "item_name", "reason", "status", "created_at"],
+          "properties": {
+            "id": {"bsonType": "string"},
+            "gate_pass_id": {"bsonType": "string"},
+            "item_name": {"bsonType": "string"},
+            "specification": {"bsonType": "string"},
+            "original_qty": {"bsonType": "double"},
+            "corrected_qty": {"bsonType": "double"},
+            "reason": {"bsonType": "string"},
+            "status": {"bsonType": "string"},
+            "requested_by": {"bsonType": "string"},
+            "requested_by_id": {"bsonType": "string"},
+            "approved_by": {"bsonType": "string"},
+            "approved_by_id": {"bsonType": "string"},
+            "approved_at": {"bsonType": "string"},
+            "rejected_by": {"bsonType": "string"},
+            "rejected_by_id": {"bsonType": "string"},
+            "rejected_at": {"bsonType": "string"},
+            "created_at": {"bsonType": "string"},
+            "updated_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"id": 1}, "name": "adjustment_id", "unique": true},
+        {"keys": {"status": 1}, "name": "status"},
+        {"keys": {"gate_pass_id": 1}, "name": "gate_pass"}
+      ]
     },
     {
       "name": "security_logs",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["log_id", "event", "created_at"],
           "properties": {
             "log_id": {"bsonType": "string"},
             "event": {"bsonType": "string"},
-            "actor_id": {"bsonType": "string", "optional": true},
-            "detail": {"bsonType": "object", "optional": true},
-            "created_at": {"bsonType": "date"}
+            "actor_id": {"bsonType": "string"},
+            "detail": {"bsonType": "object"},
+            "created_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"created_at": -1}, "name": "recent"}]
     },
     {
       "name": "audit_logs",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["audit_id", "actor_id", "action", "created_at"],
           "properties": {
             "audit_id": {"bsonType": "string"},
             "actor_id": {"bsonType": "string"},
             "action": {"bsonType": "string"},
-            "target_id": {"bsonType": "string", "optional": true},
-            "detail": {"bsonType": "object", "optional": true},
-            "created_at": {"bsonType": "date"}
+            "target_id": {"bsonType": "string"},
+            "detail": {"bsonType": "object"},
+            "created_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"created_at": -1}, "name": "recent"}]
     },
     {
       "name": "system_configs",
       "validator": {
         "$jsonSchema": {
+          "bsonType": "object",
           "required": ["config_key", "value"],
           "properties": {
             "config_key": {"bsonType": "string"},
             "value": {"bsonType": "object"},
-            "updated_at": {"bsonType": "date", "optional": true}
+            "updated_at": {"bsonType": "string"}
           }
         }
-      }
+      },
+      "indexes": [{"keys": {"config_key": 1}, "name": "config_key", "unique": true}]
     }
   ]
 }

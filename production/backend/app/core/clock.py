@@ -7,3 +7,7 @@ def now() -> datetime:
 
 def utcnow() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def current_period() -> str:
+    return now().strftime("%Y-%m")

@@ -8,10 +8,15 @@ from .api import adjustments_router, bills_router, health_router, integration_ro
 from .authentication.router import router as auth_router
 from .core.config import get_settings
 from .core.errors import install_error_handlers
+from .core.metrics import record_request
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    if get_settings().persistence == "mongo":
+        from .db.migrations import run_migrations
+
+        await run_migrations()
     yield
     from .db import close_all
 
@@ -32,6 +37,12 @@ def create_app(user_lookup=None) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    @app.middleware("http")
+    async def metrics_middleware(request, call_next):
+        response = await call_next(request)
+        record_request(request.method, response.status_code)
+        return response
+
     install_error_handlers(app)
     app.include_router(health_router)
     app.include_router(bills_router)
@@ -40,9 +51,11 @@ def create_app(user_lookup=None) -> FastAPI:
     app.include_router(adjustments_router)
     app.include_router(auth_router)
     if user_lookup is not None:
+        from .authentication.router import set_user_finder
         from .core.security import set_user_lookup
 
         set_user_lookup(user_lookup)
+        set_user_finder(user_lookup)
     return app
 
 

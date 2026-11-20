@@ -3,7 +3,7 @@ name: lovelaundry
 services:
   quotation-backend:
     build:
-      context: ../quotation-service
+      context: ../system-manegment/quotation-service
     env_file: ./backend.env
     environment:
       MONGODB_COLLECTION: quotations
@@ -20,7 +20,7 @@ services:
 
   bills-backend:
     build:
-      context: ../bill_service
+      context: ../system-manegment/bill-service
     env_file: ./backend.env
     restart: unless-stopped
     mem_limit: 256m
@@ -34,7 +34,7 @@ services:
 
   user-backend:
     build:
-      context: ../user-service
+      context: ../system-manegment/user-service
     env_file: ./backend.env
     environment:
       MONGODB_COLLECTION: users
@@ -50,7 +50,7 @@ services:
 
   workers-backend:
     build:
-      context: ../worker-service
+      context: ../system-manegment/worker-service
     env_file: ./backend.env
     restart: unless-stopped
     mem_limit: 256m
@@ -64,7 +64,7 @@ services:
 
   mgmt-backend:
     build:
-      context: ../laundry-management
+      context: ../system-manegment/laundry-management
     env_file: ./backend.env
     restart: unless-stopped
     mem_limit: 256m
@@ -78,7 +78,7 @@ services:
 
   ai-backend:
     build:
-      context: ../love-ai
+      context: ../system-manegment/love-ai
     env_file: ./backend.env
     environment:
       LOVE_AI_API_KEYS: ${LOVE_AI_API_KEYS:-}
@@ -94,7 +94,7 @@ services:
 
   web:
     build:
-      context: ../quotations-ui
+      context: ../system-manegment/quotations-ui
       args:
         VITE_API_URL: /api/quotation
         VITE_BILLS_API_URL: /api/bills

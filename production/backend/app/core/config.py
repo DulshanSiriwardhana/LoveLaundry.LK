@@ -1,7 +1,21 @@
 from functools import lru_cache
 
-from pydantic import AliasChoices, Field
+from pydantic import AliasChoices, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+KNOWN_ORIGINS = (
+    "https://lovelaundry-manager.vercel.app",
+    "https://hotels-manager.vercel.app",
+    "https://hotels-manager-amber.vercel.app",
+    "https://shops-manager.vercel.app",
+    "https://system-lovelaundry-lk.vercel.app",
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:5175",
+    "http://localhost:5176",
+)
 
 
 class Settings(BaseSettings):
@@ -11,24 +25,12 @@ class Settings(BaseSettings):
     master_key: str = Field(validation_alias=AliasChoices("MASTER_KEY"))
 
     app_env: str = Field(default="development", validation_alias="APP_ENV")
+    auth_required: bool = Field(default=True, validation_alias="AUTH_REQUIRED")
+    persistence: str = Field(default="mongo", validation_alias="PERSISTENCE")
     jwt_expires_hours: int = Field(default=24, validation_alias="JWT_EXPIRES_HOURS")
     jwt_algorithm: str = Field(default="HS256", validation_alias="JWT_ALGORITHM")
 
-    cors_origins: list[str] = Field(
-        default=[
-            "https://lovelaundry-manager.vercel.app",
-            "https://hotels-manager.vercel.app",
-            "https://hotels-manager-amber.vercel.app",
-            "https://shops-manager.vercel.app",
-            "https://system-lovelaundry-lk.vercel.app",
-            "http://localhost:5173",
-            "http://localhost:5174",
-            "http://localhost:5175",
-            "http://localhost:5176",
-            "http://localhost:3000",
-        ],
-        validation_alias="ALLOWED_ORIGINS",
-    )
+    cors_origins: list[str] = Field(default=list(KNOWN_ORIGINS), validation_alias="ALLOWED_ORIGINS")
 
     central_system_uri: str = Field(
         default="mongodb://127.0.0.1:27017", validation_alias="MONGODB_CENTRAL_URI"
@@ -50,6 +52,13 @@ class Settings(BaseSettings):
     linen_tracking_db: str = Field(
         default="linen_tracking", validation_alias="MONGODB_LINEN_DB"
     )
+
+    @model_validator(mode="after")
+    def merge_cors_origins(self):
+        configured = [origin.strip().rstrip("/") for origin in self.cors_origins if origin.strip()]
+        configured = [origin for origin in configured if origin != "*"]
+        self.cors_origins = list(dict.fromkeys((*KNOWN_ORIGINS, *configured)))
+        return self
 
     @property
     def central_system(self) -> str:

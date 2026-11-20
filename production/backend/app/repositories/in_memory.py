@@ -33,3 +33,10 @@ class InMemoryInvoiceRepository:
     async def save(self, invoice: dict) -> dict:
         self.invoices[str(invoice.get("invoice_id") or "")] = invoice
         return invoice
+
+    async def list_by_period(self, period: str) -> list[dict]:
+        return [
+            invoice
+            for invoice in self.invoices.values()
+            if str(invoice.get("period") or "") == period
+        ]

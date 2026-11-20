@@ -22,6 +22,32 @@ def _seed_bill(amount: float, status: str, period: str) -> None:
     asyncio.run(run())
 
 
+def test_list_bills_returns_period_records(client) -> None:
+    _seed_bill(100.0, "outstanding", "2026-11")
+    response = client.get("/bills", params={"period": "2026-11"})
+    assert response.status_code == 200
+    assert response.json()[0]["bill_id"] == "bill-1"
+    assert client.get("/bills", params={"period": "2026-12"}).json() == []
+
+
+def test_list_invoices_returns_period_records(client) -> None:
+    asyncio.run(
+        bills_api_module._service().invoice_repository.save(
+            {
+                "invoice_id": "inv-1",
+                "organization_id": "org-1",
+                "bill_id": "bill-1",
+                "period": "2026-11",
+                "total": 100.0,
+            }
+        )
+    )
+    response = client.get("/invoices", params={"period": "2026-11"})
+    assert response.status_code == 200
+    assert response.json()[0]["invoice_id"] == "inv-1"
+    assert client.get("/invoices", params={"period": "2026-12"}).json() == []
+
+
 def test_monthly_operations_returns_period_totals(client) -> None:
     response = client.get("/operations/monthly", params={"period": "2026-11"})
     assert response.status_code == 200
@@ -110,4 +136,4 @@ def test_edit_invoice_updates_and_recomputes_monthly_operations(client) -> None:
     assert body["invoice"]["edited_by"] == "u1"
 
     operations = client.get("/operations/monthly", params={"period": "2026-11"}).json()
-    assert operations["billable"] == 900.0
+    assert operations["billable"] == 1200.0
