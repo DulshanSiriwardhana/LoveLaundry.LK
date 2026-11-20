@@ -8,6 +8,9 @@ class BillRepository:
     async def list_by_period(self, period: str) -> list[dict]:
         raise NotImplementedError
 
+    async def find_by_gate_pass(self, gate_pass_id: str) -> dict | None:
+        raise NotImplementedError
+
 
 class InvoiceRepository:
     async def find(self, invoice_id: str) -> dict | None:

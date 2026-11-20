@@ -16,6 +16,12 @@ class InMemoryBillRepository:
             if str(bill.get("period") or "") == period
         ]
 
+    async def find_by_gate_pass(self, gate_pass_id: str) -> dict | None:
+        for bill in self.bills.values():
+            if str(bill.get("gate_pass_id") or "") == gate_pass_id:
+                return bill
+        return None
+
 
 class InMemoryInvoiceRepository:
     def __init__(self) -> None:

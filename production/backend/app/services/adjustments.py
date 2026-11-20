@@ -8,8 +8,9 @@ def _field(obj, key: str, default: str = "") -> str:
 
 
 class AdjustmentsService:
-    def __init__(self, adjustment_repository) -> None:
+    def __init__(self, adjustment_repository, bills_service) -> None:
         self.adjustment_repository = adjustment_repository
+        self.bills_service = bills_service
 
     async def create_adjustment(self, payload: dict) -> dict:
         reason = str(payload.get("reason") or "").strip()
@@ -57,7 +58,25 @@ class AdjustmentsService:
         adjustment["approved_by_id"] = approver_id
         adjustment["approved_at"] = "1970-01-01T00:00:00+00:00"
         adjustment["updated_at"] = "1970-01-01T00:00:00+00:00"
-        return await self.adjustment_repository.save(adjustment)
+        saved = await self.adjustment_repository.save(adjustment)
+
+        # Simultaneous financial propagation: the approved correction re-clamps
+        # the linked bill, and the monthly operations snapshot refreshes from it.
+        bill = None
+        gate_pass_id = str(saved.get("gate_pass_id") or "")
+        if gate_pass_id:
+            bill = await self.bills_service.bill_repository.find_by_gate_pass(gate_pass_id)
+        operations = None
+        if bill is not None:
+            corrected = float(saved.get("corrected_qty") or bill.get("corrected_qty") or bill.get("amount") or 0.0)
+            bill["corrected_qty"] = corrected
+            bill["amount"] = corrected
+            bill["updated_at"] = "1970-01-01T00:00:00+00:00"
+            await self.bills_service.bill_repository.save(bill)
+            operations = await self.bills_service.get_monthly_operations(str(bill.get("period") or ""))
+            saved["bill"] = bill
+        saved["monthly_operations"] = operations
+        return await self.adjustment_repository.save(saved)
 
     async def reject_adjustment(self, adjustment_id: str, actor) -> dict:
         adjustment = await self.adjustment_repository.find(adjustment_id)

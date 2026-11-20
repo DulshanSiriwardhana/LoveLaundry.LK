@@ -48,7 +48,12 @@ _service_instance = None
 def _service() -> AdjustmentsService:
     global _service_instance
     if _service_instance is None:
-        _service_instance = AdjustmentsService(InMemoryAdjustmentRepository())
+        from ..api.bills import _service as bills_service_factory
+        from ..repositories.adjustments import AdjustmentRepository, InMemoryAdjustmentRepository
+
+        bill_service = bills_service_factory()
+        adjustment_repo: AdjustmentRepository = InMemoryAdjustmentRepository()
+        _service_instance = AdjustmentsService(adjustment_repo, bill_service)
     return _service_instance
 
 
@@ -81,7 +86,12 @@ async def list_adjustments(status: str | None = None, gate_pass_id: str | None =
 async def approve_adjustment(adjustment_id: str, approver: ApproverRequest) -> dict:
     service = _service()
     adjustment = await service.approve_adjustment(adjustment_id, approver.model_dump())
-    return {"id": adjustment["id"], "status": adjustment["status"], "gate_pass_id": adjustment.get("gate_pass_id") or ""}
+    return {
+        "id": adjustment["id"],
+        "status": adjustment["status"],
+        "gate_pass_id": adjustment.get("gate_pass_id") or "",
+        "monthly_operations": adjustment.get("monthly_operations"),
+    }
 
 
 @router.post("/{adjustment_id}/reject")

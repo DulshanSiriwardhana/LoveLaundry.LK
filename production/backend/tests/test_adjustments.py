@@ -102,3 +102,48 @@ def test_adjustment_cannot_approve_own_request(client) -> None:
     denied = _approve(client, "adj-3", "same-user")
     assert denied.status_code == 400
     assert denied.json()["detail"] == "Adjustments must be approved by a different user than the requester."
+
+
+def test_approve_updates_bills_and_monthly_operations_together(client) -> None:
+    import asyncio
+
+    from app.api.bills import _service as bills_service_factory
+
+    bills_service = bills_service_factory()
+
+    async def seed_bill() -> None:
+        await bills_service.bill_repository.save(
+            {
+                "bill_id": "bill-9",
+                "gate_pass_id": "gp-9",
+                "status": "outstanding",
+                "amount": 100.0,
+                "period": "2026-12",
+            }
+        )
+
+    asyncio.run(seed_bill())
+
+    created = _create(
+        client,
+        {
+            "adjustment_id": "adj-9",
+            "gate_pass_id": "gp-9",
+            "item_name": "Shirt",
+            "original_qty": 10,
+            "corrected_qty": 7,
+            "reason": "Damaged during wash",
+            "actor_id": "requester-9",
+        },
+    )
+    assert created.status_code == 200
+
+    approved = _approve(client, "adj-9", "approver-9")
+    assert approved.status_code == 200
+    body = approved.json()
+    assert body["status"] == "APPROVED"
+    assert body["monthly_operations"] is not None
+    assert body["monthly_operations"]["period"] == "2026-12"
+
+    operations = client.get("/operations/monthly", params={"period": "2026-12"}).json()
+    assert operations["outstanding"] == 7.0
