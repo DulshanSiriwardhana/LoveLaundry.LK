@@ -70,3 +70,8 @@
 	path = system-manegment/worker-service
 	url = https://github.com/LoveLaundry/worker-service.git
 	branch = main
+
+[submodule "system-manegment/release"]
+	path = system-manegment/release
+	url = https://github.com/LoveLaundry/release.git
+	branch = main
