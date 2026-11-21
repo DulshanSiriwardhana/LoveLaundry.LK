@@ -7,26 +7,33 @@ class BillsService:
         self.bill_repository = bill_repository
         self.invoice_repository = invoice_repository
 
-    async def get_monthly_operations(self, period: str) -> dict:
-        bills = await self.bill_repository.list_by_period(period)
+    async def get_monthly_operations(self, period: str, organizations=None) -> dict:
+        bills = await self.bill_repository.list_by_period(period, organizations)
         return {"period": period, **compute_monthly_operations(bills)}
 
-    async def list_bills(self, period: str) -> list[dict]:
-        return await self.bill_repository.list_by_period(period)
+    async def list_bills(self, period: str, organizations=None) -> list[dict]:
+        return await self.bill_repository.list_by_period(period, organizations)
 
-    async def list_invoices(self, period: str) -> list[dict]:
-        return await self.invoice_repository.list_by_period(period)
+    async def list_invoices(self, period: str, organizations=None) -> list[dict]:
+        return await self.invoice_repository.list_by_period(period, organizations)
 
-    async def edit_bill(self, bill_id: str, amount: float, reason: str, actor_id: str) -> dict:
+    async def edit_bill(
+        self,
+        bill_id: str,
+        amount: float,
+        reason: str,
+        actor_id: str,
+        organizations=None,
+    ) -> dict:
+        from fastapi import HTTPException, status
+
         clean_reason = (reason or "").strip()
         if not clean_reason:
-            from fastapi import HTTPException, status
-
-            raise HTTPException(status.HTTP_400_BAD_REQUEST, "A reason is required to edit a bill")
-        bill = await self.bill_repository.find(bill_id)
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST, "A reason is required to edit a bill"
+            )
+        bill = await self.bill_repository.find(bill_id, organizations)
         if bill is None:
-            from fastapi import HTTPException, status
-
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Bill not found")
         bill["amount"] = amount
         bill["status"] = bill.get("status") or "outstanding"
@@ -34,19 +41,28 @@ class BillsService:
         bill["edit_reason"] = clean_reason
         bill["edited_by"] = actor_id
         saved = await self.bill_repository.save(bill)
-        operations = await self.get_monthly_operations(str(bill.get("period") or ""))
+        operations = await self.get_monthly_operations(
+            str(bill.get("period") or ""), organizations
+        )
         return {"bill": saved, "monthly_operations": operations}
 
-    async def edit_invoice(self, invoice_id: str, total: float, reason: str, actor_id: str) -> dict:
+    async def edit_invoice(
+        self,
+        invoice_id: str,
+        total: float,
+        reason: str,
+        actor_id: str,
+        organizations=None,
+    ) -> dict:
+        from fastapi import HTTPException, status
+
         clean_reason = (reason or "").strip()
         if not clean_reason:
-            from fastapi import HTTPException, status
-
-            raise HTTPException(status.HTTP_400_BAD_REQUEST, "A reason is required to edit an invoice")
-        invoice = await self.invoice_repository.find(invoice_id)
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST, "A reason is required to edit an invoice"
+            )
+        invoice = await self.invoice_repository.find(invoice_id, organizations)
         if invoice is None:
-            from fastapi import HTTPException, status
-
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Invoice not found")
         invoice["total"] = total
         invoice["updated_at"] = now().isoformat()
@@ -54,7 +70,9 @@ class BillsService:
         invoice["edited_by"] = actor_id
         saved = await self.invoice_repository.save(invoice)
         bill_id = str(invoice.get("bill_id") or "")
-        bill = await self.bill_repository.find(bill_id) if bill_id else None
+        bill = (
+            await self.bill_repository.find(bill_id, organizations) if bill_id else None
+        )
         if bill is not None:
             bill["amount"] = total
             bill["updated_at"] = now().isoformat()
@@ -64,5 +82,5 @@ class BillsService:
             period = str(saved_bill.get("period") or invoice.get("period") or "")
         else:
             period = str(invoice.get("period") or "")
-        operations = await self.get_monthly_operations(period)
+        operations = await self.get_monthly_operations(period, organizations)
         return {"invoice": saved, "monthly_operations": operations}

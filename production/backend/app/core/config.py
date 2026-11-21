@@ -15,6 +15,7 @@ KNOWN_ORIGINS = (
     "http://localhost:5174",
     "http://localhost:5175",
     "http://localhost:5176",
+    "http://localhost:5180",
     "https://lovelaundry-shop-app.vercel.app",
     "http://localhost",
     "http://127.0.0.1:5173",
@@ -36,6 +37,13 @@ class Settings(BaseSettings):
     persistence: str = Field(default="mongo", validation_alias="PERSISTENCE")
     jwt_expires_hours: int = Field(default=24, validation_alias="JWT_EXPIRES_HOURS")
     jwt_algorithm: str = Field(default="HS256", validation_alias="JWT_ALGORITHM")
+    event_worker_enabled: bool = Field(default=False, validation_alias="EVENT_WORKER_ENABLED")
+    event_worker_interval_seconds: int = Field(
+        default=5, ge=1, validation_alias="EVENT_WORKER_INTERVAL_SECONDS"
+    )
+    reconciliation_interval_seconds: int = Field(
+        default=300, ge=30, validation_alias="RECONCILIATION_INTERVAL_SECONDS"
+    )
 
     cors_origins: list[str] = Field(default=list(KNOWN_ORIGINS), validation_alias="ALLOWED_ORIGINS")
 
@@ -62,6 +70,12 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def merge_cors_origins(self):
+        environment = self.app_env.strip().lower()
+        if environment == "production":
+            if not self.auth_required:
+                raise ValueError("AUTH_REQUIRED cannot be false in production")
+            if len(self.jwt_secret) < 32 or len(self.master_key) < 32:
+                raise ValueError("Production secrets must be at least 32 characters long")
         configured = [origin.strip().rstrip("/") for origin in self.cors_origins if origin.strip()]
         configured = [origin for origin in configured if origin != "*"]
         self.cors_origins = list(dict.fromkeys((*KNOWN_ORIGINS, *configured)))

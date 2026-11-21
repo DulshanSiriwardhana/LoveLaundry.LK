@@ -1,8 +1,20 @@
+import hashlib
 import json
 from pathlib import Path
 
 
+def schema_checksum(schema_path: str | Path) -> str:
+    return hashlib.sha256(Path(schema_path).read_bytes()).hexdigest()
+
+
 async def apply_schema(database, schema_path: str | Path) -> None:
+    """Create collections, enforce validators, and create indexes.
+
+    Validators are intentionally strict/error: a document that violates the
+    declared contract must be rejected at the database boundary rather than
+    logged as a warning that nobody reads.
+    """
+
     schema = json.loads(Path(schema_path).read_text(encoding="utf-8"))
     existing = set(await database.list_collection_names())
     for collection in schema["collections"]:
@@ -15,8 +27,8 @@ async def apply_schema(database, schema_path: str | Path) -> None:
                 {
                     "collMod": name,
                     "validator": validator,
-                    "validationLevel": "moderate",
-                    "validationAction": "warn",
+                    "validationLevel": collection.get("validationLevel", "strict"),
+                    "validationAction": collection.get("validationAction", "error"),
                 }
             )
         for index in collection.get("indexes", []):

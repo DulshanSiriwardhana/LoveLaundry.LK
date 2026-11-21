@@ -125,7 +125,10 @@
           }
         }
       },
-      "indexes": [{"keys": {"invoice_id": 1}, "name": "invoice"}]
+      "indexes": [
+        {"keys": {"payment_id": 1}, "name": "payment_id", "unique": true},
+        {"keys": {"invoice_id": 1}, "name": "invoice"}
+      ]
     },
     {
       "name": "employees",

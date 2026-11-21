@@ -5,6 +5,7 @@ from fastapi import HTTPException, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from .config import get_settings
+from .principal import normalize_principal
 
 DISABLED_STATUSES = {"inactive", "disabled", "suspended", "blocked", "deleted"}
 
@@ -22,7 +23,9 @@ async def _database_user_lookup(auth_id: str) -> dict | None:
     from ..db.connection import DatabaseKind, get_database
 
     database = get_database(DatabaseKind.CENTRAL_SYSTEM)
-    user = await database.users.find_one({"auth_id": auth_id})
+    user = await database.users.find_one(
+        {"$or": [{"auth_id": auth_id}, {"user_id": auth_id}, {"sub": auth_id}]}
+    )
     if user is None:
         return None
     user["auth_id"] = str(user.get("auth_id") or auth_id)
@@ -49,6 +52,14 @@ def create_access_token(data: dict, expires_in_hours: int | None = None) -> str:
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 
+def _token_identity(payload: dict) -> str:
+    for key in ("sub", "auth_id", "user_id"):
+        value = payload.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return ""
+
+
 def verify_token(token: str) -> dict:
     settings = get_settings()
     try:
@@ -57,7 +68,7 @@ def verify_token(token: str) -> dict:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Token has expired") from exc
     except jwt.InvalidTokenError as exc:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid authentication token") from exc
-    if not payload.get("sub"):
+    if not _token_identity(payload):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid authentication token")
     return payload
 
@@ -67,19 +78,33 @@ async def get_current_user(
 ) -> dict:
     settings = get_settings()
     if not settings.auth_required:
-        return {
-            "auth_id": "local",
-            "user_name": "local",
-            "status": "active",
-            "role_ids": ["ADMIN"],
-            "permissions": ["*"],
-        }
+        if settings.app_env.strip().lower() == "production":
+            raise HTTPException(
+                status.HTTP_503_SERVICE_UNAVAILABLE,
+                "Authentication cannot be disabled in production",
+            )
+        return normalize_principal(
+            {
+                "auth_id": "local",
+                "user_name": "local",
+                "status": "active",
+                "role_ids": ["PLATFORM_ADMIN"],
+                "permissions": ["*"],
+            }
+        )
     if credentials is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Authentication required")
     payload = verify_token(credentials.credentials)
-    user = await get_user_lookup(payload["sub"])
+    auth_id = _token_identity(payload)
+    user = await get_user_lookup(auth_id)
     if user is None:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Account no longer exists.")
-    if str(user.get("status") or "unset").strip().lower() in DISABLED_STATUSES:
+        # The token is signed with the platform secret, so its claims are a
+        # valid fallback when the local user projection has not been seeded.
+        user = dict(payload)
+    status_value = str(user.get("status") or payload.get("status") or "unset").strip().lower()
+    if status_value in DISABLED_STATUSES:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Account is disabled.")
-    return user
+    try:
+        return normalize_principal(user, payload)
+    except ValueError as exc:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, str(exc)) from exc

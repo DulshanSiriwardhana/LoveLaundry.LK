@@ -1,3 +1,3 @@
-from .service import require_capability
+from .service import organization_dependency, require_capability, require_platform_admin
 
-__all__ = ["require_capability"]
+__all__ = ["organization_dependency", "require_capability", "require_platform_admin"]

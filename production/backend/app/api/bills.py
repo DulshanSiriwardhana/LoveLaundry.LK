@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
 from ..core.clock import current_period
 from ..core.config import get_settings
+from ..core.principal import repository_scope
+from ..core.security import get_current_user
 from ..permissions.service import require_capability
 from ..services.bills import BillsService
 
@@ -57,9 +59,9 @@ def _service() -> BillsService:
 )
 async def monthly_operations(
     period: str = Query(default_factory=current_period, pattern=r"^\d{4}-\d{2}$"),
+    principal=Depends(get_current_user),
 ) -> dict:
-    service = _service()
-    return await service.get_monthly_operations(period)
+    return await _service().get_monthly_operations(period, repository_scope(principal))
 
 
 @router.get(
@@ -68,8 +70,9 @@ async def monthly_operations(
 )
 async def list_bills(
     period: str = Query(default_factory=current_period, pattern=r"^\d{4}-\d{2}$"),
+    principal=Depends(get_current_user),
 ) -> list[dict]:
-    return await _service().list_bills(period)
+    return await _service().list_bills(period, repository_scope(principal))
 
 
 @router.get(
@@ -78,19 +81,46 @@ async def list_bills(
 )
 async def list_invoices(
     period: str = Query(default_factory=current_period, pattern=r"^\d{4}-\d{2}$"),
+    principal=Depends(get_current_user),
 ) -> list[dict]:
-    return await _service().list_invoices(period)
+    return await _service().list_invoices(period, repository_scope(principal))
 
 
 @router.post("/bills/{bill_id}/edit", dependencies=[Depends(require_capability("edit_bills"))])
-async def edit_bill(bill_id: str, payload: EditBillRequest) -> dict:
-    service = _service()
-    return await service.edit_bill(bill_id, payload.amount, payload.reason, payload.actor_id)
+async def edit_bill(
+    bill_id: str, payload: EditBillRequest, principal=Depends(get_current_user)
+) -> dict:
+    return await _service().edit_bill(
+        bill_id,
+        payload.amount,
+        payload.reason,
+        payload.actor_id,
+        repository_scope(principal),
+    )
 
 
 @router.post(
     "/invoices/{invoice_id}/edit", dependencies=[Depends(require_capability("edit_bills"))]
 )
-async def edit_invoice(invoice_id: str, payload: EditInvoiceRequest) -> dict:
-    service = _service()
-    return await service.edit_invoice(invoice_id, payload.total, payload.reason, payload.actor_id)
+async def edit_invoice(
+    invoice_id: str, payload: EditInvoiceRequest, principal=Depends(get_current_user)
+) -> dict:
+    return await _service().edit_invoice(
+        invoice_id,
+        payload.total,
+        payload.reason,
+        payload.actor_id,
+        repository_scope(principal),
+    )
+
+
+def single_organization_scope(principal: dict, requested: str | None = None) -> str | None:
+    """Return one organization for write operations that target a single row."""
+
+    scope = repository_scope(principal, requested)
+    if isinstance(scope, list):
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            "An organization_id is required for this account",
+        )
+    return scope
