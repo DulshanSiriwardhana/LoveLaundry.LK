@@ -236,6 +236,8 @@ All API clients attach `Authorization: Bearer <token>` (`authApi`, `aiApi`).
 
 ## 12. Deployment & configuration
 
+> For Vercel, see [`VERCEL_DEPLOYMENT.md`](VERCEL_DEPLOYMENT.md) and the per-project templates in [`deploy/vercel/env/`](deploy/vercel/env/). This repository is a multi-project monorepo and must not be deployed from the root as a single Vercel project.
+
 - Frontend env: `VITE_API_URL`, `VITE_BILLS_API_URL`, `VITE_USER_API_URL`, `VITE_WORKERS_API_URL`, `VITE_MGMT_API_URL` (+ optional AI keys).
 - Every backend needs the **same `JWT_SECRET`** and **same `MASTER_KEY`** (services refuse to start without them). love-ai requires `JWT_SECRET` to equal user-service's (fail-closed without it).
 - `ALLOWED_ORIGINS` must include the app URL. Host ports bind loopback only.
