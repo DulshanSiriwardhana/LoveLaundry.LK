@@ -63,6 +63,9 @@ ACTION_STAGE = {
     "receive_at_laundry": RECEIVED_AT_LAUNDRY,
     "sort": SORTED,
     "start_washing": WASHING,
+    "complete_washing": DRYING,
+    # Legacy alias retained for old scanner payloads. It moves the item but it
+    # is not a validated wash completion and must not increment wash_count.
     "start_drying": DRYING,
     "iron_fold": IRONING,
     "inspect": INSPECTED,

@@ -13,13 +13,15 @@ from .lifecycle import (
     ACTION_STAGE,
     AVAILABLE,
     REGISTERED,
+    WASHING,
     can_transition,
     is_exception_stage,
     resolve_stage,
 )
 from .repository import LinenProfileRepository
 
-WASH_ACTIONS = {"start_washing", "start_drying", "iron_fold", "inspect", "mark_ready"}
+# A wash cycle is a validated business event, not a side effect of any scan.
+WASH_ACTIONS = {"complete_washing"}
 
 
 class LinenWorkflow:
@@ -84,6 +86,15 @@ class LinenWorkflow:
             next_stage = resolve_stage(payload.get("action"))
         except ValueError as exc:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
+
+        action = str(payload.get("action") or "").strip().lower()
+        if action == "complete_washing" and not str(
+            payload.get("workflow_reference") or ""
+        ).strip():
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                "A workflow_reference is required to complete a wash cycle",
+            )
 
         profile = await self.repository.find_by_code(organization_id, code)
         if profile is None:
@@ -162,10 +173,6 @@ class LinenWorkflow:
         updated["last_seen_operator_id"] = scan["operator_id"]
         updated["last_seen_at"] = scan["occurred_at"]
         updated["updated_at"] = utc_now()
-        if scan["action"] in WASH_ACTIONS:
-            updated["wash_count"] = int(profile.get("wash_count") or 0) + 1
-        if next_stage == AVAILABLE:
-            updated["cycle_number"] = int(profile.get("cycle_number") or 0) + 1
         if next_stage in {"damaged", "rejected", "quarantined", "retired"}:
             updated["expected_next_at"] = None
         else:
@@ -174,6 +181,10 @@ class LinenWorkflow:
                 datetime.now(timezone.utc) + timedelta(days=horizon)
             ).isoformat()
         saved = await self.repository.save(updated)
+        if action in WASH_ACTIONS and current_stage == WASHING:
+            saved = await self.repository.increment(profile["linen_id"], "wash_count") or saved
+        if next_stage == AVAILABLE:
+            saved = await self.repository.increment(profile["linen_id"], "cycle_number") or saved
 
         event_type = "linen.scanned"
         if next_stage in {"missing", "damaged", "retired"}:
@@ -197,6 +208,7 @@ class LinenWorkflow:
                     "operator_id": scan["operator_id"],
                     "session_id": scan["session_id"],
                     "batch_id": scan["batch_id"],
+                    "workflow_reference": str(payload.get("workflow_reference") or ""),
                     "to_organization_id": updated["responsible_organization_id"],
                 },
                 correlation_id=str(payload.get("correlation_id") or scan_id),

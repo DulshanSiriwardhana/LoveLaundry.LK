@@ -104,6 +104,7 @@ _CLIENT_OPERATIONS = frozenset(
         "view_notifications",
         "view_tags",
         "view_scan_sessions",
+        "view_dashboards",
     }
 )
 

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pymongo.errors import DuplicateKeyError
+
 from ..events.models import utc_now
 
 
@@ -14,6 +16,10 @@ class BillingRepository:
     async def list_all_transactions(
         self, organization_id: str, limit: int = 5000
     ) -> list[dict]:
+        raise NotImplementedError
+
+    async def record_validated_transaction(self, transaction: dict) -> bool:
+        """Store one billable operational event exactly once."""
         raise NotImplementedError
 
     async def rate_for(
@@ -77,6 +83,13 @@ class InMemoryBillingRepository(BillingRepository):
             if row.get("organization_id") == organization_id
         ][:limit]
 
+    async def record_validated_transaction(self, transaction):
+        key = transaction["transaction_id"]
+        if key in self.transactions:
+            return False
+        self.transactions[key] = dict(transaction)
+        return True
+
     async def rate_for(self, organization_id, service, occurred_at):
         candidates = [
             row
@@ -95,7 +108,8 @@ class InMemoryBillingRepository(BillingRepository):
         return dict(candidates[-1]) if candidates else None
 
     async def find_run(self, idempotency_key):
-        return dict(self.runs.get(idempotency_key) or {})
+        row = self.runs.get(idempotency_key)
+        return dict(row) if row is not None else None
 
     async def find_run_by_scope(self, organization_id, hotel_id, start, end):
         matches = [
@@ -182,6 +196,13 @@ class MongoBillingRepository(BillingRepository):
     async def list_all_transactions(self, organization_id, limit=5000):
         cursor = self.transactions.find({"organization_id": organization_id}).limit(limit)
         return [self._clean(row) or {} for row in await cursor.to_list(length=limit)]
+
+    async def record_validated_transaction(self, transaction):
+        try:
+            await self.transactions.insert_one(dict(transaction))
+            return True
+        except DuplicateKeyError:
+            return False
 
     async def rate_for(self, organization_id, service, occurred_at):
         cursor = (

@@ -9,13 +9,17 @@ from .api import (
     adjustments_router,
     bills_router,
     billing_router,
+    dashboards_router,
     events_router,
     health_router,
+    identity_router,
     integration_router,
     linen_lifecycle_router,
     linen_router,
     notifications_router,
     platform_router,
+    rfid_router,
+    scanning_router,
 )
 from .authentication.router import router as auth_router
 from .core.config import get_settings
@@ -110,6 +114,10 @@ def create_app(user_lookup=None) -> FastAPI:
         events_router,
         notifications_router,
         platform_router,
+        identity_router,
+        rfid_router,
+        scanning_router,
+        dashboards_router,
     ):
         app.include_router(router)
 

@@ -8,6 +8,7 @@ os.environ.setdefault("PERSISTENCE", "memory")
 os.environ.setdefault("QR_BASE_URL", "https://tags.example.test")
 os.environ.setdefault("RFID_EPC_PREFIX_HEX", "3039")
 os.environ.setdefault("RFID_MODE", "test")
+os.environ.setdefault("RFID_ALLOW_SIMULATED_READS", "true")
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402

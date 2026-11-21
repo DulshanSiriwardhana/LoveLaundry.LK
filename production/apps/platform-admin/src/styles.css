@@ -76,6 +76,7 @@ label {
 }
 
 input,
+select,
 textarea {
   width: 100%;
   border: 1px solid #cbd5e1;
@@ -213,6 +214,17 @@ th {
 
 .editor h3 {
   margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.actions button {
+  padding: 0.4rem 0.65rem;
+  font-size: 0.8rem;
 }
 
 @media (max-width: 640px) {

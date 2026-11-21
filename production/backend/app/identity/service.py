@@ -54,6 +54,20 @@ class IdentityService:
             )
         return prefix, int(_setting(self.settings, "epc_length", 24))
 
+    def epc_config(self) -> tuple[str, int]:
+        """Public accessor used by the shared scan transaction engine."""
+
+        return self._epc_config()
+
+    async def find_by_method(self, method: str, identifier: str) -> dict | None:
+        key = str(method or "").strip().lower()
+        if key in {"qr", "qr_code", "qrcode"}:
+            return await self.repository.find_by_qr(normalize_qr(identifier))
+        if key in {"rfid", "epc", "uhf"}:
+            _, length = self._epc_config()
+            return await self.repository.find_by_epc(normalize_epc(identifier, length))
+        return None
+
     def _organization(self, payload: dict, principal: dict) -> str:
         requested = str(payload.get("organization_id") or "").strip()
         if not requested:
@@ -265,11 +279,19 @@ class IdentityService:
         self, batch_id: str, rows: list[dict], expected_quantity: int | None, principal: dict
     ) -> dict:
         report = await self.validate_mapping_import(rows, batch_id, expected_quantity)
+        batch = await self.repository.get_batch(batch_id)
+        organization_id = str(
+            (batch or {}).get("organization_id")
+            or next((row.get("organization_id") for row in report["rows"] if row.get("organization_id")), "")
+        )
+        if not is_platform_admin(principal):
+            assert_organization_access(principal, organization_id)
         sequence = await self.repository.next_sequence("tag_import")
         import_id = f"IMP-{sequence:06d}"
         document = {
             "import_id": import_id,
             "batch_id": batch_id,
+            "organization_id": organization_id,
             "expected_quantity": expected_quantity,
             "row_count": report["row_count"],
             "valid": report["valid"],
@@ -295,6 +317,10 @@ class IdentityService:
         if str(batch.get("status")) != BATCH_VERIFIED:
             raise HTTPException(
                 status.HTTP_409_CONFLICT, "Tag batch must be verified before activation"
+            )
+        if not is_platform_admin(principal):
+            assert_organization_access(
+                principal, str(batch.get("organization_id") or "")
             )
         prefix, length = self._epc_config()
         activated = 0
@@ -414,6 +440,16 @@ class IdentityService:
         )
         return {"replacement": replacement, "item": saved}
 
+    async def record_wash_cycle(self, linen_id: str, wash_count: int) -> dict | None:
+        """Keep identity-side advisory wash count in step with validated cycles."""
+
+        item = await self.repository.get_item(linen_id)
+        if item is None:
+            return None
+        item["wash_cycles"] = int(wash_count)
+        item["updated_at"] = utc_now()
+        return await self.repository.save_item(item)
+
     async def deactivate_tag(self, linen_id: str, payload: dict, principal: dict) -> dict:
         item = await self.repository.get_item(linen_id)
         if item is None:
@@ -460,6 +496,7 @@ class IdentityService:
             "organization_id": str(payload.get("organization_id") or ""),
             "manufacturer_id": str(payload.get("manufacturer_id") or ""),
             "model_id": str(payload.get("model_id") or ""),
+            "supplier_id": str(payload.get("supplier_id") or ""),
             "manufacturer": str(payload.get("manufacturer") or ""),
             "model": str(payload.get("model") or ""),
             "technology": str(payload.get("technology") or "QR+UHF RFID"),
@@ -508,6 +545,7 @@ class IdentityService:
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Platform administrator access required")
         row = dict(payload)
         row.setdefault("manufacturer_id", f"MFG-{row.get('name', '').upper()[:12]}")
+        row.setdefault("created_at", utc_now())
         return await self.repository.save_manufacturer(row)
 
     async def save_model(self, payload: dict, principal: dict) -> dict:
@@ -515,7 +553,80 @@ class IdentityService:
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Platform administrator access required")
         row = dict(payload)
         row.setdefault("model_id", f"MOD-{row.get('name', '').upper()[:12]}")
+        row.setdefault("created_at", utc_now())
         return await self.repository.save_model(row)
+
+    async def list_items(
+        self,
+        principal: dict,
+        organization_id: str | None = None,
+        batch_id: str | None = None,
+        status: str | None = None,
+        limit: int = 200,
+    ) -> list[dict]:
+        if organization_id:
+            assert_organization_access(principal, organization_id)
+        elif not is_platform_admin(principal):
+            scopes = sorted(set(principal.get("organization_ids") or []))
+            if len(scopes) == 1:
+                organization_id = scopes[0]
+            elif not scopes:
+                raise HTTPException(
+                    status.HTTP_403_FORBIDDEN, "Organization scope is required"
+                )
+        rows = await self.repository.list_items(
+            organization_id=organization_id,
+            batch_id=batch_id,
+            status=status,
+            limit=min(limit, 500),
+        )
+        if not is_platform_admin(principal):
+            scopes = set(principal.get("organization_ids") or [])
+            rows = [row for row in rows if row.get("organization_id") in scopes]
+        return rows
+
+    async def get_item(self, linen_id: str, principal: dict) -> dict:
+        item = await self.repository.get_item(linen_id)
+        if item is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Linen item not found")
+        assert_organization_access(principal, str(item.get("organization_id") or ""))
+        return item
+
+    async def list_batches(self, principal: dict, limit: int = 200) -> list[dict]:
+        if not is_platform_admin(principal):
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Platform administrator access required")
+        return await self.repository.list_batches(limit=min(limit, 500))
+
+    async def get_import(self, import_id: str, principal: dict) -> dict:
+        document = await self.repository.get_import(import_id)
+        if document is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Import not found")
+        if not is_platform_admin(principal):
+            assert_organization_access(
+                principal, str(document.get("organization_id") or "")
+            )
+        return document
+
+    async def save_supplier(self, payload: dict, principal: dict) -> dict:
+        if not is_platform_admin(principal):
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Platform administrator access required")
+        row = dict(payload)
+        row.setdefault("supplier_id", f"SUP-{row.get('name', '').upper()[:12]}")
+        row.setdefault("created_at", utc_now())
+        return await self.repository.save_supplier(row)
+
+    async def list_suppliers(self, principal: dict, limit: int = 200) -> list[dict]:
+        return await self.repository.list_suppliers(limit=min(limit, 500))
+
+    async def list_manufacturers(self, principal: dict, limit: int = 200) -> list[dict]:
+        return await self.repository.list_manufacturers(limit=min(limit, 500))
+
+    async def list_models(
+        self, manufacturer_id: str | None, principal: dict, limit: int = 200
+    ) -> list[dict]:
+        return await self.repository.list_models(
+            manufacturer_id=manufacturer_id, limit=min(limit, 500)
+        )
 
     async def generate_tag_sheet(self, linen_ids: list[str], principal: dict) -> str:
         """Return an SVG tag sheet for the selected items (one QR per linen item)."""

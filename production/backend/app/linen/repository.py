@@ -18,6 +18,9 @@ class LinenProfileRepository:
     async def save(self, profile: dict) -> dict:
         raise NotImplementedError
 
+    async def increment(self, linen_id: str, field: str) -> dict | None:
+        raise NotImplementedError
+
     async def list(
         self,
         organization_id: str | None = None,
@@ -83,6 +86,14 @@ class InMemoryLinenProfileRepository(LinenProfileRepository):
         document["updated_at"] = utc_now()
         self.profiles[document["linen_id"]] = document
         return dict(document)
+
+    async def increment(self, linen_id: str, field: str) -> dict | None:
+        profile = self.profiles.get(linen_id)
+        if profile is None:
+            return None
+        profile[field] = int(profile.get(field) or 0) + 1
+        profile["updated_at"] = utc_now()
+        return dict(profile)
 
     async def list(self, organization_id=None, stage=None, status=None, limit=200) -> list[dict]:
         rows = list(self.profiles.values())
@@ -185,6 +196,14 @@ class MongoLinenProfileRepository(LinenProfileRepository):
         document["updated_at"] = utc_now()
         await self.profiles.replace_one({"linen_id": document["linen_id"]}, document, upsert=True)
         return self._clean(document) or document
+
+    async def increment(self, linen_id: str, field: str) -> dict | None:
+        document = await self.profiles.find_one_and_update(
+            {"linen_id": linen_id},
+            {"$inc": {field: 1}, "$set": {"updated_at": utc_now()}},
+            return_document=True,
+        )
+        return self._clean(document)
 
     async def list(self, organization_id=None, stage=None, status=None, limit=200) -> list[dict]:
         query: dict = {}

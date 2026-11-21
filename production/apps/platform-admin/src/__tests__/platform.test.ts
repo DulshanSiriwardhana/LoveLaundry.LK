@@ -4,7 +4,10 @@ import {
   PLATFORM_TOKEN_KEY,
   PLATFORM_USER_KEY,
   buildPlatformHeaders,
+  fetchPlatformDashboard,
   fetchPlatformSummary,
+  listTagItems,
+  registerReader,
   saveAnnouncement,
 } from "../api";
 import { decodeTokenClaims, isPlatformAdmin, type SessionUser } from "../auth";
@@ -83,6 +86,61 @@ describe("platform API access", () => {
     expect(init.method).toBe("POST");
     expect(JSON.parse(init.body)).toMatchObject({ title: "Notice" });
     expect(buildPlatformHeaders()).toMatchObject({ Authorization: "Bearer platform-token" });
+  });
+
+  it("reads the operations dashboard from the authoritative API", async () => {
+    localStorageMock.getItem.mockReturnValue("platform-token");
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ total_linen_items: 12 }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    expect((await fetchPlatformDashboard()).total_linen_items).toBe(12);
+    expect(fetchMock).toHaveBeenCalledWith(`${API_BASE}/dashboards/platform`, {
+      headers: expect.objectContaining({ Authorization: "Bearer platform-token" }),
+    });
+  });
+
+  it("filters tag identities by organization", async () => {
+    localStorageMock.getItem.mockReturnValue("platform-token");
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => [],
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await listTagItems(50, "hotel-a");
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${API_BASE}/tags/items?limit=50&organization_id=hotel-a`,
+      expect.anything(),
+    );
+  });
+
+  it("registers readers through the hardware endpoint", async () => {
+    localStorageMock.getItem.mockReturnValue("platform-token");
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ reader_id: "reader-1", status: "ACTIVE" }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const reader = await registerReader({
+      reader_id: "reader-1",
+      organization_id: "hotel-a",
+      name: "Dock",
+      adapter: "zebra",
+      transport: "tcp",
+      endpoint: "reader.local:4001",
+    });
+    expect(reader.reader_id).toBe("reader-1");
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe(`${API_BASE}/rfid/readers`);
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body)).toMatchObject({ adapter: "zebra" });
   });
 
   it("does not expose a session without both token and user", async () => {
