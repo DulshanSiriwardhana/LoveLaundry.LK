@@ -110,92 +110,128 @@ export function App() {
     : [];
 
   return (
-    <main style={{ fontFamily: "system-ui", padding: "2rem" }}>
-      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem" }}>
+    <div className="shell">
+      <header className="topbar">
         <div>
-          <h1 style={{ marginBottom: 0 }}>Linen Tracking</h1>
-          <p style={{ margin: "0.35rem 0" }}>LoveLaundry production rebuild surface.</p>
-          <p style={{ margin: 0 }}>Signed in as {session.user_name}</p>
+          <p className="eyebrow">Love Laundry · linen</p>
+          <h1>Linen Tracking</h1>
+          <p className="muted">Piece-level movement and counts for the current period.</p>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <span style={{ fontSize: "0.8rem", color: "#666" }}>
-            {lastUpdated ? `Updated ${lastUpdated}` : ""}
-          </span>
-          <button type="button" onClick={() => void refreshPage()} disabled={refreshing}>
+        <div className="session">
+          <span className="badge badge--soft">{session.user_name}</span>
+          {lastUpdated ? <span className="muted">{`Updated ${lastUpdated}`}</span> : null}
+          <button type="button" className="btn btn--ghost" onClick={() => void refreshPage()} disabled={refreshing}>
             {refreshing ? "Refreshing…" : "Refresh"}
           </button>
-          <button type="button" onClick={signOut}>
+          <button type="button" className="btn btn--ghost" onClick={signOut}>
             Sign out
           </button>
         </div>
       </header>
 
-      <label style={{ display: "block", margin: "1rem 0" }}>
-        Period
-        <input
-          type="month"
-          value={period}
-          onChange={(e) => setPeriod(e.target.value)}
-          style={{ display: "block", marginTop: "0.5rem" }}
-        />
-      </label>
-
-      {loading ? <p>Loading…</p> : null}
-      {error ? <p role="alert">{error}</p> : null}
-      {notice ? <p>{notice}</p> : null}
-
-      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "0.75rem", marginTop: "1rem" }}>
-        {tiles.map((tile) => (
-          <div key={tile.label} style={{ border: "1px solid #d1d5db", borderRadius: "0.5rem", padding: "0.75rem" }}>
-            <p style={{ margin: 0, fontSize: "0.75rem", color: "#6b7280" }}>{tile.label}</p>
-            <p style={{ margin: "0.25rem 0 0", fontSize: "1.25rem", fontWeight: 600 }}>{tile.value.toFixed(2)}</p>
+      <main className="content">
+        <section className="hero-band">
+          <div className="hero-band__grid" aria-hidden="true" />
+          <div className="hero-band__content">
+            <span className="hero-band__icon" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3 4 7v6c0 4.5 3.2 7.4 8 8 4.8-.6 8-3.5 8-8V7l-8-4Z" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+            </span>
+            <div>
+              <p className="eyebrow eyebrow--light">Inventory control</p>
+              <h1>Period {period}</h1>
+              <p>Record every movement with a reason so the count stays honest.</p>
+            </div>
           </div>
-        ))}
-      </section>
+        </section>
 
-      <section style={{ marginTop: "1.5rem", border: "1px solid #d1d5db", borderRadius: "0.5rem", padding: "1rem" }}>
-        <h2>Record movement</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "0.75rem" }}>
-          <label style={{ display: "block" }}>
-            Movement ID
-            <input type="text" value={movement.movement_id} onChange={(e) => setMovement({ ...movement, movement_id: e.target.value })} style={{ display: "block", marginTop: "0.25rem" }} />
-          </label>
-          <label style={{ display: "block" }}>
-            Linen ID
-            <input type="text" value={movement.linen_id} onChange={(e) => setMovement({ ...movement, linen_id: e.target.value })} style={{ display: "block", marginTop: "0.25rem" }} />
-          </label>
-          <label style={{ display: "block" }}>
-            Direction
-            <select value={movement.direction} onChange={(e) => setMovement({ ...movement, direction: e.target.value as "in" | "out" })} style={{ display: "block", marginTop: "0.25rem" }}>
-              <option value="in">In</option>
-              <option value="out">Out</option>
-            </select>
-          </label>
-          <label style={{ display: "block" }}>
-            Quantity
-            <input type="number" step="0.01" value={movement.quantity} onChange={(e) => setMovement({ ...movement, quantity: Number(e.target.value) })} style={{ display: "block", marginTop: "0.25rem" }} />
-          </label>
-          <label style={{ display: "block" }}>
-            From org
-            <input type="text" value={movement.from_org} onChange={(e) => setMovement({ ...movement, from_org: e.target.value })} style={{ display: "block", marginTop: "0.25rem" }} />
-          </label>
-          <label style={{ display: "block" }}>
-            To org
-            <input type="text" value={movement.to_org} onChange={(e) => setMovement({ ...movement, to_org: e.target.value })} style={{ display: "block", marginTop: "0.25rem" }} />
-          </label>
-          <label style={{ display: "block" }}>
-            Period
-            <input type="month" value={movement.period} onChange={(e) => setMovement({ ...movement, period: e.target.value })} style={{ display: "block", marginTop: "0.25rem" }} />
-          </label>
-          <label style={{ display: "block" }}>
-            Reason
-            <input type="text" value={movement.reason} onChange={(e) => setMovement({ ...movement, reason: e.target.value })} style={{ display: "block", marginTop: "0.25rem" }} />
-          </label>
-        </div>
-        <button type="button" onClick={() => void saveMovement()} disabled={saving} style={{ marginTop: "1rem" }}>
-          {saving ? "Saving…" : "Record movement"}
-        </button>
-      </section>
-    </main>
+        <header className="page-header">
+          <div>
+            <p className="page-header__eyebrow">Linen room</p>
+            <h2 className="page-header__title">Linen Tracking</h2>
+            <p className="page-header__subtitle">
+              Counts are read from the production linen service. Movements are written back
+              through the audited endpoint with the acting operator attached.
+            </p>
+          </div>
+          <div className="page-header__actions">
+            <span className="badge badge--brand">Scan workspace</span>
+          </div>
+        </header>
+
+        <label className="field">
+          <span>Reporting period</span>
+          <input type="month" value={period} onChange={(e) => setPeriod(e.target.value)} />
+        </label>
+
+        {loading ? <p className="muted">Loading operations…</p> : null}
+        {error ? <p role="alert">{error}</p> : null}
+        {notice ? <p className="notice">{notice}</p> : null}
+
+        <section className="stat-grid">
+          {tiles.map((tile) => (
+            <article key={tile.label} className="stat-card">
+              <p className="stat-card__label">{tile.label}</p>
+              <p className="stat-card__value">{tile.value.toFixed(2)}</p>
+              <p className="list__meta">Current period</p>
+            </article>
+          ))}
+        </section>
+
+        <section className="panel">
+          <div className="panel__header">
+            <div>
+              <p className="eyebrow">Movement</p>
+              <h2>Record movement</h2>
+            </div>
+            <span className="badge badge--soft">Audited</span>
+          </div>
+          <div className="form-grid">
+            <label className="field">
+              <span>Movement ID</span>
+              <input type="text" value={movement.movement_id} onChange={(e) => setMovement({ ...movement, movement_id: e.target.value })} />
+            </label>
+            <label className="field">
+              <span>Linen ID</span>
+              <input type="text" value={movement.linen_id} onChange={(e) => setMovement({ ...movement, linen_id: e.target.value })} />
+            </label>
+            <label className="field">
+              <span>Direction</span>
+              <select value={movement.direction} onChange={(e) => setMovement({ ...movement, direction: e.target.value as "in" | "out" })}>
+                <option value="in">In</option>
+                <option value="out">Out</option>
+              </select>
+            </label>
+            <label className="field">
+              <span>Quantity</span>
+              <input type="number" step="0.01" value={movement.quantity} onChange={(e) => setMovement({ ...movement, quantity: Number(e.target.value) })} />
+            </label>
+            <label className="field">
+              <span>From org</span>
+              <input type="text" value={movement.from_org} onChange={(e) => setMovement({ ...movement, from_org: e.target.value })} />
+            </label>
+            <label className="field">
+              <span>To org</span>
+              <input type="text" value={movement.to_org} onChange={(e) => setMovement({ ...movement, to_org: e.target.value })} />
+            </label>
+            <label className="field">
+              <span>Period</span>
+              <input type="month" value={movement.period} onChange={(e) => setMovement({ ...movement, period: e.target.value })} />
+            </label>
+            <label className="field">
+              <span>Reason</span>
+              <input type="text" value={movement.reason} onChange={(e) => setMovement({ ...movement, reason: e.target.value })} />
+            </label>
+          </div>
+          <div className="actions">
+            <button type="button" onClick={() => void saveMovement()} disabled={saving}>
+              {saving ? "Saving…" : "Record movement"}
+            </button>
+          </div>
+        </section>
+      </main>
+    </div>
   );
 }

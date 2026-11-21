@@ -30,31 +30,47 @@ export function LoginScreen({ onAuthenticated }: LoginScreenProps) {
   };
 
   return (
-    <main style={{ fontFamily: "system-ui", padding: "2rem", maxWidth: "24rem" }}>
-      <h1>Sign in</h1>
-      <form onSubmit={(event) => void submit(event)}>
-        <label style={{ display: "block", marginBottom: "0.75rem" }}>
-          Username
+    <main className="login-shell">
+      <form className="login-card" onSubmit={(event) => void submit(event)}>
+        <div className="login-card__header">
+          <span className="login-mark" aria-hidden="true">LL</span>
+          <p className="eyebrow">Love Laundry · secure access</p>
+          <h1>Linen Tracking</h1>
+          <p className="muted">Piece-level movement and counts.</p>
+        </div>
+
+        <label className="field">
+          <span>Username</span>
           <input
-            type="text"
+            autoComplete="username"
             value={userName}
             onChange={(event) => setUserName(event.target.value)}
-            style={{ display: "block", marginTop: "0.25rem", width: "100%" }}
+            placeholder="Your username"
+            required
           />
         </label>
-        <label style={{ display: "block", marginBottom: "0.75rem" }}>
-          Password
+
+        <label className="field">
+          <span>Password</span>
           <input
             type="password"
+            autoComplete="current-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            style={{ display: "block", marginTop: "0.25rem", width: "100%" }}
+            placeholder="••••••••"
+            required
           />
         </label>
+
         {error ? <p role="alert">{error}</p> : null}
-        <button type="submit" disabled={submitting}>
+
+        <button className="btn btn--primary btn--block" type="submit" disabled={submitting}>
           {submitting ? "Signing in…" : "Sign in"}
         </button>
+
+        <p className="login-card__footer">
+          Access is limited to accounts registered for this workspace.
+        </p>
       </form>
     </main>
   );

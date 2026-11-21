@@ -32,30 +32,45 @@ export function LoginScreen({ onAuthenticated }: LoginScreenProps) {
   return (
     <main className="login-shell">
       <form className="login-card" onSubmit={(event) => void submit(event)}>
-        <p className="eyebrow">LoveLaundry ecosystem</p>
-        <h1>Platform Admin</h1>
-        <p className="muted">Restricted to platform administrators.</p>
-        <label>
-          Username
+        <div className="login-card__header">
+          <span className="login-mark" aria-hidden="true">LL</span>
+          <p className="eyebrow">Love Laundry · secure access</p>
+          <h1>Platform Admin</h1>
+          <p className="muted">Restricted to platform administrators.</p>
+        </div>
+
+        <label className="field">
+          <span>Username</span>
           <input
             autoComplete="username"
             value={userName}
             onChange={(event) => setUserName(event.target.value)}
+            placeholder="Your username"
+            required
           />
         </label>
-        <label>
-          Password
+
+        <label className="field">
+          <span>Password</span>
           <input
             type="password"
             autoComplete="current-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            placeholder="••••••••"
+            required
           />
         </label>
+
         {error ? <p role="alert">{error}</p> : null}
-        <button type="submit" disabled={submitting}>
+
+        <button className="btn btn--primary btn--block" type="submit" disabled={submitting}>
           {submitting ? "Signing in…" : "Sign in"}
         </button>
+
+        <p className="login-card__footer">
+          Access is limited to accounts registered for this workspace.
+        </p>
       </form>
     </main>
   );
