@@ -1,0 +1,227 @@
+{
+  "database": "central_system",
+  "version": 2,
+  "collections": [
+    {
+      "name": "outbox_events",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["event_id", "event_type", "event_version", "organization_id", "source", "occurred_at", "payload"],
+          "properties": {
+            "event_id": {"bsonType": "string"},
+            "event_type": {"bsonType": "string"},
+            "event_version": {"bsonType": "int"},
+            "organization_id": {"bsonType": "string"},
+            "source": {"bsonType": "string"},
+            "occurred_at": {"bsonType": "string"},
+            "correlation_id": {"bsonType": "string"},
+            "entity_id": {"bsonType": "string"},
+            "payload": {"bsonType": "object"},
+            "status": {"bsonType": "string"},
+            "attempts": {"bsonType": "int"},
+            "next_attempt_at": {"bsonType": "string"},
+            "last_error": {"bsonType": "string"},
+            "available_at": {"bsonType": "string"},
+            "created_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"event_id": 1}, "name": "event_id", "unique": true},
+        {"keys": {"status": 1, "available_at": 1}, "name": "claimable"},
+        {"keys": {"organization_id": 1, "event_type": 1}, "name": "org_type"},
+        {"keys": {"correlation_id": 1}, "name": "correlation"}
+      ]
+    },
+    {
+      "name": "processed_events",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["event_id", "consumer", "processed_at"],
+          "properties": {
+            "event_id": {"bsonType": "string"},
+            "consumer": {"bsonType": "string"},
+            "processed_at": {"bsonType": "string"},
+            "result": {"bsonType": "object"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"event_id": 1, "consumer": 1}, "name": "event_consumer", "unique": true}
+      ]
+    },
+    {
+      "name": "dead_letters",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["event_id", "event_type", "reason", "failed_at"],
+          "properties": {
+            "event_id": {"bsonType": "string"},
+            "event_type": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "reason": {"bsonType": "string"},
+            "attempts": {"bsonType": "int"},
+            "payload": {"bsonType": "object"},
+            "failed_at": {"bsonType": "string"},
+            "resolved_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"event_id": 1}, "name": "event_id", "unique": true},
+        {"keys": {"resolved_at": 1}, "name": "unresolved"}
+      ]
+    },
+    {
+      "name": "reconciliation_runs",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["run_id", "status", "started_at"],
+          "properties": {
+            "run_id": {"bsonType": "string"},
+            "status": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "discrepancies": {"bsonType": "array", "items": {"bsonType": "object"}},
+            "summary": {"bsonType": "object"},
+            "started_at": {"bsonType": "string"},
+            "finished_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"run_id": 1}, "name": "run_id", "unique": true},
+        {"keys": {"started_at": -1}, "name": "recent"}
+      ]
+    },
+    {
+      "name": "missing_alert_policies",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["policy_id", "name", "threshold_days", "enabled"],
+          "properties": {
+            "policy_id": {"bsonType": "string"},
+            "name": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "linen_category": {"bsonType": "string"},
+            "threshold_days": {"bsonType": "int"},
+            "enabled": {"bsonType": "bool"},
+            "exempt_stages": {"bsonType": "array", "items": {"bsonType": "string"}},
+            "updated_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"policy_id": 1}, "name": "policy_id", "unique": true},
+        {"keys": {"organization_id": 1, "linen_category": 1}, "name": "scope"}
+      ]
+    },
+    {
+      "name": "announcements",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["announcement_id", "title", "body", "enabled", "created_at"],
+          "properties": {
+            "announcement_id": {"bsonType": "string"},
+            "title": {"bsonType": "string"},
+            "body": {"bsonType": "string"},
+            "applications": {"bsonType": "array", "items": {"bsonType": "string"}},
+            "organization_ids": {"bsonType": "array", "items": {"bsonType": "string"}},
+            "role_names": {"bsonType": "array", "items": {"bsonType": "string"}},
+            "priority": {"bsonType": "string"},
+            "starts_at": {"bsonType": "string"},
+            "ends_at": {"bsonType": "string"},
+            "enabled": {"bsonType": "bool"},
+            "created_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"announcement_id": 1}, "name": "announcement_id", "unique": true},
+        {"keys": {"enabled": 1, "starts_at": 1, "ends_at": 1}, "name": "active_window"}
+      ]
+    },
+    {
+      "name": "appearance_settings",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["settings_id", "scope", "theme", "status", "updated_at"],
+          "properties": {
+            "settings_id": {"bsonType": "string"},
+            "scope": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "theme": {"bsonType": "object"},
+            "previous_theme": {"bsonType": "object"},
+            "status": {"bsonType": "string"},
+            "scheduled_for": {"bsonType": "string"},
+            "expires_at": {"bsonType": "string"},
+            "updated_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"settings_id": 1}, "name": "settings_id", "unique": true},
+        {"keys": {"scope": 1, "status": 1}, "name": "scope_status"}
+      ]
+    },
+    {
+      "name": "notifications",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["notification_id", "recipient_id", "title", "message", "read", "created_at"],
+          "properties": {
+            "notification_id": {"bsonType": "string"},
+            "recipient_id": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "title": {"bsonType": "string"},
+            "message": {"bsonType": "string"},
+            "priority": {"bsonType": "string"},
+            "category": {"bsonType": "string"},
+            "event_id": {"bsonType": "string"},
+            "read": {"bsonType": "bool"},
+            "read_at": {"bsonType": "string"},
+            "created_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"notification_id": 1}, "name": "notification_id", "unique": true},
+        {"keys": {"recipient_id": 1, "read": 1, "created_at": -1}, "name": "inbox"},
+        {"keys": {"event_id": 1}, "name": "event_dedupe"}
+      ]
+    },
+    {
+      "name": "audit_events",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["audit_id", "event_id", "event_type", "occurred_at", "recorded_at"],
+          "properties": {
+            "audit_id": {"bsonType": "string"},
+            "event_id": {"bsonType": "string"},
+            "event_type": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "actor_id": {"bsonType": "string"},
+            "entity_id": {"bsonType": "string"},
+            "source": {"bsonType": "string"},
+            "occurred_at": {"bsonType": "string"},
+            "recorded_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"audit_id": 1}, "name": "audit_id", "unique": true},
+        {"keys": {"event_id": 1}, "name": "event_id", "unique": true},
+        {"keys": {"occurred_at": -1}, "name": "recent"},
+        {"keys": {"organization_id": 1, "occurred_at": -1}, "name": "org_recent"}
+      ]
+    }
+  ]
+}

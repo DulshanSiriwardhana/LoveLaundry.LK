@@ -1,0 +1,154 @@
+{
+  "database": "linen_tracking",
+  "version": 2,
+  "collections": [
+    {
+      "name": "linen_profiles",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["linen_id", "organization_id", "code", "current_stage", "status", "updated_at"],
+          "properties": {
+            "linen_id": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "code": {"bsonType": "string"},
+            "owner_organization_id": {"bsonType": "string"},
+            "category": {"bsonType": "string"},
+            "item_type": {"bsonType": "string"},
+            "size": {"bsonType": "string"},
+            "material": {"bsonType": "string"},
+            "current_stage": {"bsonType": "string"},
+            "status": {"bsonType": "string"},
+            "current_location": {"bsonType": "string"},
+            "responsible_organization_id": {"bsonType": "string"},
+            "last_seen_organization_id": {"bsonType": "string"},
+            "last_seen_scanner_id": {"bsonType": "string"},
+            "last_seen_operator_id": {"bsonType": "string"},
+            "last_seen_at": {"bsonType": "string"},
+            "expected_next_at": {"bsonType": "string"},
+            "cycle_number": {"bsonType": "int"},
+            "wash_count": {"bsonType": "int"},
+            "updated_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"linen_id": 1}, "name": "linen_id", "unique": true},
+        {"keys": {"organization_id": 1, "code": 1}, "name": "org_code", "unique": true},
+        {"keys": {"current_stage": 1}, "name": "stage"},
+        {"keys": {"status": 1}, "name": "status"},
+        {"keys": {"last_seen_at": 1}, "name": "last_seen"}
+      ]
+    },
+    {
+      "name": "scan_events",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["scan_id", "linen_id", "organization_id", "stage", "scanner_id", "occurred_at"],
+          "properties": {
+            "scan_id": {"bsonType": "string"},
+            "linen_id": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "code": {"bsonType": "string"},
+            "stage": {"bsonType": "string"},
+            "action": {"bsonType": "string"},
+            "scanner_id": {"bsonType": "string"},
+            "operator_id": {"bsonType": "string"},
+            "session_id": {"bsonType": "string"},
+            "batch_id": {"bsonType": "string"},
+            "result": {"bsonType": "string"},
+            "occurred_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"scan_id": 1}, "name": "scan_id", "unique": true},
+        {"keys": {"linen_id": 1, "occurred_at": -1}, "name": "linen_recent"},
+        {"keys": {"session_id": 1}, "name": "session"},
+        {"keys": {"batch_id": 1}, "name": "batch"}
+      ]
+    },
+    {
+      "name": "manifests",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["manifest_id", "organization_id", "direction", "status", "expected_count", "created_at"],
+          "properties": {
+            "manifest_id": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "from_organization_id": {"bsonType": "string"},
+            "to_organization_id": {"bsonType": "string"},
+            "direction": {"bsonType": "string"},
+            "status": {"bsonType": "string"},
+            "expected_count": {"bsonType": "int"},
+            "received_count": {"bsonType": "int"},
+            "linen_ids": {"bsonType": "array", "items": {"bsonType": "string"}},
+            "created_at": {"bsonType": "string"},
+            "closed_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"manifest_id": 1}, "name": "manifest_id", "unique": true},
+        {"keys": {"organization_id": 1, "status": 1}, "name": "org_status"}
+      ]
+    },
+    {
+      "name": "missing_alerts",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["alert_id", "linen_id", "organization_id", "severity", "status", "created_at"],
+          "properties": {
+            "alert_id": {"bsonType": "string"},
+            "linen_id": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "severity": {"bsonType": "string"},
+            "status": {"bsonType": "string"},
+            "days_since_last_seen": {"bsonType": "int"},
+            "threshold_days": {"bsonType": "int"},
+            "policy_id": {"bsonType": "string"},
+            "last_seen_at": {"bsonType": "string"},
+            "last_known_location": {"bsonType": "string"},
+            "current_stage": {"bsonType": "string"},
+            "investigation": {"bsonType": "object"},
+            "resolved_by": {"bsonType": "string"},
+            "resolved_at": {"bsonType": "string"},
+            "created_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"alert_id": 1}, "name": "alert_id", "unique": true},
+        {"keys": {"linen_id": 1, "status": 1}, "name": "linen_status", "unique": true},
+        {"keys": {"organization_id": 1, "severity": 1}, "name": "org_severity"}
+      ]
+    },
+    {
+      "name": "reconciliation_results",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["result_id", "run_id", "organization_id", "kind", "status", "created_at"],
+          "properties": {
+            "result_id": {"bsonType": "string"},
+            "run_id": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "kind": {"bsonType": "string"},
+            "status": {"bsonType": "string"},
+            "expected": {"bsonType": "int"},
+            "observed": {"bsonType": "int"},
+            "details": {"bsonType": "object"},
+            "created_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"result_id": 1}, "name": "result_id", "unique": true},
+        {"keys": {"run_id": 1}, "name": "run"}
+      ]
+    }
+  ]
+}

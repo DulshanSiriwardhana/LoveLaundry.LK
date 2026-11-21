@@ -10,7 +10,16 @@ import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 
 from app.authentication import hash_password, set_user_finder
+from app.core.config import get_settings  # noqa: E402
 from app.main import create_app  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def reset_security_settings():
+    os.environ["AUTH_REQUIRED"] = "false"
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()
 
 
 @pytest.fixture(autouse=True)
@@ -22,7 +31,11 @@ def reset_service_singletons():
     bills_api._service_instance = None
     linen_api._service_instance = None
     adjustments_api._service_instance = None
+    from app.runtime import reset_runtime
+
+    reset_runtime()
     yield
+    reset_runtime()
 
 
 @pytest.fixture()

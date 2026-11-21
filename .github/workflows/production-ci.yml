@@ -1,0 +1,93 @@
+name: Production CI
+
+on:
+  push:
+    branches: [production]
+  pull_request:
+    branches: [production]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend and schema tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install backend and test dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -e 'production/backend[dev]'
+      - name: Compile production Python
+        run: python -m compileall -q production/backend/app production/databases
+      - name: Run backend, reliability, and migration tests
+        working-directory: production
+        env:
+          PYTHONPATH: backend:databases
+          JWT_SECRET: ci-jwt-secret-at-least-32-bytes-long
+          MASTER_KEY: ci-master-key-at-least-32-bytes-long
+          APP_ENV: test
+          AUTH_REQUIRED: "false"
+          PERSISTENCE: memory
+        run: python -m pytest -q -o asyncio_mode=auto backend/tests tests
+
+  frontends:
+    name: Frontend ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: hotel-scanner
+            path: production/apps/hotel-scanner
+          - name: laundry-internal
+            path: production/apps/laundry-internal
+          - name: laundry-scanner
+            path: production/apps/laundry-scanner
+          - name: linen-tracking
+            path: production/apps/linen-tracking
+          - name: platform-admin
+            path: production/apps/platform-admin
+          - name: shared-components
+            path: production/shared/frontend-components
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: ${{ matrix.path }}/package-lock.json
+      - name: Install dependencies
+        working-directory: ${{ matrix.path }}
+        run: npm ci --no-audit --no-fund
+      - name: Run tests
+        working-directory: ${{ matrix.path }}
+        run: npm test
+      - name: Build production bundle
+        working-directory: ${{ matrix.path }}
+        run: npm run build
+
+  security:
+    name: Scoped secret scan and deployment validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan production path for committed credentials
+        run: |
+          if git grep -nE '(mongodb(\+srv)?://[^$[:space:]]+:[^$[:space:]]+@|AKIA[0-9A-Z]{16}|-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----)' -- production; then
+            echo "::error::Credential-like literal found under production/"
+            exit 1
+          fi
+      - name: Validate Compose configuration
+        env:
+          JWT_SECRET: ci-jwt-secret-at-least-32-bytes-long
+          MASTER_KEY: ci-master-key-at-least-32-bytes-long
+          MONGO_INITDB_ROOT_USERNAME: lovelaundry
+          MONGO_INITDB_ROOT_PASSWORD: ci-mongo-password
+          MONGODB_CENTRAL_URI: mongodb://lovelaundry:ci-mongo-password@mongodb:27017/central_system?authSource=admin
+          MONGODB_LAUNDRY_URI: mongodb://lovelaundry:ci-mongo-password@mongodb:27017/laundry_internal?authSource=admin
+          MONGODB_LINEN_URI: mongodb://lovelaundry:ci-mongo-password@mongodb:27017/linen_tracking?authSource=admin
+        run: docker compose -f production/infrastructure/deployment/docker-compose.yml config --quiet

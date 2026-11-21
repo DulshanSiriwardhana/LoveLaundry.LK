@@ -9,27 +9,42 @@ def _field(obj, key: str, default: str = "") -> str:
     return str(getattr(obj, key, None) or default)
 
 
+def _scope_value(organizations) -> str:
+    if isinstance(organizations, str):
+        return organizations
+    if isinstance(organizations, (list, tuple, set)) and len(organizations) == 1:
+        return next(iter(organizations))
+    return ""
+
+
 class AdjustmentsService:
     def __init__(self, adjustment_repository, bills_service) -> None:
         self.adjustment_repository = adjustment_repository
         self.bills_service = bills_service
 
-    async def create_adjustment(self, payload: dict) -> dict:
+    async def create_adjustment(self, payload: dict, organizations=None) -> dict:
         reason = str(payload.get("reason") or "").strip()
         if not reason:
-            raise HTTPException(status.HTTP_400_BAD_REQUEST, "A reason is required to request an adjustment")
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST, "A reason is required to request an adjustment"
+            )
         if str(payload.get("status") or "REQUESTED") != "REQUESTED":
-            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Adjustment requests are created as REQUESTED")
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST, "Adjustment requests are created as REQUESTED"
+            )
         adjustment_id = str(payload.get("adjustment_id") or payload.get("id") or "").strip()
         if not adjustment_id:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "An adjustment id is required")
-        if await self.adjustment_repository.find(adjustment_id) is not None:
+        if await self.adjustment_repository.find(adjustment_id, organizations) is not None:
             raise HTTPException(
                 status.HTTP_409_CONFLICT,
                 f"Adjustment {adjustment_id} already exists.",
             )
         adjustment = {
             "id": adjustment_id,
+            "organization_id": str(
+                payload.get("organization_id") or _scope_value(organizations)
+            ),
             "gate_pass_id": str(payload.get("gate_pass_id") or ""),
             "item_name": str(payload.get("item_name") or ""),
             "specification": str(payload.get("specification") or ""),
@@ -37,18 +52,31 @@ class AdjustmentsService:
             "corrected_qty": float(payload.get("corrected_qty") or 0.0),
             "reason": reason,
             "status": "REQUESTED",
-            "requested_by": str(payload.get("requested_by") or payload.get("actor_id") or "system"),
-            "requested_by_id": str(payload.get("requested_by_id") or payload.get("actor_id") or "system"),
+            "requested_by": str(
+                payload.get("requested_by") or payload.get("actor_id") or "system"
+            ),
+            "requested_by_id": str(
+                payload.get("requested_by_id") or payload.get("actor_id") or "system"
+            ),
             "created_at": payload.get("created_at") or now().isoformat(),
             "updated_at": payload.get("updated_at") or now().isoformat(),
         }
         return await self.adjustment_repository.save(adjustment)
 
-    async def list_adjustments(self, status: str | None = None, gate_pass_id: str | None = None) -> list[dict]:
-        return await self.adjustment_repository.list(status=status, gate_pass_id=gate_pass_id)
+    async def list_adjustments(
+        self,
+        status: str | None = None,
+        gate_pass_id: str | None = None,
+        organizations=None,
+    ) -> list[dict]:
+        return await self.adjustment_repository.list(
+            status=status, gate_pass_id=gate_pass_id, organizations=organizations
+        )
 
-    async def approve_adjustment(self, adjustment_id: str, approver) -> dict:
-        adjustment = await self.adjustment_repository.find(adjustment_id)
+    async def approve_adjustment(
+        self, adjustment_id: str, approver, organizations=None
+    ) -> dict:
+        adjustment = await self.adjustment_repository.find(adjustment_id, organizations)
         if adjustment is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Adjustment not found")
         if str(adjustment.get("status") or "") != "REQUESTED":
@@ -74,8 +102,11 @@ class AdjustmentsService:
         # the linked bill, and the monthly operations snapshot refreshes from it.
         bill = None
         gate_pass_id = str(saved.get("gate_pass_id") or "")
+        scope = _scope_value(organizations) or str(saved.get("organization_id") or "")
         if gate_pass_id:
-            bill = await self.bills_service.bill_repository.find_by_gate_pass(gate_pass_id)
+            bill = await self.bills_service.bill_repository.find_by_gate_pass(
+                gate_pass_id, scope or organizations
+            )
         operations = None
         if bill is not None:
             corrected = float(saved.get("corrected_qty") or 0.0)
@@ -87,13 +118,17 @@ class AdjustmentsService:
             bill["amount"] = round(unit_price * corrected, 2)
             bill["updated_at"] = now().isoformat()
             await self.bills_service.bill_repository.save(bill)
-            operations = await self.bills_service.get_monthly_operations(str(bill.get("period") or ""))
+            operations = await self.bills_service.get_monthly_operations(
+                str(bill.get("period") or ""), organizations
+            )
             saved["bill"] = bill
         saved["monthly_operations"] = operations
         return await self.adjustment_repository.save(saved)
 
-    async def reject_adjustment(self, adjustment_id: str, actor) -> dict:
-        adjustment = await self.adjustment_repository.find(adjustment_id)
+    async def reject_adjustment(
+        self, adjustment_id: str, actor, organizations=None
+    ) -> dict:
+        adjustment = await self.adjustment_repository.find(adjustment_id, organizations)
         if adjustment is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Adjustment not found")
         if str(adjustment.get("status") or "") != "REQUESTED":
