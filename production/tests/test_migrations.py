@@ -21,6 +21,12 @@ RELIABILITY_SCHEMAS = (
     DATABASES_ROOT / "linen-tracking/schema/0002_reliability.json",
 )
 
+IDENTITY_SCHEMAS = (
+    DATABASES_ROOT / "central-system/schema/0003_identity.json",
+    DATABASES_ROOT / "laundry-internal/schema/0003_identity.json",
+    DATABASES_ROOT / "linen-tracking/schema/0003_identity.json",
+)
+
 
 class RecordingDatabase:
     def __init__(self, inner) -> None:
@@ -76,12 +82,40 @@ async def test_reliability_schemas_add_event_lifecycle_and_billing_collections()
 
 
 @pytest.mark.asyncio
+async def test_identity_schemas_add_hybrid_tag_and_scan_collections() -> None:
+    expected_names = (
+        {"rfid_readers", "tag_manufacturers", "tag_models", "tag_suppliers", "tag_batches", "tag_imports"},
+        {"billable_service_events"},
+        {
+            "linen_identifiers",
+            "identity_counters",
+            "tag_assignments",
+            "tag_replacements",
+            "scan_sessions",
+            "scan_session_reads",
+            "scan_transactions",
+            "linen_wash_cycles",
+            "tag_inspections",
+            "tag_failure_reports",
+        },
+    )
+    for schema_path, required in zip(IDENTITY_SCHEMAS, expected_names):
+        database = RecordingDatabase(AsyncMongoMockClient()["test"])
+        await apply_schema(database, schema_path)
+        names = set(await database.list_collection_names())
+        assert required <= names
+        for name in required:
+            assert name in database.validators
+            assert database.validators[name]["validationAction"] == "error"
+
+
+@pytest.mark.asyncio
 async def test_migration_runner_is_versioned_idempotent_and_rollback_capable() -> None:
     databases = {
         name: RecordingDatabase(AsyncMongoMockClient()["test"]) for name in DATABASES
     }
     first = await run_all(databases=databases)
-    assert all(len(versions) == 2 for versions in first.values())
+    assert all(len(versions) == 3 for versions in first.values())
 
     second = await run_all(databases=databases)
     assert all(not versions for versions in second.values())
@@ -95,3 +129,8 @@ async def test_migration_runner_is_versioned_idempotent_and_rollback_capable() -
 
     third = await run_all(databases=databases)
     assert "central_system:0002_reliability" in third["central_system"]
+
+    assert await rollback("linen_tracking:0003_identity", databases=databases)
+    collections = set(await databases["linen_tracking"].list_collection_names())
+    assert "linen_identifiers" not in collections
+    assert "linen_profiles" in collections

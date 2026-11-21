@@ -1,0 +1,176 @@
+{
+  "database": "central_system",
+  "version": 3,
+  "collections": [
+    {
+      "name": "rfid_readers",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["reader_id", "organization_id", "name", "adapter", "status", "created_at"],
+          "properties": {
+            "reader_id": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "name": {"bsonType": "string"},
+            "manufacturer": {"bsonType": "string"},
+            "model": {"bsonType": "string"},
+            "adapter": {"bsonType": "string"},
+            "endpoint": {"bsonType": "string"},
+            "transport": {"bsonType": "string"},
+            "region": {"bsonType": "string"},
+            "frequency_mhz": {"bsonType": ["double", "int", "null"]},
+            "antenna_config": {"bsonType": "object"},
+            "capabilities": {"bsonType": "object"},
+            "auth_key_hash": {"bsonType": "string"},
+            "status": {"bsonType": "string"},
+            "revoked": {"bsonType": "bool"},
+            "last_seen_at": {"bsonType": ["string", "null"]},
+            "metadata": {"bsonType": "object"},
+            "created_at": {"bsonType": "string"},
+            "revoked_at": {"bsonType": ["string", "null"]}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"reader_id": 1}, "name": "reader_id", "unique": true},
+        {"keys": {"organization_id": 1, "status": 1}, "name": "org_status"}
+      ]
+    },
+    {
+      "name": "tag_manufacturers",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["manufacturer_id", "name", "created_at"],
+          "properties": {
+            "manufacturer_id": {"bsonType": "string"},
+            "name": {"bsonType": "string"},
+            "country_of_origin": {"bsonType": "string"},
+            "contact": {"bsonType": "string"},
+            "documentation_reference": {"bsonType": "string"},
+            "durability_documented": {"bsonType": "bool"},
+            "created_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"manufacturer_id": 1}, "name": "manufacturer_id", "unique": true},
+        {"keys": {"name": 1}, "name": "manufacturer_name", "unique": true}
+      ]
+    },
+    {
+      "name": "tag_models",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["model_id", "manufacturer_id", "name", "created_at"],
+          "properties": {
+            "model_id": {"bsonType": "string"},
+            "manufacturer_id": {"bsonType": "string"},
+            "name": {"bsonType": "string"},
+            "technology": {"bsonType": "string"},
+            "rated_cycles": {"bsonType": "int"},
+            "frequency_support": {"bsonType": "array", "items": {"bsonType": "string"}},
+            "construction": {"bsonType": "string"},
+            "chemical_resistance": {"bsonType": "string"},
+            "heat_resistance": {"bsonType": "string"},
+            "created_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"model_id": 1}, "name": "model_id", "unique": true},
+        {"keys": {"manufacturer_id": 1, "name": 1}, "name": "manufacturer_model", "unique": true}
+      ]
+    },
+    {
+      "name": "tag_suppliers",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["supplier_id", "name", "created_at"],
+          "properties": {
+            "supplier_id": {"bsonType": "string"},
+            "name": {"bsonType": "string"},
+            "contact": {"bsonType": "string"},
+            "country_of_origin": {"bsonType": "string"},
+            "created_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"supplier_id": 1}, "name": "supplier_id", "unique": true},
+        {"keys": {"name": 1}, "name": "supplier_name", "unique": true}
+      ]
+    },
+    {
+      "name": "tag_batches",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["batch_id", "expected_quantity", "received_quantity", "rejected_quantity", "status", "created_at"],
+          "properties": {
+            "batch_id": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "manufacturer_id": {"bsonType": "string"},
+            "model_id": {"bsonType": "string"},
+            "supplier_id": {"bsonType": "string"},
+            "manufacturer": {"bsonType": "string"},
+            "model": {"bsonType": "string"},
+            "technology": {"bsonType": "string"},
+            "country_of_origin": {"bsonType": "string"},
+            "purchase_order": {"bsonType": "string"},
+            "quotation_reference": {"bsonType": "string"},
+            "unit_price": {"bsonType": "double"},
+            "import_cost": {"bsonType": "double"},
+            "customs_cost": {"bsonType": "double"},
+            "shipping_cost": {"bsonType": "double"},
+            "expected_quantity": {"bsonType": "int"},
+            "received_quantity": {"bsonType": "int"},
+            "rejected_quantity": {"bsonType": "int"},
+            "activated_quantity": {"bsonType": "int"},
+            "durability_rating_cycles": {"bsonType": "int"},
+            "warranty_reference": {"bsonType": "string"},
+            "quality_inspection": {"bsonType": "object"},
+            "sample_testing": {"bsonType": "object"},
+            "status": {"bsonType": "string"},
+            "created_at": {"bsonType": "string"},
+            "verified_at": {"bsonType": ["string", "null"]}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"batch_id": 1}, "name": "batch_id", "unique": true},
+        {"keys": {"status": 1}, "name": "batch_status"}
+      ]
+    },
+    {
+      "name": "tag_imports",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["import_id", "batch_id", "row_count", "valid", "status", "created_at"],
+          "properties": {
+            "import_id": {"bsonType": "string"},
+            "batch_id": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "expected_quantity": {"bsonType": ["int", "null"]},
+            "row_count": {"bsonType": "int"},
+            "valid": {"bsonType": "bool"},
+            "errors": {"bsonType": "array", "items": {"bsonType": "object"}},
+            "rows": {"bsonType": "array", "items": {"bsonType": "object"}},
+            "status": {"bsonType": "string"},
+            "actor_id": {"bsonType": "string"},
+            "created_at": {"bsonType": "string"},
+            "verified_at": {"bsonType": ["string", "null"]},
+            "activated_at": {"bsonType": ["string", "null"]}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"import_id": 1}, "name": "import_id", "unique": true},
+        {"keys": {"batch_id": 1}, "name": "import_batch"}
+      ]
+    }
+  ]
+}

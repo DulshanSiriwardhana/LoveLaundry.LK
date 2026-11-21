@@ -1,0 +1,38 @@
+{
+  "database": "laundry_internal",
+  "version": 3,
+  "collections": [
+    {
+      "name": "billable_service_events",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["verification_id", "organization_id", "hotel_id", "linen_id", "service", "quantity", "occurred_at", "validated"],
+          "properties": {
+            "verification_id": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "hotel_id": {"bsonType": "string"},
+            "linen_id": {"bsonType": "string"},
+            "service": {"bsonType": "string"},
+            "quantity": {"bsonType": "int"},
+            "occurred_at": {"bsonType": "string"},
+            "validated": {"bsonType": "bool"},
+            "transaction_id": {"bsonType": "string"},
+            "scan_id": {"bsonType": "string"},
+            "session_id": {"bsonType": "string"},
+            "stage": {"bsonType": "string"},
+            "source": {"bsonType": "string"},
+            "invoice_id": {"bsonType": "string"},
+            "billed": {"bsonType": "bool"},
+            "created_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"verification_id": 1}, "name": "verification_id", "unique": true},
+        {"keys": {"organization_id": 1, "hotel_id": 1, "occurred_at": 1}, "name": "billing_scope"},
+        {"keys": {"transaction_id": 1}, "name": "billing_transaction"}
+      ]
+    }
+  ]
+}

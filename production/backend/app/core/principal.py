@@ -35,6 +35,13 @@ ALL_CAPABILITIES = frozenset(
         "manage_users",
         "manage_settings",
         "view_notifications",
+        "view_tags",
+        "manage_tags",
+        "manage_tag_batches",
+        "manage_readers",
+        "view_scan_sessions",
+        "manage_scan_sessions",
+        "view_dashboards",
         "platform_admin",
     }
 )
@@ -60,6 +67,13 @@ _OPERATIONS = frozenset(
         "edit_adjustments",
         "approve_adjustments",
         "view_notifications",
+        "view_tags",
+        "manage_tags",
+        "manage_tag_batches",
+        "manage_readers",
+        "view_scan_sessions",
+        "manage_scan_sessions",
+        "view_dashboards",
     }
 )
 
@@ -75,6 +89,9 @@ _READ_ONLY_OPERATIONS = frozenset(
         "view_adjustments",
         "edit_adjustments",
         "view_notifications",
+        "view_tags",
+        "view_scan_sessions",
+        "view_dashboards",
     }
 )
 
@@ -85,6 +102,8 @@ _CLIENT_OPERATIONS = frozenset(
         "view_manifests",
         "view_reports",
         "view_notifications",
+        "view_tags",
+        "view_scan_sessions",
     }
 )
 

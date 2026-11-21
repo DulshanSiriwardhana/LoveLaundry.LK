@@ -1,0 +1,283 @@
+{
+  "database": "linen_tracking",
+  "version": 3,
+  "collections": [
+    {
+      "name": "linen_identifiers",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["linen_id", "qr_id", "epc", "organization_id", "status", "created_at"],
+          "properties": {
+            "linen_id": {"bsonType": "string"},
+            "qr_id": {"bsonType": "string"},
+            "qr_url": {"bsonType": "string"},
+            "epc": {"bsonType": "string"},
+            "tid": {"bsonType": "string"},
+            "tag_serial": {"bsonType": "string"},
+            "rfid_technology": {"bsonType": "string"},
+            "item_type": {"bsonType": "string"},
+            "category": {"bsonType": "string"},
+            "size": {"bsonType": "string"},
+            "material": {"bsonType": "string"},
+            "external_reference": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "owner_organization_id": {"bsonType": "string"},
+            "batch_id": {"bsonType": "string"},
+            "manufacturer_id": {"bsonType": "string"},
+            "model_id": {"bsonType": "string"},
+            "tag_status": {"bsonType": "string"},
+            "status": {"bsonType": "string"},
+            "wash_cycles": {"bsonType": "int"},
+            "assigned_at": {"bsonType": "string"},
+            "created_at": {"bsonType": "string"},
+            "updated_at": {"bsonType": "string"},
+            "deactivated_at": {"bsonType": ["string", "null"]},
+            "deactivation_reason": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"linen_id": 1}, "name": "linen_id", "unique": true},
+        {"keys": {"qr_id": 1}, "name": "qr_id", "unique": true},
+        {"keys": {"epc": 1}, "name": "epc", "unique": true},
+        {"keys": {"tag_serial": 1}, "name": "tag_serial", "unique": true},
+        {"keys": {"organization_id": 1, "status": 1}, "name": "org_status"},
+        {"keys": {"batch_id": 1}, "name": "identity_batch"},
+        {"keys": {"tid": 1}, "name": "tid"}
+      ]
+    },
+    {
+      "name": "identity_counters",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["name", "value"],
+          "properties": {
+            "name": {"bsonType": "string"},
+            "value": {"bsonType": "int"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"name": 1}, "name": "counter_name", "unique": true}
+      ]
+    },
+    {
+      "name": "tag_assignments",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["assignment_id", "linen_id", "action", "occurred_at"],
+          "properties": {
+            "assignment_id": {"bsonType": "string"},
+            "linen_id": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "identifier_type": {"bsonType": "string"},
+            "qr_id": {"bsonType": "string"},
+            "epc": {"bsonType": "string"},
+            "tag_serial": {"bsonType": "string"},
+            "action": {"bsonType": "string"},
+            "reason": {"bsonType": "string"},
+            "actor_id": {"bsonType": "string"},
+            "occurred_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"assignment_id": 1}, "name": "assignment_id", "unique": true},
+        {"keys": {"linen_id": 1, "occurred_at": -1}, "name": "linen_assignments"}
+      ]
+    },
+    {
+      "name": "tag_replacements",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["replacement_id", "linen_id", "old_epc", "new_epc", "reason", "occurred_at"],
+          "properties": {
+            "replacement_id": {"bsonType": "string"},
+            "linen_id": {"bsonType": "string"},
+            "old_epc": {"bsonType": "string"},
+            "new_epc": {"bsonType": "string"},
+            "old_qr": {"bsonType": "string"},
+            "new_qr": {"bsonType": "string"},
+            "reason": {"bsonType": "string"},
+            "actor_id": {"bsonType": "string"},
+            "occurred_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"replacement_id": 1}, "name": "replacement_id", "unique": true},
+        {"keys": {"linen_id": 1, "occurred_at": -1}, "name": "linen_replacements"}
+      ]
+    },
+    {
+      "name": "scan_sessions",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["session_id", "organization_id", "stage", "action", "status", "started_at"],
+          "properties": {
+            "session_id": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "reader_id": {"bsonType": "string"},
+            "operator_id": {"bsonType": "string"},
+            "stage": {"bsonType": "string"},
+            "action": {"bsonType": "string"},
+            "mode": {"bsonType": "string"},
+            "status": {"bsonType": "string"},
+            "expected_count": {"bsonType": "int"},
+            "detected_count": {"bsonType": "int"},
+            "duplicate_count": {"bsonType": "int"},
+            "missing_count": {"bsonType": "int"},
+            "unexpected_count": {"bsonType": "int"},
+            "expected_linen_ids": {"bsonType": "array", "items": {"bsonType": "string"}},
+            "missing_linen_ids": {"bsonType": "array", "items": {"bsonType": "string"}},
+            "unexpected_linen_ids": {"bsonType": "array", "items": {"bsonType": "string"}},
+            "started_at": {"bsonType": "string"},
+            "completed_at": {"bsonType": ["string", "null"]}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"session_id": 1}, "name": "session_id", "unique": true},
+        {"keys": {"organization_id": 1, "status": 1}, "name": "session_org_status"}
+      ]
+    },
+    {
+      "name": "scan_session_reads",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["read_id", "session_id", "epc", "occurred_at"],
+          "properties": {
+            "read_id": {"bsonType": "string"},
+            "session_id": {"bsonType": "string"},
+            "reader_id": {"bsonType": "string"},
+            "epc": {"bsonType": "string"},
+            "tid": {"bsonType": "string"},
+            "linen_id": {"bsonType": "string"},
+            "antenna": {"bsonType": "string"},
+            "rssi": {"bsonType": ["double", "int", "null"]},
+            "read_count": {"bsonType": "int"},
+            "result": {"bsonType": "string"},
+            "scan_id": {"bsonType": "string"},
+            "occurred_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"read_id": 1}, "name": "read_id", "unique": true},
+        {"keys": {"session_id": 1, "epc": 1}, "name": "session_epc", "unique": true},
+        {"keys": {"session_id": 1, "occurred_at": 1}, "name": "session_recent"}
+      ]
+    },
+    {
+      "name": "scan_transactions",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["transaction_id", "scan_id", "linen_id", "organization_id", "method", "result", "occurred_at"],
+          "properties": {
+            "transaction_id": {"bsonType": "string"},
+            "scan_id": {"bsonType": "string"},
+            "linen_id": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "identifier": {"bsonType": "string"},
+            "method": {"bsonType": "string"},
+            "action": {"bsonType": "string"},
+            "stage": {"bsonType": "string"},
+            "result": {"bsonType": "string"},
+            "reader_id": {"bsonType": "string"},
+            "session_id": {"bsonType": "string"},
+            "actor_id": {"bsonType": "string"},
+            "error": {"bsonType": "string"},
+            "occurred_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"transaction_id": 1}, "name": "transaction_id", "unique": true},
+        {"keys": {"scan_id": 1}, "name": "scan_id", "unique": true},
+        {"keys": {"linen_id": 1, "occurred_at": -1}, "name": "transaction_linen_recent"}
+      ]
+    },
+    {
+      "name": "linen_wash_cycles",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["cycle_id", "linen_id", "organization_id", "wash_count", "completed_at"],
+          "properties": {
+            "cycle_id": {"bsonType": "string"},
+            "linen_id": {"bsonType": "string"},
+            "organization_id": {"bsonType": "string"},
+            "wash_count": {"bsonType": "int"},
+            "stage_from": {"bsonType": "string"},
+            "stage_to": {"bsonType": "string"},
+            "workflow_reference": {"bsonType": "string"},
+            "operator_id": {"bsonType": "string"},
+            "validator": {"bsonType": "string"},
+            "completed_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"cycle_id": 1}, "name": "cycle_id", "unique": true},
+        {"keys": {"linen_id": 1, "wash_count": 1}, "name": "linen_wash_count", "unique": true}
+      ]
+    },
+    {
+      "name": "tag_inspections",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["inspection_id", "linen_id", "tag_serial", "result", "occurred_at"],
+          "properties": {
+            "inspection_id": {"bsonType": "string"},
+            "linen_id": {"bsonType": "string"},
+            "tag_serial": {"bsonType": "string"},
+            "result": {"bsonType": "string"},
+            "qr_readable": {"bsonType": "bool"},
+            "rfid_readable": {"bsonType": "bool"},
+            "wash_cycles_observed": {"bsonType": "int"},
+            "inspector_id": {"bsonType": "string"},
+            "notes": {"bsonType": "string"},
+            "occurred_at": {"bsonType": "string"}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"inspection_id": 1}, "name": "inspection_id", "unique": true},
+        {"keys": {"linen_id": 1, "occurred_at": -1}, "name": "linen_inspections"}
+      ]
+    },
+    {
+      "name": "tag_failure_reports",
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["failure_id", "linen_id", "tag_serial", "failure_type", "status", "reported_at"],
+          "properties": {
+            "failure_id": {"bsonType": "string"},
+            "linen_id": {"bsonType": "string"},
+            "tag_serial": {"bsonType": "string"},
+            "failure_type": {"bsonType": "string"},
+            "status": {"bsonType": "string"},
+            "description": {"bsonType": "string"},
+            "reporter_id": {"bsonType": "string"},
+            "replacement_id": {"bsonType": "string"},
+            "reported_at": {"bsonType": "string"},
+            "resolved_at": {"bsonType": ["string", "null"]}
+          }
+        }
+      },
+      "indexes": [
+        {"keys": {"failure_id": 1}, "name": "failure_id", "unique": true},
+        {"keys": {"linen_id": 1, "status": 1}, "name": "linen_failure_status"}
+      ]
+    }
+  ]
+}

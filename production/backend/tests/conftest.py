@@ -5,6 +5,9 @@ os.environ.setdefault("MASTER_KEY", "test-master-key-at-least-32-bytes-long!!")
 os.environ.setdefault("APP_ENV", "test")
 os.environ.setdefault("AUTH_REQUIRED", "false")
 os.environ.setdefault("PERSISTENCE", "memory")
+os.environ.setdefault("QR_BASE_URL", "https://tags.example.test")
+os.environ.setdefault("RFID_EPC_PREFIX_HEX", "3039")
+os.environ.setdefault("RFID_MODE", "test")
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
