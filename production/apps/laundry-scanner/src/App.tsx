@@ -222,6 +222,21 @@ export function App() {
     void load();
   }, [load]);
 
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  /** Re-run the API calls that feed the current screen. */
+  const refreshPage = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await Promise.all([load()]);
+      setLastUpdated(new Date().toLocaleTimeString());
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const signOut = () => {
     logout();
     setSession(null);
@@ -480,9 +495,15 @@ export function App() {
             {organizationFor(session) || "No organization on session"} · {session.user_name}
           </p>
         </div>
-        <button type="button" onClick={signOut}>
-          Sign out
-        </button>
+        <div className="session">
+          <span>{lastUpdated ? `Updated ${lastUpdated}` : ""}</span>
+          <button type="button" onClick={() => void refreshPage()} disabled={refreshing}>
+            {refreshing ? "Refreshing…" : "Refresh"}
+          </button>
+          <button type="button" onClick={signOut}>
+            Sign out
+          </button>
+        </div>
       </header>
 
       <nav className="routes" aria-label="Laundry scanner">

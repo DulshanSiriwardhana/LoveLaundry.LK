@@ -279,6 +279,21 @@ export function App() {
     setError(null);
   };
 
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  /** Re-run the API calls that feed the current screen. */
+  const refreshPage = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await Promise.all([load()]);
+      setLastUpdated(new Date().toLocaleTimeString());
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const signOut = () => {
     platformLogout();
     setSession(null);
@@ -455,6 +470,10 @@ export function App() {
           <h1>Platform Admin</h1>
         </div>
         <div className="session">
+          <span>{lastUpdated ? `Updated ${lastUpdated}` : ""}</span>
+          <button type="button" onClick={() => void refreshPage()} disabled={refreshing || loading}>
+            {refreshing || loading ? "Refreshing…" : "Refresh"}
+          </button>
           <span>{session.user_name}</span>
           <button type="button" onClick={signOut}>
             Sign out
@@ -478,9 +497,6 @@ export function App() {
       <main className="content">
         <div className="section-heading">
           <h2>{LABELS[route]}</h2>
-          <button type="button" onClick={() => void load()} disabled={loading}>
-            {loading ? "Refreshing…" : "Refresh"}
-          </button>
         </div>
         {error ? <p role="alert">{error}</p> : null}
         {notice ? <p className="notice">{notice}</p> : null}

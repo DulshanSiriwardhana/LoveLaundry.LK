@@ -96,6 +96,21 @@ export function App() {
     void loadBillingRows();
   }, [load, loadAdjustments, loadBillingRows, session]);
 
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  /** Re-run the API calls that feed the current screen. */
+  const refreshPage = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await Promise.all([load(), loadAdjustments(), loadBillingRows()]);
+      setLastUpdated(new Date().toLocaleTimeString());
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const signOut = () => {
     logout();
     setSession(null);
@@ -183,9 +198,17 @@ export function App() {
           <p style={{ margin: "0.35rem 0" }}>LoveLaundry production rebuild surface.</p>
           <p style={{ margin: 0 }}>Signed in as {session.user_name}</p>
         </div>
-        <button type="button" onClick={signOut}>
-          Sign out
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <span style={{ fontSize: "0.8rem", color: "#666" }}>
+            {lastUpdated ? `Updated ${lastUpdated}` : ""}
+          </span>
+          <button type="button" onClick={() => void refreshPage()} disabled={refreshing}>
+            {refreshing ? "Refreshing…" : "Refresh"}
+          </button>
+          <button type="button" onClick={signOut}>
+            Sign out
+          </button>
+        </div>
       </header>
 
       <label style={{ display: "block", margin: "1rem 0" }}>
