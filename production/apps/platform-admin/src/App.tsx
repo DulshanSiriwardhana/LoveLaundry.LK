@@ -174,6 +174,14 @@ function Tiles({ value }: { value: Record<string, unknown> }) {
 
 export function App() {
   const [session, setSession] = useState<SessionUser | null>(() => getPlatformSession());
+  // Confirmed session expiry from the API layer: drop the in-memory session
+  // so the login screen renders without a full page reload.
+  useEffect(() => {
+    const onExpired = () => setSession(null);
+    window.addEventListener("ll:session-expired", onExpired);
+    return () => window.removeEventListener("ll:session-expired", onExpired);
+  }, []);
+
   const [token, setToken] = useState<string | null>(() => getPlatformToken());
   const [route, setRoute] = useState<Route>(() => readRoute());
   const [data, setData] = useState<unknown>(null);

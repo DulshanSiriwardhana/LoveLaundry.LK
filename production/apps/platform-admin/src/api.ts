@@ -147,6 +147,30 @@ export function clearPlatformSession(): void {
   storage.removeItem(PLATFORM_USER_KEY);
 }
 
+/**
+ * A 401 from one backend service is NOT proof that the user's session ended.
+ * Only end the session when the token actually sent is missing or clearly
+ * expired; otherwise surface the error and keep the user signed in.
+ */
+const SESSION_EXPIRED_EVENT = "ll:session-expired";
+const CLOCK_SKEW_MS = 60_000;
+
+function isTokenExpired(token: string | null): boolean {
+  if (!token) return true;
+  const parts = token.split(".");
+  if (parts.length < 2) return false;
+  try {
+    const b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = b64.padEnd(Math.ceil(b64.length / 4) * 4, "=");
+    const bytes = Uint8Array.from(atob(padded), (c) => c.charCodeAt(0));
+    const payload = JSON.parse(new TextDecoder().decode(bytes)) as { exp?: unknown };
+    if (typeof payload?.exp !== "number" || !Number.isFinite(payload.exp)) return false;
+    return payload.exp * 1000 < Date.now() - CLOCK_SKEW_MS;
+  } catch {
+    return false;
+  }
+}
+
 export function buildPlatformHeaders(headers?: HeadersInit): Record<string, string> {
   const merged: Record<string, string> = {
     "Content-Type": "application/json",
@@ -165,7 +189,12 @@ export async function platformRequest<T>(path: string, init?: RequestInit): Prom
     headers: buildPlatformHeaders(init?.headers),
   });
   if (response.status === 401) {
-    clearPlatformSession();
+    // Keep the session for 401s from a healthy token — only a genuinely
+    // expired/absent token ends it.
+    if (isTokenExpired(getPlatformToken())) {
+      clearPlatformSession();
+      window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
+    }
   }
   if (!response.ok) {
     const detail = await response.json().catch(() => null);

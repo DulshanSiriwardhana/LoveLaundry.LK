@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   API_BASE,
   TOKEN_STORAGE_KEY,
+  USER_STORAGE_KEY,
   buildRequestHeaders,
   fetchHotelDashboard,
   getAuthToken,
@@ -14,12 +15,21 @@ const localStorageMock = {
   setItem: vi.fn(),
   removeItem: vi.fn(),
 };
+const dispatchEventMock = vi.fn();
+
+function jwtWithExp(exp: number): string {
+  const body = Buffer.from(JSON.stringify({ auth_id: "u1", exp })).toString("base64url");
+  return `header.${body}.signature`;
+}
 
 beforeEach(() => {
   localStorageMock.getItem.mockReset();
+  localStorageMock.removeItem.mockReset();
+  dispatchEventMock.mockReset();
   vi.stubGlobal("window", {
     localStorage: localStorageMock,
     location: { assign: vi.fn() },
+    dispatchEvent: dispatchEventMock,
   });
 });
 
@@ -107,5 +117,36 @@ describe("api request helpers", () => {
       `${API_BASE}/dashboards/hotel?organization_id=hotel-a`,
       expect.anything(),
     );
+  });
+});
+
+describe("401 handling", () => {
+  const unauthorizedResponse = {
+    ok: false,
+    status: 401,
+    json: async () => ({ detail: "Unauthorized" }),
+  };
+
+  it("keeps the session when a healthy token gets a service-level 401", async () => {
+    localStorageMock.getItem.mockReturnValue(
+      jwtWithExp(Math.floor(Date.now() / 1000) + 3600),
+    );
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(unauthorizedResponse));
+
+    await expect(fetchHotelDashboard("hotel-a")).rejects.toThrow();
+    expect(localStorageMock.removeItem).not.toHaveBeenCalled();
+    expect(dispatchEventMock).not.toHaveBeenCalled();
+  });
+
+  it("ends the session when the token that was sent has expired", async () => {
+    localStorageMock.getItem.mockReturnValue(
+      jwtWithExp(Math.floor(Date.now() / 1000) - 3600),
+    );
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(unauthorizedResponse));
+
+    await expect(fetchHotelDashboard("hotel-a")).rejects.toThrow();
+    expect(localStorageMock.removeItem).toHaveBeenCalledWith(TOKEN_STORAGE_KEY);
+    expect(localStorageMock.removeItem).toHaveBeenCalledWith(USER_STORAGE_KEY);
+    expect(dispatchEventMock).toHaveBeenCalledOnce();
   });
 });

@@ -31,6 +31,14 @@ interface BillingRow {
 
 export function App() {
   const [session, setSession] = useState<SessionUser | null>(() => getSession());
+  // The API layer signals a confirmed session expiry; clear the in-memory
+  // session so the login screen renders without a full page reload.
+  useEffect(() => {
+    const onExpired = () => setSession(null);
+    window.addEventListener("ll:session-expired", onExpired);
+    return () => window.removeEventListener("ll:session-expired", onExpired);
+  }, []);
+
   const [period, setPeriod] = useState(CURRENT_PERIOD);
   const [operations, setOperations] = useState<MonthlyOperations | null>(null);
   const [loading, setLoading] = useState(false);
