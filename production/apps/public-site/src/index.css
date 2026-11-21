@@ -1,0 +1,168 @@
+@import url('https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fraunces:opsz,wght@9..144,500..800&family=Noto+Sans+Sinhala:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --color-brand: #E01E31;
+  --color-brand-100: #FEE2E2;
+  --color-brand-200: #FECACA;
+  --color-brand-dark: #C11324;
+  --color-brand-deep: #97121F;
+  --color-brand-soft: #FEF2F2;
+  --color-ink: #171717;
+  --color-muted: #525252;
+  --color-faint: #737373;
+  --color-subtle: #A3A3A3;
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #FAFAFA;
+  --color-card: #FFFFFF;
+  --color-line: #E5E5E5;
+  --color-line-strong: #D4D4D4;
+  --color-accent: #E3A13C;
+  --color-surface-dark: #0C0708;
+  --color-on-dark: #FFFFFF;
+  --color-info: #3B82F6;
+  --color-info-soft: #EFF6FF;
+}
+
+@layer base {
+  :root {
+    --font-body: 'Cabin', 'Noto Sans Sinhala', system-ui, -apple-system, sans-serif;
+    --font-display: 'Fraunces', 'Noto Sans Sinhala', Georgia, 'Times New Roman', serif;
+    --brand: var(--color-brand);
+    --brand-dark: var(--color-brand-dark);
+    --brand-soft: var(--color-brand-soft);
+    --ink: var(--color-ink);
+    --muted: var(--color-muted);
+    --faint: var(--color-faint);
+    --cream: var(--color-surface);
+    --tan: var(--color-surface-muted);
+    --card: var(--color-card);
+    --line: var(--color-line);
+    --gold: var(--color-accent);
+    --brand-rgb: 224, 30, 49;
+    --brand-dark-rgb: 193, 19, 36;
+    --accent-rgb: 227, 161, 60;
+    --info-rgb: 59, 130, 246;
+    --night-rgb: 12, 7, 8;
+    --surface-rgb: 255, 255, 255;
+    --shadow-rgb: 0, 0, 0;
+    --page-gutter: clamp(1rem, 4vw, 2.5rem);
+    --content-width: 80rem;
+    --section-space: clamp(3.5rem, 6vw, 5rem);
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+  }
+
+  /* Sinhala renders with a taller fallback font; scale the root down so it
+     visually matches the English (Cabin) metrics. */
+  html.lang-sin {
+    font-size: 0.85em;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--cream);
+    color: var(--ink);
+    margin: 0;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  button, input, select, textarea {
+    font-family: inherit;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--brand);
+    outline-offset: 3px;
+  }
+}
+
+main.site-page {
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+}
+
+main.site-page > section {
+  padding-inline: var(--page-gutter);
+  padding-block: var(--section-space);
+  scroll-margin-top: 6rem;
+}
+
+main.site-page > section#home {
+  padding-block: clamp(8rem, 17vh, 10rem) clamp(6rem, 12vh, 8rem);
+}
+
+main.site-page > section[aria-label] {
+  padding-block: clamp(2.75rem, 5vw, 3.75rem);
+}
+
+main.site-page > section > div[class~="mx-auto"],
+main.site-page > footer > div > div[class~="mx-auto"] {
+  width: min(100%, var(--content-width));
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-variation-settings: 'opsz' 72;
+}
+
+::selection {
+  background: rgba(var(--brand-rgb), 0.15);
+  color: var(--ink);
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-line); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-faint); }
+
+/* Scroll reveals: applied by useReveal, removed once the transition ends so
+   component hover transforms (Tailwind translate/scale) stay untouched. */
+.reveal {
+  opacity: 0;
+  translate: var(--reveal-x, 0) var(--reveal-y, 24px);
+  scale: var(--reveal-scale, 0.985);
+  transition:
+    opacity var(--reveal-duration, 0.55s) cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s),
+    translate var(--reveal-duration, 0.55s) cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s),
+    scale var(--reveal-duration, 0.55s) cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s);
+}
+
+.reveal-visible {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal,
+  .reveal-visible {
+    opacity: 1 !important;
+    translate: none !important;
+    scale: 1 !important;
+    transition: none !important;
+  }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
