@@ -5,6 +5,8 @@ import {
 } from '@phosphor-icons/react'
 import type { Icon } from '@phosphor-icons/react'
 import { useQuotations } from '../../features/quotations/hooks/useQuotations'
+import { useAuth } from '../../context/AuthContext'
+import { usePermissions } from '../../hooks/usePermissions'
 import { cn } from '../../lib/utils'
 import { Dialog, DialogContent, DialogTitle } from './dialog'
 
@@ -13,57 +15,94 @@ interface CommandSearchProps {
   onClose: () => void
 }
 
+/** Access metadata mirrors the sidebar nav groups and the router guards. */
 interface NavTarget {
   label: string
   keywords: string
   path: string
+  permission?: string
+  roles?: string[]
+  adminOnly?: boolean
 }
 
+const MANAGER_ROLES = ['ADMIN', 'MANAGER']
+
+/**
+ * Every navigable page with the same access rule the guard enforces. The
+ * palette therefore offers only what the user can actually open — no link that
+ * bounces back, and no capability the sidebar hides.
+ */
 const NAV_ITEMS: NavTarget[] = [
-  { label: 'New Quotation', keywords: 'quote new quotation create', path: '/quotations/new' },
-  { label: 'Quotations', keywords: 'quotations quotes list price', path: '/quotations' },
-  { label: 'Bills', keywords: 'bills invoices list', path: '/bills' },
-  { label: 'Invoices', keywords: 'consolidated invoices created list', path: '/invoices' },
-  { label: 'New Consolidated Invoice', keywords: 'invoice new consolidated create print', path: '/invoices/new' },
-  { label: 'Client Statement', keywords: 'statement client ledger history balance', path: '/statements' },
-  { label: 'New Bill', keywords: 'bill create bill invoice', path: '/bills/new' },
-  { label: 'Gate Passes', keywords: 'gate passes receiving received', path: '/gate-passes' },
-  { label: 'New Gate Pass', keywords: 'gate pass new receive', path: '/gate-passes/new' },
-  { label: 'Deliveries', keywords: 'deliveries sent delivery', path: '/deliveries' },
-  { label: 'New Delivery', keywords: 'delivery new deliver', path: '/deliveries/new' },
-  { label: 'Returns', keywords: 'returns refunds', path: '/returns' },
-  { label: 'Record Return', keywords: 'return new record', path: '/returns/new' },
-  { label: 'Dashboard', keywords: 'home dashboard overview', path: '/' },
+  { label: 'Today', keywords: 'today home overview', path: '/today' },
+  { label: 'Dashboard', keywords: 'home dashboard overview', path: '/dashboard' },
+  { label: 'New Quotation', keywords: 'quote new quotation create', path: '/quotations/new', permission: 'view_quotations' },
+  { label: 'Quotations', keywords: 'quotations quotes list price', path: '/quotations', permission: 'view_quotations' },
+  { label: 'Bills', keywords: 'bills invoices list', path: '/bills', permission: 'view_bills' },
+  { label: 'Invoices', keywords: 'consolidated invoices created list', path: '/invoices', permission: 'view_bills' },
+  { label: 'New Consolidated Invoice', keywords: 'invoice new consolidated create print', path: '/invoices/new', permission: 'view_bills' },
+  { label: 'Client Statement', keywords: 'statement client ledger history balance', path: '/statements', permission: 'view_bills' },
+  { label: 'New Bill', keywords: 'bill create bill invoice', path: '/bills/new', permission: 'view_bills' },
+  { label: 'Legacy Invoice', keywords: 'legacy invoice shop bills', path: '/legacy-invoice', permission: 'view_bills' },
+  { label: 'Gate Passes', keywords: 'gate passes receiving received', path: '/gate-passes', permission: 'view_gate_passes' },
+  { label: 'New Gate Pass', keywords: 'gate pass new receive', path: '/gate-passes/new', permission: 'view_gate_passes' },
+  { label: 'Deliveries', keywords: 'deliveries sent delivery', path: '/deliveries', permission: 'view_deliveries' },
+  { label: 'New Delivery', keywords: 'delivery new deliver', path: '/deliveries/new', permission: 'view_deliveries' },
+  { label: 'Dispatch', keywords: 'dispatch pickup delivery scheduling', path: '/dispatch', permission: 'view_deliveries' },
+  { label: 'Returns', keywords: 'returns refunds', path: '/returns', permission: 'view_gate_passes' },
+  { label: 'Record Return', keywords: 'return new record', path: '/returns/new', permission: 'view_gate_passes' },
   { label: 'Business Intelligence', keywords: 'business dashboard analytics insights', path: '/business-dashboard' },
   { label: 'Customers', keywords: 'customers clients', path: '/customers' },
-  { label: 'Reports', keywords: 'reports export sales', path: '/reports' },
-  { label: 'Users', keywords: 'users staff accounts', path: '/users' },
-  { label: 'Shop Bills', keywords: 'shop bills cash', path: '/shop-bills' },
-  { label: 'Shop Analytics', keywords: 'shop bills dashboard analytics summary', path: '/shop-bills/dashboard' },
-  { label: 'Create Shop Bill', keywords: 'shop bill create new', path: '/shop-bills/new' },
+  { label: 'Reports', keywords: 'reports export sales', path: '/reports', permission: 'view_reports' },
+  { label: 'Users', keywords: 'users staff accounts', path: '/users', adminOnly: true },
+  { label: 'Database Sync', keywords: 'database sync backup restore', path: '/database-sync', adminOnly: true },
+  { label: 'Reports & Backup', keywords: 'reports backup export system', path: '/reports-backup', adminOnly: true },
+  { label: 'Shop Bills', keywords: 'shop bills cash', path: '/shop-bills', permission: 'view_bills' },
+  { label: 'Shop Analytics', keywords: 'shop bills dashboard analytics summary', path: '/shop-bills/dashboard', permission: 'view_bills' },
+  { label: 'Create Shop Bill', keywords: 'shop bill create new', path: '/shop-bills/new', permission: 'view_bills' },
   { label: 'Staff Management', keywords: 'workers staff employees', path: '/workers' },
   { label: 'Daily Tasks', keywords: 'daily tasks work', path: '/workers/daily-tasks' },
   { label: 'Management Dashboard', keywords: 'management overview', path: '/management' },
   { label: 'All Transactions', keywords: 'transactions all management', path: '/management/transactions' },
   { label: 'Manage Customers', keywords: 'management customers', path: '/management/customers' },
   { label: 'Items & Categories', keywords: 'items categories management', path: '/management/items' },
-  { label: 'Expense Management', keywords: 'expenses management', path: '/management/expenses' },
-  { label: 'Employees & Salaries', keywords: 'employees salaries management', path: '/management/employees' },
-  { label: 'Salary Advances', keywords: 'advances salary loans', path: '/management/advances' },
-  { label: 'Holiday Calendar', keywords: 'holidays calendar', path: '/management/holidays' },
-  { label: 'Extra Work', keywords: 'extra work overtime', path: '/management/extra-work' },
-  { label: 'Attendance', keywords: 'attendance present', path: '/management/attendance' },
+  { label: 'Expense Management', keywords: 'expenses management', path: '/management/expenses', roles: MANAGER_ROLES },
+  { label: 'Employees & Salaries', keywords: 'employees salaries management', path: '/management/employees', roles: MANAGER_ROLES },
+  { label: 'Salary Advances', keywords: 'advances salary loans', path: '/management/advances', roles: MANAGER_ROLES },
+  { label: 'Holiday Calendar', keywords: 'holidays calendar', path: '/management/holidays', roles: MANAGER_ROLES },
+  { label: 'Extra Work', keywords: 'extra work overtime', path: '/management/extra-work', roles: MANAGER_ROLES },
+  { label: 'Attendance', keywords: 'attendance present', path: '/management/attendance', roles: MANAGER_ROLES },
   { label: 'Payments', keywords: 'payments management', path: '/management/payments' },
   { label: 'Linen Dashboard', keywords: 'linen tracking dashboard', path: '/linen' },
+  { label: 'Hotel Linen Flow', keywords: 'hotel linen flow', path: '/hotel-linen-flow' },
+  { label: 'Live Chat', keywords: 'live chat chatbot public messages', path: '/live-chat', roles: MANAGER_ROLES },
+  { label: 'AI Insights', keywords: 'ai insights analytics', path: '/ai-insights' },
+  { label: 'Settings', keywords: 'settings theme appearance preferences', path: '/settings' },
 ]
 
-const QUICK_ACTIONS: { label: string; path: string; icon: Icon }[] = [
-  { label: 'New Quotation', path: '/quotations/new', icon: FilePlus },
-  { label: 'New Bill', path: '/bills/new', icon: Receipt },
-  { label: 'New Consolidated Invoice', path: '/invoices/new', icon: FileText },
-  { label: 'New Gate Pass', path: '/gate-passes/new', icon: ClipboardText },
-  { label: 'New Shop Bill', path: '/shop-bills/new', icon: ShoppingCart },
+const QUICK_ACTIONS: {
+  label: string
+  path: string
+  icon: Icon
+  permission: string
+}[] = [
+  { label: 'New Quotation', path: '/quotations/new', icon: FilePlus, permission: 'view_quotations' },
+  { label: 'New Bill', path: '/bills/new', icon: Receipt, permission: 'view_bills' },
+  { label: 'New Consolidated Invoice', path: '/invoices/new', icon: FileText, permission: 'view_bills' },
+  { label: 'New Gate Pass', path: '/gate-passes/new', icon: ClipboardText, permission: 'view_gate_passes' },
+  { label: 'New Shop Bill', path: '/shop-bills/new', icon: ShoppingCart, permission: 'view_bills' },
 ]
+
+/** Mirrors ProtectedRoute + AdminRoute + ManagerRoute + sidebar permissions. */
+function canOpen(
+  target: Pick<NavTarget, 'permission' | 'roles' | 'adminOnly'>,
+  role: string,
+  hasPermission: (permission: string) => boolean,
+): boolean {
+  if (target.adminOnly && role !== 'ADMIN') return false
+  if (target.roles?.length && !target.roles.includes(role)) return false
+  if (target.permission && !hasPermission(target.permission)) return false
+  return true
+}
 
 /**
  * Rendered as an element, never invoked as a function.
@@ -95,8 +134,11 @@ export function CommandSearch({ open, onClose }: CommandSearchProps) {
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const { hasPermission } = usePermissions()
   const { data: quotations = [] } = useQuotations()
   const listRef = useRef<HTMLDivElement>(null)
+  const role = user?.role_id?.toUpperCase() ?? ''
 
   const q = query.trim().toLowerCase()
 
@@ -104,7 +146,7 @@ export function CommandSearch({ open, onClose }: CommandSearchProps) {
     const out: Result[] = []
 
     if (!q) {
-      return QUICK_ACTIONS.map((a) => ({
+      return QUICK_ACTIONS.filter((a) => canOpen(a, role, hasPermission)).map((a) => ({
         kind: 'page' as const,
         key: `quick-${a.path}`,
         label: a.label,
@@ -113,6 +155,7 @@ export function CommandSearch({ open, onClose }: CommandSearchProps) {
     }
 
     for (const item of NAV_ITEMS) {
+      if (!canOpen(item, role, hasPermission)) continue
       if (`${item.label} ${item.keywords}`.toLowerCase().includes(q)) {
         out.push({ kind: 'page', key: `page-${item.path}`, label: item.label, path: item.path })
       }
@@ -138,7 +181,7 @@ export function CommandSearch({ open, onClose }: CommandSearchProps) {
     }
 
     return out
-  }, [q, quotations])
+  }, [q, quotations, role, hasPermission])
 
   // Keep the roving index inside the current result set.
   useEffect(() => {

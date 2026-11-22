@@ -1,10 +1,10 @@
 ﻿import {
-  RiSettings3Line, RiTextSpacing, RiSunLine, RiContrastLine, RiMoonLine, RiCheckLine, RiPaletteLine,
-  RiDropLine, RiLeafLine, RiArtboard2Line, RiCloudLine, RiEyeLine,
+  RiSettings3Line, RiTextSpacing, RiMoonLine, RiCheckLine, RiPaletteLine,
 } from 'react-icons/ri'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card'
 import { Breadcrumb } from '../../../components/ui/breadcrumb'
 import { useTheme, type FontSize, type ThemePreset } from '../../../context/ThemeContext'
+import { THEMES } from '../../../ll-theme'
 
 const FONT_OPTIONS: { value: FontSize; label: string; desc: string; px: string }[] = [
   { value: 'xs', label: 'Extra Small', desc: 'Maximum content density', px: '12px' },
@@ -28,64 +28,18 @@ interface ThemePresetOption {
   swatchMuted: string
 }
 
-const THEME_OPTIONS: ThemePresetOption[] = [
-  // Light themes
-  {
-    value: 'light', label: 'Light', desc: 'The classic clean look',
-    icon: <RiSunLine className="h-4 w-4 text-[var(--danger-text)]" />,
-    group: 'light',
-    swatchBg: 'var(--surface)', swatchSurface: 'var(--ll-white)', swatchBorder: 'var(--surface-2)', swatchText: 'var(--text-primary)', swatchMuted: 'var(--text-secondary)',
-  },
-  {
-    value: 'contrast', label: 'High Contrast', desc: 'Stronger borders, darker text',
-    icon: <RiContrastLine className="h-4 w-4 text-[var(--brand-text)]" />,
-    group: 'light',
-    swatchBg: 'var(--surface)', swatchSurface: 'var(--ll-white)', swatchBorder: 'var(--brand-text)', swatchText: 'var(--text-primary)', swatchMuted: 'var(--brand-deep)',
-  },
-  {
-    value: 'ocean', label: 'Ocean Blue', desc: 'Cool blue-tinted professional',
-    icon: <RiDropLine className="h-4 w-4 text-[var(--brand-text)]" />,
-    group: 'light',
-    swatchBg: 'var(--surface)', swatchSurface: 'var(--ll-white)', swatchBorder: 'var(--brand-border)', swatchText: 'var(--text-primary)', swatchMuted: 'var(--brand-text)',
-  },
-  {
-    value: 'forest', label: 'Forest Green', desc: 'Natural green-tinted warmth',
-    icon: <RiLeafLine className="h-4 w-4 text-[var(--success-text)]" />,
-    group: 'light',
-    swatchBg: 'var(--surface)', swatchSurface: 'var(--ll-white)', swatchBorder: 'var(--surface-2)', swatchText: 'var(--text-primary)', swatchMuted: 'var(--success-text)',
-  },
-  {
-    value: 'sepia', label: 'Warm Sepia', desc: 'Cream newspaper tone',
-    icon: <RiArtboard2Line className="h-4 w-4 text-[var(--danger-text)]" />,
-    group: 'light',
-    swatchBg: 'var(--surface)', swatchSurface: 'var(--surface)', swatchBorder: 'var(--border-2)', swatchText: 'var(--text-primary)', swatchMuted: 'var(--danger-text)',
-  },
-  {
-    value: 'slate', label: 'Slate', desc: 'Balanced medium-grey professional',
-    icon: <RiCloudLine className="h-4 w-4 text-[var(--brand-deep)]" />,
-    group: 'light',
-    swatchBg: 'var(--surface-2)', swatchSurface: 'var(--ll-white)', swatchBorder: 'var(--border-2)', swatchText: 'var(--text-primary)', swatchMuted: 'var(--brand-deep)',
-  },
-  // Dark themes
-  {
-    value: 'dark', label: 'Midnight', desc: 'Professional dark mode',
-    icon: <RiMoonLine className="h-4 w-4 text-[var(--text-faint)]" />,
-    group: 'dark',
-    swatchBg: 'var(--text-primary)', swatchSurface: 'var(--text-primary)', swatchBorder: 'var(--text-primary)', swatchText: 'var(--surface)', swatchMuted: 'var(--text-faint)',
-  },
-  {
-    value: 'nightblue', label: 'Night Blue', desc: 'Deep blue-tinted dark',
-    icon: <RiMoonLine className="h-4 w-4 text-[var(--brand-text)]" />,
-    group: 'dark',
-    swatchBg: 'var(--text-primary)', swatchSurface: 'var(--text-primary)', swatchBorder: 'var(--text-primary)', swatchText: 'var(--surface-2)', swatchMuted: 'var(--brand-text)',
-  },
-  {
-    value: 'contrast-dark', label: 'Contrast Dark', desc: 'Maximum contrast dark mode',
-    icon: <RiEyeLine className="h-4 w-4 text-[var(--danger-text)]" />,
-    group: 'dark',
-    swatchBg: 'var(--ll-black)', swatchSurface: 'var(--text-primary)', swatchBorder: 'var(--text-primary)', swatchText: 'var(--ll-white)', swatchMuted: 'var(--text-faint)',
-  },
-]
+const THEME_OPTIONS: ThemePresetOption[] = THEMES.map(t => ({
+  value: t.id,
+  label: t.label,
+  desc: `${t.mode === 'dark' ? 'Dark' : 'Light'} theme · ${t.swatch}`,
+  icon: <RiPaletteLine className="h-4 w-4" style={{ color: t.swatch }} />,
+  group: t.mode,
+  swatchBg: t.background,
+  swatchSurface: t.swatch,
+  swatchBorder: t.swatch,
+  swatchText: t.mode === 'dark' ? '#FAFAFA' : '#111111',
+  swatchMuted: t.swatch,
+}))
 
 function OptionButton({ active, onClick, children, className = '' }: { active: boolean; onClick: () => void; children: React.ReactNode; className?: string }) {
   return (

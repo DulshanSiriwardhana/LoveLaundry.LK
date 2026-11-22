@@ -37,7 +37,7 @@ export default function InvoicesListPage() {
     )
   }, [records, query])
 
-  const totalOutstanding = records.reduce((s, r) => s + r.totalOutstanding, 0)
+  const totalInvoiced = records.reduce((s, r) => s + (r.totalBilled ?? r.totalOutstanding), 0)
 
   return (
     <div className="space-y-5 pb-10">
@@ -65,7 +65,7 @@ export default function InvoicesListPage() {
           <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-3">
             <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--text-faint)]">Total invoiced</p>
             <p className="mt-0.5 text-[20px] font-bold text-[var(--danger-deep)]">
-              {money(totalOutstanding)}
+              {money(totalInvoiced)}
             </p>
           </div>
         </div>
