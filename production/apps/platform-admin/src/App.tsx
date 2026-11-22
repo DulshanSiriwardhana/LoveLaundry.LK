@@ -190,7 +190,7 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState({ title: "", body: "", applications: "" });
-  const [theme, setTheme] = useState({ scope: "global", theme: '{"primary":"#2563eb"}' });
+  const [theme, setTheme] = useState({ scope: "global", theme: '{"primary":"#0F2C59"}' });
   const [dashboardScope, setDashboardScope] = useState<DashboardScope>("platform");
   const [dashboardOrganization, setDashboardOrganization] = useState("");
   const [tagDraft, setTagDraft] = useState({

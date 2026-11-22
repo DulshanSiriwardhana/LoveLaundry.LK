@@ -1,20 +1,20 @@
 :root {
-  --brand: #2563eb;
-  --brand-dark: #1d4ed8;
-  --brand-soft: #eff6ff;
-  --brand-ring: rgba(37, 99, 235, 0.22);
-  --ink: #0f172a;
-  --ink-soft: #475569;
-  --ink-muted: #64748b;
-  --line: #e2e8f0;
-  --surface: #ffffff;
-  --canvas: #f6f8fc;
-  --success: #047857;
-  --success-soft: #ecfdf5;
-  --danger: #b91c1c;
-  --danger-soft: #fef2f2;
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
-  --shadow-md: 0 18px 45px -25px rgba(15, 23, 42, 0.32);
+  --brand: #0F2C59;
+  --brand-dark: #0F2C59;
+  --brand-soft: #E7EAEE;
+  --brand-ring: rgba(15, 44, 89, 0.22);
+  --ink: #0A1D3A;
+  --ink-soft: #0A1D3A;
+  --ink-muted: #3A5277;
+  --line: #BCC4D1;
+  --surface: #FFFFFF;
+  --canvas: #E7EAEE;
+  --success: #15803D;
+  --success-soft: #E8F2EC;
+  --danger: #C1121F;
+  --danger-soft: #F9E7E9;
+  --shadow-sm: 0 1px 2px rgba(10, 29, 58, 0.05);
+  --shadow-md: 0 18px 45px -25px rgba(10, 29, 58, 0.32);
   color: var(--ink);
   background: var(--canvas);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -32,7 +32,7 @@ button {
   border: 1px solid transparent;
   border-radius: 0.65rem;
   background: var(--brand);
-  color: #fff;
+  color: #FFFFFF;
   padding: 0.6rem 0.9rem;
   font-size: 0.85rem;
   font-weight: 650;
@@ -46,7 +46,7 @@ input, select, textarea {
   border: 1px solid var(--line);
   border-radius: 0.65rem;
   padding: 0.65rem 0.75rem;
-  background: #fff;
+  background: #FFFFFF;
   color: var(--ink);
   outline: none;
 }
@@ -69,7 +69,7 @@ label { display: grid; gap: 0.35rem; font-size: 0.85rem; font-weight: 600; color
 .muted, .empty { color: var(--ink-muted); font-size: 0.88rem; line-height: 1.5; }
 .notice {
   margin: 1rem 0 0;
-  border: 1px solid #a7f3d0;
+  border: 1px solid #BDDBC9;
   border-radius: 0.75rem;
   background: var(--success-soft);
   padding: 0.7rem 0.9rem;
@@ -78,7 +78,7 @@ label { display: grid; gap: 0.35rem; font-size: 0.85rem; font-weight: 600; color
   line-height: 1.5;
 }
 [role="alert"] {
-  border: 1px solid #fecaca;
+  border: 1px solid #EEBDC0;
   border-radius: 0.75rem;
   background: var(--danger-soft);
   padding: 0.7rem 0.9rem;
@@ -92,7 +92,7 @@ label { display: grid; gap: 0.35rem; font-size: 0.85rem; font-weight: 600; color
   align-items: center;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: #fff;
+  background: #FFFFFF;
   padding: 0.25rem 0.65rem;
   color: var(--ink-soft);
   font-size: 0.72rem;
@@ -100,16 +100,16 @@ label { display: grid; gap: 0.35rem; font-size: 0.85rem; font-weight: 600; color
   white-space: nowrap;
 }
 .badge--brand { border-color: transparent; background: var(--brand-soft); color: var(--brand); }
-.badge--soft { background: #f8fafc; }
-.badge--success { border-color: #a7f3d0; background: var(--success-soft); color: var(--success); }
+.badge--soft { background: #E7EAEE; }
+.badge--success { border-color: #BDDBC9; background: var(--success-soft); color: var(--success); }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; }
-.btn--ghost { background: #fff; color: var(--ink-soft); border-color: var(--line); }
+.btn--ghost { background: #FFFFFF; color: var(--ink-soft); border-color: var(--line); }
 .btn--ghost:hover:not(:disabled) { background: var(--brand-soft); color: var(--brand); }
 .btn--block { width: 100%; }
 .code-chip {
   border: 1px solid var(--line);
   border-radius: 0.5rem;
-  background: #f8fafc;
+  background: #E7EAEE;
   padding: 0.25rem 0.55rem;
   color: var(--ink-muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -125,7 +125,7 @@ label { display: grid; gap: 0.35rem; font-size: 0.85rem; font-weight: 600; color
   overflow: hidden;
   padding: 2rem 1rem;
   background: radial-gradient(circle at 12% 10%, var(--brand-soft), transparent 32%),
-              linear-gradient(160deg, #f8fafc 0%, #eef2f9 100%);
+              linear-gradient(160deg, #E7EAEE 0%, #E7EAEE 100%);
 }
 .login-shell::after {
   content: "";
@@ -160,7 +160,7 @@ label { display: grid; gap: 0.35rem; font-size: 0.85rem; font-weight: 600; color
   place-items: center;
   border-radius: 0.9rem;
   background: var(--brand);
-  color: #fff;
+  color: #FFFFFF;
   font-size: 0.85rem;
   font-weight: 800;
   letter-spacing: 0.05em;
@@ -190,7 +190,7 @@ label { display: grid; gap: 0.35rem; font-size: 0.85rem; font-weight: 600; color
   display: flex;
   gap: 0.3rem;
   overflow-x: auto;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid #E7EAEE;
   background: rgba(255, 255, 255, 0.85);
   padding: 0.55rem clamp(1rem, 4vw, 2.5rem);
 }
@@ -207,7 +207,7 @@ label { display: grid; gap: 0.35rem; font-size: 0.85rem; font-weight: 600; color
 .routes a:hover, .routes button:hover { background: var(--brand-soft); color: var(--brand); transform: none; }
 .routes a.active, .routes button.active, .routes a[aria-current="page"], .routes button[aria-current="page"] {
   background: var(--brand);
-  color: #fff;
+  color: #FFFFFF;
   box-shadow: 0 8px 20px -10px var(--brand);
 }
 .content { flex: 1; padding: 1.5rem clamp(1rem, 4vw, 2.5rem) 2.5rem; }
@@ -228,7 +228,7 @@ label { display: grid; gap: 0.35rem; font-size: 0.85rem; font-weight: 600; color
 .table-wrap { overflow-x: auto; margin-top: 1rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--surface); box-shadow: var(--shadow-sm); }
 table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
 th, td { border-bottom: 1px solid var(--line); padding: 0.7rem 0.85rem; text-align: left; vertical-align: top; }
-th { background: #f8fafc; color: var(--ink-soft); font-size: 0.74rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+th { background: #E7EAEE; color: var(--ink-soft); font-size: 0.74rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
 tbody tr:last-child td { border-bottom: 0; }
 .editor, .panel {
   display: grid;
@@ -243,15 +243,15 @@ tbody tr:last-child td { border-bottom: 0; }
 }
 .editor h2, .editor h3, .panel h2, .panel h3 { margin: 0; font-size: 1rem; }
 .actions { display: flex; flex-wrap: wrap; gap: 0.45rem; }
-.actions button { background: #fff; color: var(--ink-soft); border-color: var(--line); padding: 0.45rem 0.7rem; font-size: 0.8rem; }
+.actions button { background: #FFFFFF; color: var(--ink-soft); border-color: var(--line); padding: 0.45rem 0.7rem; font-size: 0.8rem; }
 .actions button:hover:not(:disabled) { border-color: var(--brand); color: var(--brand); background: var(--brand-soft); }
-.result { overflow-x: auto; margin-top: 1rem; border-radius: 0.85rem; background: #0f172a; color: #e2e8f0; padding: 1rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.8rem; }
+.result { overflow-x: auto; margin-top: 1rem; border-radius: 0.85rem; background: #0A1D3A; color: #BCC4D1; padding: 1rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.8rem; }
 .field { display: grid; gap: 0.35rem; font-size: 0.85rem; font-weight: 600; }
 
 /* Admin-overview page blocks for the rebuilt standalone apps */
 .page { display: grid; gap: 1.25rem; }
-.hero-band { position: relative; overflow: hidden; border-radius: 1.1rem; background: linear-gradient(135deg, var(--brand-dark), #0f172a); padding: 1.5rem 1.6rem; color: #fff; box-shadow: var(--shadow-md); }
-.hero-band__grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px); background-size: 26px 26px; mask-image: linear-gradient(to right, #000, transparent 85%); }
+.hero-band { position: relative; overflow: hidden; border-radius: 1.1rem; background: linear-gradient(135deg, var(--brand-dark), #0A1D3A); padding: 1.5rem 1.6rem; color: #FFFFFF; box-shadow: var(--shadow-md); }
+.hero-band__grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px); background-size: 26px 26px; mask-image: linear-gradient(to right, #000000, transparent 85%); }
 .hero-band__content { position: relative; display: flex; align-items: center; gap: 1rem; }
 .hero-band__icon { display: grid; height: 3rem; width: 3rem; flex: 0 0 auto; place-items: center; border: 1px solid rgba(255, 255, 255, 0.28); border-radius: 0.9rem; background: rgba(255, 255, 255, 0.14); }
 .hero-band h1 { margin: 0 0 0.3rem; font-size: 1.45rem; }

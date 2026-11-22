@@ -140,7 +140,7 @@ const ChatWidget = () => {
         if (msg.sender === "guest") {
             return (
                 <div key={msg.id} className="flex justify-end">
-                    <div className="max-w-[80%] whitespace-pre-line rounded-2xl rounded-br-md bg-[#E01E31] px-4 py-3 text-[13px] leading-relaxed text-white">
+                    <div className="max-w-[80%] whitespace-pre-line rounded-2xl rounded-br-md bg-[#C1121F] px-4 py-3 text-[13px] leading-relaxed text-white">
                         {msg.text}
                     </div>
                 </div>
@@ -149,7 +149,7 @@ const ChatWidget = () => {
         const isAdmin = msg.sender === "admin";
         return (
             <div key={msg.id} className="flex justify-start">
-                <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FEF2F2] text-[#E01E31]">
+                <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F9E7E9] text-[#C1121F]">
                     {isAdmin ? <RiUser3Line className="h-3.5 w-3.5" /> : <RiRobot2Line className="h-3.5 w-3.5" />}
                 </div>
                 <div className="max-w-[80%] whitespace-pre-line rounded-2xl rounded-bl-md bg-[#F5F5F5] px-4 py-3 text-[13px] leading-relaxed text-[#000000]">
@@ -181,14 +181,14 @@ const ChatWidget = () => {
                     items-center
                     justify-center
                     rounded-full
-                    bg-[#E01E31]
+                    bg-[#C1121F]
                     text-white
-                    shadow-[0_8px_28px_rgba(224,30,49,0.4)]
+                    shadow-[0_8px_28px_rgba(193, 18, 31, 0.4)]
                     transition-all
                     duration-300
                     hover:-translate-y-1
-                    hover:bg-[#C11324]
-                    hover:shadow-[0_12px_36px_rgba(224,30,49,0.5)]
+                    hover:bg-[#C1121F]
+                    hover:shadow-[0_12px_36px_rgba(193, 18, 31, 0.5)]
                     sm:bottom-8
                     sm:right-8
                     sm:h-16
@@ -231,7 +231,7 @@ const ChatWidget = () => {
                         border
                         border-[#E5E5E5]
                         bg-white
-                        shadow-[0_24px_64px_rgba(0,0,0,0.15)]
+                        shadow-[0_24px_64px_rgba(0, 0, 0, 0.15)]
                         sm:bottom-28
                         sm:right-6
                         md:bottom-32
@@ -242,7 +242,7 @@ const ChatWidget = () => {
                         maxHeight: "calc(100dvh - 160px)",
                     }}
                 >
-                    <div className="flex items-center gap-3 bg-[#E01E31] px-5 py-4">
+                    <div className="flex items-center gap-3 bg-[#C1121F] px-5 py-4">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
                             {assignedAdmin ? (
                                 <RiUser3Line className="h-5 w-5 text-white" />
@@ -275,7 +275,7 @@ const ChatWidget = () => {
                     </div>
 
                     {assignedAdmin && (
-                        <div className="bg-[#FEF2F2] px-5 py-2 text-center text-[11px] font-medium text-[#E01E31]">
+                        <div className="bg-[#F9E7E9] px-5 py-2 text-center text-[11px] font-medium text-[#C1121F]">
                             You're now chatting with {assignedAdmin} from Love Laundry.
                         </div>
                     )}
@@ -287,7 +287,7 @@ const ChatWidget = () => {
                     >
                         {messages.length === 0 ? (
                             <div className="flex justify-start">
-                                <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FEF2F2] text-[#E01E31]">
+                                <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F9E7E9] text-[#C1121F]">
                                     <RiRobot2Line className="h-3.5 w-3.5" />
                                 </div>
                                 <div className="max-w-[80%] whitespace-pre-line rounded-2xl rounded-bl-md bg-[#F5F5F5] px-4 py-3 text-[13px] leading-relaxed text-[#000000]">
@@ -300,7 +300,7 @@ const ChatWidget = () => {
 
                         {isTyping && (
                             <div className="flex justify-start">
-                                <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FEF2F2] text-[#E01E31]">
+                                <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F9E7E9] text-[#C1121F]">
                                     <RiRobot2Line className="h-3.5 w-3.5" />
                                 </div>
                                 <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-[#F5F5F5] px-4 py-3">
@@ -314,7 +314,7 @@ const ChatWidget = () => {
                     </div>
 
                     {sendError && (
-                        <p role="alert" className="border-t border-[#E5E5E5] px-4 py-2 text-xs text-[#C11324]">
+                        <p role="alert" className="border-t border-[#E5E5E5] px-4 py-2 text-xs text-[#C1121F]">
                             {sendError}
                         </p>
                     )}
@@ -344,9 +344,9 @@ const ChatWidget = () => {
                                     text-[#404040]
                                     transition-all
                                     duration-200
-                                    hover:border-[#E01E31]/30
-                                    hover:bg-[#FEF2F2]
-                                    hover:text-[#E01E31]
+                                    hover:border-[#C1121F]/30
+                                    hover:bg-[#F9E7E9]
+                                    hover:text-[#C1121F]
                                     disabled:cursor-not-allowed
                                     disabled:opacity-50
                                 "
@@ -388,7 +388,7 @@ const ChatWidget = () => {
                                 outline-none
                                 transition-colors
                                 duration-200
-                                focus:border-[#E01E31]/40
+                                focus:border-[#C1121F]/40
                                 focus:bg-white
                             "
                         />
@@ -404,12 +404,12 @@ const ChatWidget = () => {
                                 items-center
                                 justify-center
                                 rounded-full
-                                bg-[#E01E31]
+                                bg-[#C1121F]
                                 text-white
-                                shadow-[0_4px_12px_rgba(224,30,49,0.25)]
+                                shadow-[0_4px_12px_rgba(193, 18, 31, 0.25)]
                                 transition-all
                                 duration-200
-                                hover:bg-[#C11324]
+                                hover:bg-[#C1121F]
                                 disabled:cursor-not-allowed
                                 disabled:opacity-40
                             "
