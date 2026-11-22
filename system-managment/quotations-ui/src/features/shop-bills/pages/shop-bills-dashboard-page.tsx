@@ -30,14 +30,14 @@ export default function ShopBillsDashboardPage() {
         <div>
           <Breadcrumb items={[{ label: 'Dashboard', href: '/' }, { label: 'Shop Bills', href: '/shop-bills' }, { label: 'Dashboard' }]} />
           <div className="flex items-center gap-3 mt-1">
-            <Link to="/shop-bills" className="text-[#98A2B3] hover:text-[#374151]"><ArrowLeft className="h-4 w-4" /></Link>
+            <Link to="/shop-bills" className="text-[var(--text-faint)] hover:text-[var(--text-primary)]"><ArrowLeft className="h-4 w-4" /></Link>
             <h1 className="text-dashboard-title">Shop Bills Dashboard</h1>
           </div>
           <SyncStatusBar queryKey={['shop-bills']} label="Shop bills" className="mt-2" />
         </div>
         <div className="flex gap-2">
           {[7, 30, 90, 365].map(d => (
-            <button key={d} onClick={() => setPeriod(d)} className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition cursor-pointer ${period === d ? 'bg-[#DC2626] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+            <button key={d} onClick={() => setPeriod(d)} className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition cursor-pointer ${period === d ? 'bg-[var(--danger-deep)] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
               {d}d
             </button>
           ))}
@@ -51,43 +51,43 @@ export default function ShopBillsDashboardPage() {
           {/* KPI Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Link to="/shop-bills" className="block group">
-              <Card className="p-4 group-hover:border-[#DC2626]/40 transition-colors">
+              <Card className="p-4 group-hover:border-[var(--danger-deep)]/40 transition-colors">
                 <div className="flex items-center gap-2 mb-2">
-                  <Receipt className="h-4 w-4 text-[#6B7280]" />
-                  <p className="text-[11px] font-semibold uppercase text-[#6B7280]">Total Bills</p>
+                  <Receipt className="h-4 w-4 text-[var(--text-secondary)]" />
+                  <p className="text-[11px] font-semibold uppercase text-[var(--text-secondary)]">Total Bills</p>
                 </div>
-                {loadingSummary ? <Skeleton className="h-7 w-20" /> : <p className="text-[22px] font-bold text-[#101828]">{summary?.total_bills ?? 0}</p>}
-                {loadingSummary ? <Skeleton className="h-4 w-16 mt-1" /> : <p className="text-[12px] text-[#98A2B3] mt-0.5">{summary?.period_bills ?? 0} in period</p>}
+                {loadingSummary ? <Skeleton className="h-7 w-20" /> : <p className="text-[22px] font-bold text-[var(--text-primary)]">{summary?.total_bills ?? 0}</p>}
+                {loadingSummary ? <Skeleton className="h-4 w-16 mt-1" /> : <p className="text-[12px] text-[var(--text-faint)] mt-0.5">{summary?.period_bills ?? 0} in period</p>}
               </Card>
             </Link>
             <Link to="/shop-bills" className="block group">
-              <Card className="p-4 group-hover:border-[#16A34A]/40 transition-colors">
+              <Card className="p-4 group-hover:border-[var(--success-text)]/40 transition-colors">
                 <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="h-4 w-4 text-[#16A34A]" />
-                  <p className="text-[11px] font-semibold uppercase text-[#6B7280]">Revenue</p>
+                  <TrendingUp className="h-4 w-4 text-[var(--success-text)]" />
+                  <p className="text-[11px] font-semibold uppercase text-[var(--text-secondary)]">Revenue</p>
                 </div>
-                {loadingSummary ? <Skeleton className="h-7 w-24" /> : <p className="text-[22px] font-bold text-[#16A34A]">{fmt(summary?.total_revenue ?? 0)}</p>}
+                {loadingSummary ? <Skeleton className="h-7 w-24" /> : <p className="text-[22px] font-bold text-[var(--success-text)]">{fmt(summary?.total_revenue ?? 0)}</p>}
               </Card>
             </Link>
             <Link to="/shop-bills" className="block group">
-              <Card className="p-4 group-hover:border-[#DC2626]/40 transition-colors">
+              <Card className="p-4 group-hover:border-[var(--danger-deep)]/40 transition-colors">
                 <div className="flex items-center gap-2 mb-2">
-                  <Banknote className="h-4 w-4 text-[#DC2626]" />
-                  <p className="text-[11px] font-semibold uppercase text-[#6B7280]">Outstanding</p>
+                  <Banknote className="h-4 w-4 text-[var(--danger-deep)]" />
+                  <p className="text-[11px] font-semibold uppercase text-[var(--text-secondary)]">Outstanding</p>
                 </div>
-                {loadingSummary ? <Skeleton className="h-7 w-24" /> : <p className="text-[22px] font-bold text-[#DC2626]">{fmt(summary?.total_outstanding ?? 0)}</p>}
+                {loadingSummary ? <Skeleton className="h-7 w-24" /> : <p className="text-[22px] font-bold text-[var(--danger-deep)]">{fmt(summary?.total_outstanding ?? 0)}</p>}
               </Card>
             </Link>
             <Link to="/shop-bills" className="block group">
-              <Card className="p-4 group-hover:border-[#F59E0B]/40 transition-colors">
+              <Card className="p-4 group-hover:border-[var(--danger-text)]/40 transition-colors">
                 <div className="flex items-center gap-2 mb-2">
-                  <AlertTriangle className="h-4 w-4 text-[#D97706]" />
-                  <p className="text-[11px] font-semibold uppercase text-[#6B7280]">Overdue</p>
+                  <AlertTriangle className="h-4 w-4 text-[var(--danger-text)]" />
+                  <p className="text-[11px] font-semibold uppercase text-[var(--text-secondary)]">Overdue</p>
                 </div>
                 {loadingSummary ? <Skeleton className="h-7 w-20" /> : (
                   <>
-                    <p className="text-[22px] font-bold text-[#D97706]">{summary?.overdue_count ?? 0}</p>
-                    <p className="text-[12px] text-[#D97706] mt-0.5">{fmt(summary?.overdue_amount ?? 0)}</p>
+                    <p className="text-[22px] font-bold text-[var(--danger-text)]">{summary?.overdue_count ?? 0}</p>
+                    <p className="text-[12px] text-[var(--danger-text)] mt-0.5">{fmt(summary?.overdue_amount ?? 0)}</p>
                   </>
                 )}
               </Card>
@@ -107,12 +107,12 @@ export default function ShopBillsDashboardPage() {
                       <div key={s.status} className="flex items-center justify-between p-2 rounded-lg bg-gray-50">
                         <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium ${STATUS_COLORS[s.status] ?? 'bg-gray-100 text-gray-500'}`}>{s.status}</span>
                         <div className="text-right">
-                          <p className="text-[13px] font-semibold text-[#101828]">{s.count} bills</p>
-                          <p className="text-[11px] text-[#6B7280]">{fmt(s.total)}</p>
+                          <p className="text-[13px] font-semibold text-[var(--text-primary)]">{s.count} bills</p>
+                          <p className="text-[11px] text-[var(--text-secondary)]">{fmt(s.total)}</p>
                         </div>
                       </div>
                     ))}
-                    {(!statusData?.counts || statusData.counts.length === 0) && <p className="text-[13px] text-[#98A2B3] text-center py-4">No data</p>}
+                    {(!statusData?.counts || statusData.counts.length === 0) && <p className="text-[13px] text-[var(--text-faint)] text-center py-4">No data</p>}
                   </div>
                 )}
               </CardContent>
@@ -127,14 +127,14 @@ export default function ShopBillsDashboardPage() {
                   <div className="space-y-2">
                     {(paymentData?.summary ?? []).map((p: any) => (
                       <div key={p.payment_status} className="flex items-center justify-between p-2 rounded-lg bg-gray-50">
-                        <span className="text-[12px] font-medium text-[#101828]">{(p.payment_status ?? 'DRAFT').replace('_', ' ')}</span>
+                        <span className="text-[12px] font-medium text-[var(--text-primary)]">{(p.payment_status ?? 'DRAFT').replace('_', ' ')}</span>
                         <div className="text-right">
-                          <p className="text-[13px] font-semibold text-[#101828]">{p.count}</p>
-                          <p className="text-[11px] text-[#6B7280]">{fmt(p.total_outstanding)} due</p>
+                          <p className="text-[13px] font-semibold text-[var(--text-primary)]">{p.count}</p>
+                          <p className="text-[11px] text-[var(--text-secondary)]">{fmt(p.total_outstanding)} due</p>
                         </div>
                       </div>
                     ))}
-                    {(!paymentData?.summary || paymentData.summary.length === 0) && <p className="text-[13px] text-[#98A2B3] text-center py-4">No data</p>}
+                    {(!paymentData?.summary || paymentData.summary.length === 0) && <p className="text-[13px] text-[var(--text-faint)] text-center py-4">No data</p>}
                   </div>
                 )}
               </CardContent>
@@ -146,17 +146,17 @@ export default function ShopBillsDashboardPage() {
             <CardHeader><CardTitle className="text-[14px]">Quick Actions</CardTitle></CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                <Link to="/shop-bills" className="flex items-center gap-2 p-3 rounded-lg border border-[#E4E7EC] hover:border-[#DC2626]/40 hover:bg-red-50 transition text-[13px] font-medium text-[#101828]">
-                  <Receipt size={16} className="text-[#DC2626]" /> View All Bills
+                <Link to="/shop-bills" className="flex items-center gap-2 p-3 rounded-lg border border-[var(--border)] hover:border-[var(--danger-deep)]/40 hover:bg-red-50 transition text-[13px] font-medium text-[var(--text-primary)]">
+                  <Receipt size={16} className="text-[var(--danger-deep)]" /> View All Bills
                 </Link>
-                <Link to="/shop-bills/new" className="flex items-center gap-2 p-3 rounded-lg border border-[#E4E7EC] hover:border-[#16A34A]/40 hover:bg-green-50 transition text-[13px] font-medium text-[#101828]">
-                  <CreditCard size={16} className="text-[#16A34A]" /> New Bill
+                <Link to="/shop-bills/new" className="flex items-center gap-2 p-3 rounded-lg border border-[var(--border)] hover:border-[var(--success-text)]/40 hover:bg-green-50 transition text-[13px] font-medium text-[var(--text-primary)]">
+                  <CreditCard size={16} className="text-[var(--success-text)]" /> New Bill
                 </Link>
-                <Link to="/customers" className="flex items-center gap-2 p-3 rounded-lg border border-[#E4E7EC] hover:border-[#3538CD]/40 hover:bg-blue-50 transition text-[13px] font-medium text-[#101828]">
-                  <Users size={16} className="text-[#3538CD]" /> Client Statements
+                <Link to="/customers" className="flex items-center gap-2 p-3 rounded-lg border border-[var(--border)] hover:border-[var(--brand-deep)]/40 hover:bg-blue-50 transition text-[13px] font-medium text-[var(--text-primary)]">
+                  <Users size={16} className="text-[var(--brand-deep)]" /> Client Statements
                 </Link>
-                <Link to="/reports" className="flex items-center gap-2 p-3 rounded-lg border border-[#E4E7EC] hover:border-[#D97706]/40 hover:bg-amber-50 transition text-[13px] font-medium text-[#101828]">
-                  <TrendingUp size={16} className="text-[#D97706]" /> Reports
+                <Link to="/reports" className="flex items-center gap-2 p-3 rounded-lg border border-[var(--border)] hover:border-[var(--danger-text)]/40 hover:bg-amber-50 transition text-[13px] font-medium text-[var(--text-primary)]">
+                  <TrendingUp size={16} className="text-[var(--danger-text)]" /> Reports
                 </Link>
               </div>
             </CardContent>

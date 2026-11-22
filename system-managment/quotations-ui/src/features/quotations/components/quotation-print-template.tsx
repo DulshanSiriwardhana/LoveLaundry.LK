@@ -111,7 +111,7 @@ const printStyles = `
     border: 2px solid #000;
     border-radius: 0;
     padding: 4px;
-    background: #fafafa;
+    background: var(--surface);
   }
   .company-info {
     text-align: center;
@@ -131,7 +131,7 @@ const printStyles = `
     font-weight: 500;
     font-style: italic;
     margin: 0;
-    color: #333;
+    color: var(--text-primary);
     font-family: "Spectral", Georgia, serif;
   }
   .reg-no {
@@ -141,7 +141,7 @@ const printStyles = `
     white-space: nowrap;
     border: 1px solid #000;
     padding: 6px 12px;
-    background: #f9f9f9;
+    background: var(--surface);
     border-radius: 0;
   }
   .services-row {
@@ -161,7 +161,7 @@ const printStyles = `
     gap: 6px;
     white-space: nowrap;
     padding: 4px 8px;
-    background: #f5f5f5;
+    background: var(--surface);
     border: 1px solid #000;
     border-radius: 0;
   }
@@ -265,10 +265,10 @@ const printStyles = `
   .items-table .col-category { width: 120px; }
   .items-table .col-price { width: 100px; text-align: right; }
   .items-table tbody tr:nth-child(even) td {
-    background: #f5f5f5;
+    background: var(--surface);
   }
   .items-table tbody tr:hover td {
-    background: #e8e8e8;
+    background: var(--surface-2);
   }
   .total-items-row {
     text-align: right;
@@ -278,7 +278,7 @@ const printStyles = `
     padding: 12px 0;
     border-top: 2px solid #000;
     border-bottom: 2px solid #000;
-    background: #f0f0f0;
+    background: var(--surface-2);
     font-family: "Spectral", Georgia, serif;
   }
   .signatures {
@@ -314,7 +314,7 @@ const printStyles = `
   }
   .empty-state {
     text-align: center;
-    color: #999;
+    color: var(--text-faint);
     padding: 60px 20px;
     border: 2px dashed #000;
     font-style: italic;
@@ -328,7 +328,7 @@ const printStyles = `
     padding-bottom: 8px;
     border-bottom: 1px solid #000;
     font-size: 10px;
-    color: #666;
+    color: var(--text-secondary);
   }
   .page-header-title {
     font-weight: 700;
@@ -342,7 +342,7 @@ const printStyles = `
   .continue-notice {
     text-align: center;
     font-size: 10px;
-    color: #999;
+    color: var(--text-faint);
     font-style: italic;
     padding: 8px;
     border-top: 1px dashed #000;
@@ -487,7 +487,7 @@ export const QuotationPrintTemplate = React.forwardRef<HTMLDivElement, Quotation
                 <tbody>
                   {pageItems.length > 0 ? (
                     pageItems.map((item: typeof pageItems[0], index: number) => (
-                      <tr key={item.id ?? index} className="avoid-break" style={{ background: (startNum + index) % 2 === 0 ? '#f5f5f5' : 'transparent' }}>
+                      <tr key={item.id ?? index} className="avoid-break" style={{ background: (startNum + index) % 2 === 0 ? 'var(--surface-2)' : 'transparent' }}>
                         <td className="col-no">{startNum + index + 1}.</td>
                         <td className="col-item">
                           <div>{item.item_name}</div>
@@ -495,7 +495,7 @@ export const QuotationPrintTemplate = React.forwardRef<HTMLDivElement, Quotation
                             <div style={{ marginTop: 2, fontSize: '10px' }}>
                               {item.specifications.map((s, i) => (
                                 <div key={i} style={{ lineHeight: 1.3 }}>
-                                  <span style={{ color: '#DC2626' }}>• </span>
+                                  <span style={{ color: 'var(--danger-deep)' }}>• </span>
                                   {s.specification} — LKR {s.unit_price.toFixed(2)}
                                 </div>
                               ))}

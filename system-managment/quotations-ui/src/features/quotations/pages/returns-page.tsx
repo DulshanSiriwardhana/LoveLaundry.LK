@@ -15,9 +15,9 @@ import type { Return } from '../../../types/operations'
 import { invalidateResource } from '../../../cache/invalidation'
 
 const STATUS_COLORS: Record<string, { bg: string; border: string; text: string }> = {
-  PENDING: { bg: '#FEF3C7', border: '#FDE68A', text: '#D97706' },
-  RECEIVED: { bg: '#DBEAFE', border: '#93C5FD', text: '#2563EB' },
-  PROCESSED: { bg: '#D1FAE5', border: '#6EE7B7', text: '#059669' },
+  PENDING: { bg: 'var(--danger-soft)', border: 'var(--danger-border)', text: 'var(--danger-text)' },
+  RECEIVED: { bg: 'var(--brand-border)', border: 'var(--brand-text)', text: 'var(--brand-text)' },
+  PROCESSED: { bg: 'var(--success-soft)', border: 'var(--success-border)', text: 'var(--success-text)' },
 }
 
 function ReturnCard({ r, onResent }: { r: Return; onResent: (returnId: string, itemName: string, spec: string) => void }) {
@@ -33,12 +33,12 @@ function ReturnCard({ r, onResent }: { r: Return; onResent: (returnId: string, i
     <Link to={`/returns/${r.return_id}`}>
       <Card className="p-4 h-full cursor-pointer hover:shadow-md transition-shadow">
         <div className="flex items-start gap-3 mb-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FEF3C7] text-[#D97706] border border-[#FDE68A]">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--danger-soft)] text-[var(--danger-text)] border border-[var(--danger-border)]">
             <RotateCcw className="h-4 w-4" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-semibold text-[#101828] truncate">{r.client_name}</p>
-            <p className="text-[11px] text-[#98A2B3] mt-0.5">{r.return_id}</p>
+            <p className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{r.client_name}</p>
+            <p className="text-[11px] text-[var(--text-faint)] mt-0.5">{r.return_id}</p>
           </div>
           <span
             className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap"
@@ -63,7 +63,7 @@ function ReturnCard({ r, onResent }: { r: Return; onResent: (returnId: string, i
           ))}
         </div>
 
-        <div className="flex items-center justify-between border-t border-[#F2F4F7] pt-3 text-[12px] text-[#6B7280]">
+        <div className="flex items-center justify-between border-t border-[var(--border)] pt-3 text-[12px] text-[var(--text-secondary)]">
           <span>{totalReturned} items returned</span>
           <span>{reasons.join(', ')}</span>
         </div>
@@ -150,12 +150,12 @@ export default function ReturnsPage() {
             ]}
           />
           <h1 className="text-dashboard-title mt-1">Returns</h1>
-          <p className="text-[13px] text-[#98A2B3] mt-0.5">
+          <p className="text-[13px] text-[var(--text-faint)] mt-0.5">
             {loading ? 'Loading…' : `${returns.length} return record${returns.length !== 1 ? 's' : ''}`}
           </p>
         </div>
         <Link to="/returns/new">
-          <Button className="bg-[#D97706] hover:bg-[#B45309] text-white shadow-lg shadow-amber-600/20">
+          <Button className="bg-[var(--danger-text)] hover:bg-[var(--danger-text)] text-white shadow-lg shadow-amber-600/20">
             <Plus className="h-4 w-4" />
             Record Return
           </Button>
@@ -164,19 +164,19 @@ export default function ReturnsPage() {
 
       {/* Search */}
       <div className="relative max-w-md">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-faint)]" />
         <input
           type="text"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           placeholder="Search by client name…"
-          className="h-10 w-full rounded-lg border border-[#E4E7EC] bg-white pl-9 pr-8 text-[13px] text-[#101828] outline-none focus:border-[#D97706] focus:ring-2 focus:ring-[#D97706]/10 shadow-sm"
+          className="h-10 w-full rounded-lg border border-[var(--border)] bg-white pl-9 pr-8 text-[13px] text-[var(--text-primary)] outline-none focus:border-[var(--danger-text)] focus:ring-2 focus:ring-[var(--danger-text)]/10 shadow-sm"
         />
         {searchInput && (
           <button
             type="button"
             onClick={() => setSearchInput('')}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#98A2B3] hover:text-[#374151] cursor-pointer"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-faint)] hover:text-[var(--text-primary)] cursor-pointer"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -199,7 +199,7 @@ export default function ReturnsPage() {
           action={
             !clientName && (
               <Link to="/returns/new">
-                <Button className="bg-[#D97706] hover:bg-[#B45309] text-white">
+                <Button className="bg-[var(--danger-text)] hover:bg-[var(--danger-text)] text-white">
                   <Plus className="h-4 w-4" />
                   Record Return
                 </Button>

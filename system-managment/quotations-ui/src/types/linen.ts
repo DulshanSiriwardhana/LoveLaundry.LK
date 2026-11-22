@@ -116,18 +116,18 @@ export interface LinenTagGenerate {
 }
 
 export const LINEN_STATUS_CONFIG: Record<LinenStatus, { label: string; color: string; bg: string }> = {
-  IN_STOCK:    { label: 'In Stock',    color: '#16A34A', bg: '#DCFCE7' },
-  AT_CLIENT:   { label: 'At Client',   color: '#2563EB', bg: '#DBEAFE' },
-  COLLECTED:   { label: 'Collected',   color: '#9333EA', bg: '#F3E8FF' },
-  AT_LAUNDRY:  { label: 'At Laundry',  color: '#EA580C', bg: '#FFF7ED' },
-  WASHING:     { label: 'Washing',     color: '#0891B2', bg: '#ECFEFF' },
-  DRYING:      { label: 'Drying',      color: '#D97706', bg: '#FFFBEB' },
-  PRESSING:    { label: 'Pressing',    color: '#7C3AED', bg: '#EDE9FE' },
-  READY:       { label: 'Ready',       color: '#16A34A', bg: '#DCFCE7' },
-  DELIVERED:   { label: 'Delivered',   color: '#059669', bg: '#D1FAE5' },
-  MISSING:     { label: 'Missing',     color: '#DC2626', bg: '#FEE2E2' },
-  DAMAGED:     { label: 'Damaged',     color: '#DC2626', bg: '#FEE2E2' },
-  RETIRED:     { label: 'Retired',     color: '#6B7280', bg: '#F3F4F6' },
+  IN_STOCK:    { label: 'In Stock',    color: 'var(--success-text)', bg: 'var(--success-soft)' },
+  AT_CLIENT:   { label: 'At Client',   color: 'var(--brand-text)', bg: 'var(--brand-border)' },
+  COLLECTED:   { label: 'Collected',   color: 'var(--brand-deep)', bg: 'var(--surface-2)' },
+  AT_LAUNDRY:  { label: 'At Laundry',  color: 'var(--danger-text)', bg: 'var(--surface)' },
+  WASHING:     { label: 'Washing',     color: 'var(--brand-text)', bg: 'var(--surface)' },
+  DRYING:      { label: 'Drying',      color: 'var(--danger-text)', bg: 'var(--surface)' },
+  PRESSING:    { label: 'Pressing',    color: 'var(--brand-deep)', bg: 'var(--surface-2)' },
+  READY:       { label: 'Ready',       color: 'var(--success-text)', bg: 'var(--success-soft)' },
+  DELIVERED:   { label: 'Delivered',   color: 'var(--success-text)', bg: 'var(--success-soft)' },
+  MISSING:     { label: 'Missing',     color: 'var(--danger-deep)', bg: 'var(--surface-2)' },
+  DAMAGED:     { label: 'Damaged',     color: 'var(--danger-deep)', bg: 'var(--surface-2)' },
+  RETIRED:     { label: 'Retired',     color: 'var(--text-secondary)', bg: 'var(--surface)' },
 }
 
 export const LINEN_CATEGORIES: { value: string; label: string }[] = [
@@ -153,14 +153,14 @@ export const LINEN_CONDITIONS: { value: string; label: string }[] = [
 ]
 
 export const SCAN_ACTIONS: { value: string; label: string; color: string }[] = [
-  { value: 'collect', label: 'Collect', color: '#9333EA' },
-  { value: 'receive', label: 'Receive', color: '#EA580C' },
-  { value: 'start_wash', label: 'Start Wash', color: '#0891B2' },
-  { value: 'complete_wash', label: 'Complete Wash', color: '#D97706' },
-  { value: 'press', label: 'Press', color: '#7C3AED' },
-  { value: 'ready', label: 'Ready', color: '#16A34A' },
-  { value: 'deliver', label: 'Deliver', color: '#059669' },
-  { value: 'mark_missing', label: 'Mark Missing', color: '#DC2626' },
-  { value: 'mark_damaged', label: 'Mark Damaged', color: '#DC2626' },
-  { value: 'retire', label: 'Retire', color: '#6B7280' },
+  { value: 'collect', label: 'Collect', color: 'var(--brand-deep)' },
+  { value: 'receive', label: 'Receive', color: 'var(--danger-text)' },
+  { value: 'start_wash', label: 'Start Wash', color: 'var(--brand-text)' },
+  { value: 'complete_wash', label: 'Complete Wash', color: 'var(--danger-text)' },
+  { value: 'press', label: 'Press', color: 'var(--brand-deep)' },
+  { value: 'ready', label: 'Ready', color: 'var(--success-text)' },
+  { value: 'deliver', label: 'Deliver', color: 'var(--success-text)' },
+  { value: 'mark_missing', label: 'Mark Missing', color: 'var(--danger-deep)' },
+  { value: 'mark_damaged', label: 'Mark Damaged', color: 'var(--danger-deep)' },
+  { value: 'retire', label: 'Retire', color: 'var(--text-secondary)' },
 ]

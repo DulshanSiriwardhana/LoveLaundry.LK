@@ -35,7 +35,7 @@ interface SyncReport {
 function StatusDot({ online }: { online: boolean }) {
   return (
     <span
-      className={`inline-block h-2.5 w-2.5 rounded-full ${online ? 'bg-[#16A34A]' : 'bg-[#DC2626]'}`}
+      className={`inline-block h-2.5 w-2.5 rounded-full ${online ? 'bg-[var(--success-text)]' : 'bg-[var(--danger-deep)]'}`}
     />
   )
 }
@@ -101,12 +101,12 @@ export default function DatabaseSyncPage() {
       <div>
         <Breadcrumb items={[{ label: 'Dashboard', href: '/' }, { label: 'Database Sync' }]} />
         <div className="flex items-center gap-3 mt-1">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#EFF6FF] border border-[#BFDBFE]">
-            <RiDatabase2Line className="h-4 w-4 text-[#2563EB]" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--surface-2)] border border-[var(--brand-border)]">
+            <RiDatabase2Line className="h-4 w-4 text-[var(--brand-text)]" />
           </div>
           <div>
             <h1 className="text-dashboard-title">Database Synchronization</h1>
-            <p className="text-[13px] mt-0.5 text-[#98A2B3]">
+            <p className="text-[13px] mt-0.5 text-[var(--text-faint)]">
               Monitor and manage Main, Secondary, and Local database sync
             </p>
           </div>
@@ -120,16 +120,16 @@ export default function DatabaseSyncPage() {
           ))}
         </div>
       ) : isError ? (
-        <div className="rounded-lg border border-[#FCA5A5] bg-[#FEF2F2] p-4 flex items-start gap-3">
-          <RiErrorWarningLine className="h-5 w-5 text-[#DC2626] mt-0.5 shrink-0" />
+        <div className="rounded-lg border border-[var(--danger-text)] bg-[var(--surface-2)] p-4 flex items-start gap-3">
+          <RiErrorWarningLine className="h-5 w-5 text-[var(--danger-deep)] mt-0.5 shrink-0" />
           <div>
-            <p className="text-[13px] font-semibold text-[#DC2626]">Failed to load database status</p>
-            <p className="text-[12px] text-[#B91C1C] mt-0.5">
+            <p className="text-[13px] font-semibold text-[var(--danger-deep)]">Failed to load database status</p>
+            <p className="text-[12px] text-[var(--danger-deep)] mt-0.5">
               {(error as Error)?.message || 'Could not reach the bill service. Check that the service is running and that JWT_SECRET matches between user-service and bill-service on Vercel.'}
             </p>
             <button
               onClick={() => refetch()}
-              className="mt-2 text-[12px] font-medium text-[#DC2626] underline underline-offset-2"
+              className="mt-2 text-[12px] font-medium text-[var(--danger-deep)] underline underline-offset-2"
             >
               Retry
             </button>
@@ -142,12 +142,12 @@ export default function DatabaseSyncPage() {
             <CardContent className="pt-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <RiDatabase2Line className="h-4 w-4 text-[#2563EB]" />
-                  <span className="text-[13px] font-semibold text-[#101828]">Main Database</span>
+                  <RiDatabase2Line className="h-4 w-4 text-[var(--brand-text)]" />
+                  <span className="text-[13px] font-semibold text-[var(--text-primary)]">Main Database</span>
                 </div>
                 <StatusDot online={status?.main?.status === 'ONLINE'} />
               </div>
-              <p className="mt-2 text-[12px] text-[#98A2B3]">
+              <p className="mt-2 text-[12px] text-[var(--text-faint)]">
                 {status?.main?.status === 'ONLINE' ? '● Online' : '● Offline'}
               </p>
             </CardContent>
@@ -158,15 +158,15 @@ export default function DatabaseSyncPage() {
             <CardContent className="pt-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <RiRefreshLine className="h-4 w-4 text-[#16A34A]" />
-                  <span className="text-[13px] font-semibold text-[#101828]">Secondary Database</span>
+                  <RiRefreshLine className="h-4 w-4 text-[var(--success-text)]" />
+                  <span className="text-[13px] font-semibold text-[var(--text-primary)]">Secondary Database</span>
                 </div>
                 <StatusDot online={status?.secondary?.status === 'ONLINE'} />
               </div>
-              <p className="mt-2 text-[12px] text-[#98A2B3]">
+              <p className="mt-2 text-[12px] text-[var(--text-faint)]">
                 {status?.secondary?.status === 'ONLINE' ? '● Online' : '● Offline'}
               </p>
-              <p className="mt-1 text-[12px] font-medium text-[#101828]">
+              <p className="mt-1 text-[12px] font-medium text-[var(--text-primary)]">
                 Sync: {status?.secondary?.sync_status || 'UNKNOWN'}
               </p>
               <Button
@@ -187,15 +187,15 @@ export default function DatabaseSyncPage() {
             <CardContent className="pt-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <RiTimeLine className="h-4 w-4 text-[#D97706]" />
-                  <span className="text-[13px] font-semibold text-[#101828]">Local Database</span>
+                  <RiTimeLine className="h-4 w-4 text-[var(--danger-text)]" />
+                  <span className="text-[13px] font-semibold text-[var(--text-primary)]">Local Database</span>
                 </div>
                 <StatusDot online={status?.local?.status === 'ONLINE'} />
               </div>
-              <p className="mt-2 text-[12px] text-[#98A2B3]">
+              <p className="mt-2 text-[12px] text-[var(--text-faint)]">
                 {status?.local?.status === 'ONLINE' ? '● Online' : '● Offline'}
               </p>
-              <p className="mt-1 text-[12px] text-[#98A2B3]">
+              <p className="mt-1 text-[12px] text-[var(--text-faint)]">
                 Last synced: {formatDate(status?.local?.last_sync)}
               </p>
               <Button
@@ -224,20 +224,20 @@ export default function DatabaseSyncPage() {
       {/* Sync Report */}
       {syncLocal.data && (
         <Card>
-          <CardHeader className="border-b border-[#F2F4F7] pb-4">
+          <CardHeader className="border-b border-[var(--border)] pb-4">
             <CardTitle>Last Sync Report</CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
             <div className="flex items-center gap-2 mb-4">
               {syncLocal.data.status === 'SUCCESS' ? (
-                <RiCheckLine className="h-4 w-4 text-[#16A34A]" />
+                <RiCheckLine className="h-4 w-4 text-[var(--success-text)]" />
               ) : (
-                <RiErrorWarningLine className="h-4 w-4 text-[#D97706]" />
+                <RiErrorWarningLine className="h-4 w-4 text-[var(--danger-text)]" />
               )}
-              <span className="text-[13px] font-semibold text-[#101828]">
+              <span className="text-[13px] font-semibold text-[var(--text-primary)]">
                 {syncLocal.data.status === 'SUCCESS' ? '✓ Local database synchronized' : '⚠ Synchronization completed with errors'}
               </span>
-              <span className="text-[12px] text-[#98A2B3]">
+              <span className="text-[12px] text-[var(--text-faint)]">
                 ({syncLocal.data.duration_seconds}s)
               </span>
             </div>
@@ -250,9 +250,9 @@ export default function DatabaseSyncPage() {
                 { label: 'Unchanged', value: syncLocal.data.stats.records_unchanged },
                 { label: 'Errors', value: syncLocal.data.stats.errors },
               ].map((item) => (
-                <div key={item.label} className="rounded-lg border border-[#E4E7EC] bg-[#FAFAFA] p-3">
-                  <p className="text-[11px] text-[#98A2B3]">{item.label}</p>
-                  <p className="text-[16px] font-bold text-[#101828]">{item.value}</p>
+                <div key={item.label} className="rounded-lg border border-[var(--border)] bg-[var(--surface-2)] p-3">
+                  <p className="text-[11px] text-[var(--text-faint)]">{item.label}</p>
+                  <p className="text-[16px] font-bold text-[var(--text-primary)]">{item.value}</p>
                 </div>
               ))}
             </div>

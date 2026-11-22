@@ -28,8 +28,8 @@ interface InvoiceRow {
   amount: number
 }
 
-const inputClass = 'h-10 w-full rounded-lg border border-[#E4E7EC] bg-white px-3 text-[13px] text-[#101828] outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition'
-const cellInputClass = 'h-9 w-full rounded-lg border border-[#E4E7EC] bg-white px-2 text-[13px] outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition'
+const inputClass = 'h-10 w-full rounded-lg border border-[var(--border)] bg-white px-3 text-[13px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-text)] focus:ring-2 focus:ring-[var(--brand-text)]/10 transition'
+const cellInputClass = 'h-9 w-full rounded-lg border border-[var(--border)] bg-white px-2 text-[13px] outline-none focus:border-[var(--brand-text)] focus:ring-2 focus:ring-[var(--brand-text)]/10 transition'
 
 const fmtMoney = (v: number) => `LKR ${(Number(v) || 0).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
@@ -41,38 +41,38 @@ const legacyPrintStyles = `
     .no-print { display: none !important; }
   }
 
-  .li-print-sheet { font-family: "Spectral", Georgia, serif; color: #111; background: #fff; font-size: 12px; line-height: 1.4; }
-  .li-slip { border: 1.5px solid #E01E31; }
-  .li-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 12px 20px; border-bottom: 1.5px solid #E01E31; }
+  .li-print-sheet { font-family: "Spectral", Georgia, serif; color: var(--text-primary); background: #fff; font-size: 12px; line-height: 1.4; }
+  .li-slip { border: 1.5px solid #FF0000; }
+  .li-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 12px 20px; border-bottom: 1.5px solid #FF0000; }
   .li-brand { display: flex; align-items: center; gap: 10px; }
-  .li-logo { width: 44px; height: 44px; object-fit: contain; background: #fff; border: 1.5px solid #E01E31; border-radius: 50%; padding: 5px; box-sizing: border-box; flex-shrink: 0; }
-  .li-brand-name { font-weight: 700; letter-spacing: -0.25px; font-size: 20px; color: #E01E31; line-height: 1.15; }
-  .li-brand-tagline { font-size: 11px; color: #6B7280; margin-top: 1px; }
-  .li-brand-contact { font-size: 10px; color: #9CA3AF; margin-top: 4px; line-height: 1.45; }
+  .li-logo { width: 44px; height: 44px; object-fit: contain; background: #fff; border: 1.5px solid #FF0000; border-radius: 50%; padding: 5px; box-sizing: border-box; flex-shrink: 0; }
+  .li-brand-name { font-weight: 700; letter-spacing: -0.25px; font-size: 20px; color: var(--danger-deep); line-height: 1.15; }
+  .li-brand-tagline { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
+  .li-brand-contact { font-size: 10px; color: var(--text-faint); margin-top: 4px; line-height: 1.45; }
   .li-meta { text-align: right; }
-  .li-title { font-size: 17px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: #E01E31; line-height: 1.1; }
-  .li-meta-line { font-size: 12px; color: #374151; margin-top: 3px; font-weight: 600; }
+  .li-title { font-size: 17px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: var(--danger-deep); line-height: 1.1; }
+  .li-meta-line { font-size: 12px; color: var(--text-primary); margin-top: 3px; font-weight: 600; }
   .li-body { padding: 10px 20px 14px; }
-  .li-info-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 28px; background: #FDF6F7; border: 1px solid #F3C9CE; border-radius: 6px; padding: 7px 12px; }
+  .li-info-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 28px; background: var(--surface); border: 1px solid rgba(255, 0, 0, 0.20); border-radius: 6px; padding: 7px 12px; }
   .li-info-row { display: flex; justify-content: space-between; gap: 10px; padding: 2px 0; font-size: 12px; }
-  .li-info-label { color: #6B7280; font-weight: 500; }
+  .li-info-label { color: var(--text-secondary); font-weight: 500; }
   .li-info-value { font-weight: 700; text-align: right; }
-  .li-section-title { color: #E01E31; border-left: 3px solid #E01E31; padding: 1px 0 1px 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 8px 0 4px; }
+  .li-section-title { color: var(--danger-deep); border-left: 3px solid #FF0000; padding: 1px 0 1px 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 8px 0 4px; }
   .li-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .li-table th { text-align: left; padding: 3px 6px; color: #B71C1C; font-weight: 700; border-bottom: 1.5px solid #E01E31; }
+  .li-table th { text-align: left; padding: 3px 6px; color: var(--danger-deep); font-weight: 700; border-bottom: 1.5px solid #FF0000; }
   .li-table th.right, .li-table td.right { text-align: right; }
   .li-table th.center, .li-table td.center { text-align: center; }
-  .li-table td { padding: 4px 6px; border-bottom: 1px solid #F7E5E7; }
+  .li-table td { padding: 4px 6px; border-bottom: 1px solid rgba(255, 0, 0, 0.12); }
   .li-table tr:last-child td { border-bottom: none; }
-  .li-total-row td { border-top: 1.5px solid #E01E31; border-bottom: none; font-weight: 800; color: #B71C1C; padding-top: 6px; }
-  .li-net { display: flex; align-items: center; justify-content: space-between; border: 1.5px solid #E01E31; border-radius: 6px; padding: 9px 16px; margin-top: 10px; }
-  .li-net .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #B71C1C; }
-  .li-net .amount { font-size: 24px; font-weight: 800; color: #E01E31; }
+  .li-total-row td { border-top: 1.5px solid #FF0000; border-bottom: none; font-weight: 800; color: var(--danger-deep); padding-top: 6px; }
+  .li-net { display: flex; align-items: center; justify-content: space-between; border: 1.5px solid #FF0000; border-radius: 6px; padding: 9px 16px; margin-top: 10px; }
+  .li-net .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--danger-deep); }
+  .li-net .amount { font-size: 24px; font-weight: 800; color: var(--danger-deep); }
   .li-footer { display: flex; justify-content: space-between; align-items: flex-end; padding: 8px 20px 12px; }
-  .li-sig { width: 150px; text-align: center; font-size: 11px; color: #1F2937; font-weight: 600; }
+  .li-sig { width: 150px; text-align: center; font-size: 11px; color: var(--text-primary); font-weight: 600; }
   .li-sig-img { display: block; height: 30px; max-width: 140px; margin: 0 auto; object-fit: contain; mix-blend-mode: multiply; }
-  .li-sig-line { border-top: 1px solid #1F2937; padding-top: 4px; }
-  .li-fill-line { border-bottom: 1px solid #1F2937; padding-bottom: 2px; margin-bottom: 4px; font-weight: 700; color: #111; }
+  .li-sig-line { border-top: 1px solid #000000; padding-top: 4px; }
+  .li-fill-line { border-bottom: 1px solid #000000; padding-bottom: 2px; margin-bottom: 4px; font-weight: 700; color: var(--text-primary); }
 `
 
 function makeRow(): InvoiceRow {
@@ -189,15 +189,15 @@ onSuccess: invoice => {
       {/* Header */}
       <div className="print:hidden">
         <Breadcrumb items={[{ label: 'Dashboard', href: '/' }, { label: 'Shop Bills', href: '/shop-bills' }, { label: 'Legacy Invoice' }]} />
-        <div className="mt-3 flex flex-col gap-4 rounded-2xl border border-[#E4E7EC] bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-3 flex flex-col gap-4 rounded-2xl border border-[var(--border)] bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 shrink-0 rounded-full border-2 border-[#DC2626] bg-white p-1 flex items-center justify-center">
+            <div className="h-12 w-12 shrink-0 rounded-full border-2 border-[var(--danger-deep)] bg-white p-1 flex items-center justify-center">
               <img src="/icon.png" alt="Love Laundry" className="h-full w-full rounded-full object-contain" />
             </div>
             <div>
-              <h1 className="text-[17px] font-extrabold uppercase tracking-[2px] text-[#101828] leading-tight">Love Laundry</h1>
-              <p className="text-[11px] font-semibold text-[#6B7280]">and dry cleaning experts</p>
-              <p className="mt-0.5 text-[12px] text-[#98A2B3]">Legacy Invoice — aggregate old paper bills, save, then print.</p>
+              <h1 className="text-[17px] font-extrabold uppercase tracking-[2px] text-[var(--text-primary)] leading-tight">Love Laundry</h1>
+              <p className="text-[11px] font-semibold text-[var(--text-secondary)]">and dry cleaning experts</p>
+              <p className="mt-0.5 text-[12px] text-[var(--text-faint)]">Legacy Invoice — aggregate old paper bills, save, then print.</p>
             </div>
           </div>
           <div className="flex flex-col items-start gap-2 sm:items-end">
@@ -216,14 +216,14 @@ onSuccess: invoice => {
 
       {/* Saved confirmation banner */}
       {saved && (
-        <div className="rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between print:hidden">
+        <div className="rounded-xl border border-[var(--success-border)] bg-[var(--surface-2)] p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between print:hidden">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-full bg-[#16A34A]/10 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="h-5 w-5 text-[#16A34A]" />
+            <div className="h-9 w-9 rounded-full bg-[var(--success-text)]/10 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="h-5 w-5 text-[var(--success-text)]" />
             </div>
             <div>
-              <p className="text-[13px] font-semibold text-[#15803D]">Invoice {saved.invoice_number} saved</p>
-              <p className="text-[11px] text-[#16A34A]/80">
+              <p className="text-[13px] font-semibold text-[var(--success-text)]">Invoice {saved.invoice_number} saved</p>
+              <p className="text-[11px] text-[var(--success-text)]/80">
                 {saved.shop_name} · {saved.total_entries} entr{saved.total_entries === 1 ? 'y' : 'ies'} · {fmtMoney(saved.grand_total)} · {formatDateOnly(saved.created_at)}
               </p>
             </div>
@@ -244,11 +244,11 @@ onSuccess: invoice => {
         <Card className="p-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-semibold uppercase tracking-wide text-[#6B7280] mb-1.5">Shop / Hotel Name *</label>
+              <label className="block text-[11px] font-semibold uppercase tracking-wide text-[var(--text-secondary)] mb-1.5">Shop / Hotel Name *</label>
               <input type="text" value={shopName} onChange={e => setShopName(e.target.value)} placeholder="Enter shop or hotel name" className={inputClass} />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold uppercase tracking-wide text-[#6B7280] mb-1.5">Description (optional)</label>
+              <label className="block text-[11px] font-semibold uppercase tracking-wide text-[var(--text-secondary)] mb-1.5">Description (optional)</label>
               <input type="text" value={description} onChange={e => setDescription(e.target.value)} placeholder="e.g. Laundry services for July 2026" className={inputClass} />
             </div>
           </div>
@@ -257,8 +257,8 @@ onSuccess: invoice => {
         <Card className="p-5">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h3 className="text-[13px] font-semibold text-[#101828]">Bill Entries</h3>
-              <p className="text-[11px] text-[#98A2B3] mt-0.5">Old bill date, number and amount — press Enter to go to the next field, Enter on the last row adds one.</p>
+              <h3 className="text-[13px] font-semibold text-[var(--text-primary)]">Bill Entries</h3>
+              <p className="text-[11px] text-[var(--text-faint)] mt-0.5">Old bill date, number and amount — press Enter to go to the next field, Enter on the last row adds one.</p>
             </div>
             <Button size="sm" variant="outline" onClick={addRow} className="gap-1.5 cursor-pointer">
               <Plus size={14} /> Add Row
@@ -268,18 +268,18 @@ onSuccess: invoice => {
           <div className="overflow-x-auto" onKeyDown={grid.handleKeyDown}>
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-[#E4E7EC]">
-                  <th className="py-2 pr-3 text-left font-semibold text-[#6B7280] w-[40px]">#</th>
-                  <th className="py-2 pr-3 text-left font-semibold text-[#6B7280]">Date</th>
-                  <th className="py-2 pr-3 text-left font-semibold text-[#6B7280]">Bill Number</th>
-                  <th className="py-2 pr-3 text-right font-semibold text-[#6B7280]">Amount (LKR)</th>
+                <tr className="border-b border-[var(--border)]">
+                  <th className="py-2 pr-3 text-left font-semibold text-[var(--text-secondary)] w-[40px]">#</th>
+                  <th className="py-2 pr-3 text-left font-semibold text-[var(--text-secondary)]">Date</th>
+                  <th className="py-2 pr-3 text-left font-semibold text-[var(--text-secondary)]">Bill Number</th>
+                  <th className="py-2 pr-3 text-right font-semibold text-[var(--text-secondary)]">Amount (LKR)</th>
                   <th className="py-2 w-[40px]"></th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((row, idx) => (
-                  <tr key={row.id} className="border-b border-[#F2F4F7] hover:bg-[#F9FAFB]/60">
-                    <td className="py-2 pr-3 text-[#98A2B3]">{idx + 1}</td>
+                  <tr key={row.id} className="border-b border-[var(--border)] hover:bg-[var(--surface-2)]/60">
+                    <td className="py-2 pr-3 text-[var(--text-faint)]">{idx + 1}</td>
                     <td className="py-2 pr-3">
                       <input type="date" value={row.date} onChange={e => updateRow(row.id, 'date', e.target.value)} className={cellInputClass} ref={grid.registerCell(idx, 0)} />
                     </td>
@@ -290,7 +290,7 @@ onSuccess: invoice => {
                       <input type="number" min="0" step="0.01" value={row.amount || ''} onChange={e => updateRow(row.id, 'amount', parseFloat(e.target.value) || 0)} placeholder="0.00" className={`${cellInputClass} text-right`} ref={grid.registerCell(idx, 2)} />
                     </td>
                     <td className="py-2">
-                      <button onClick={() => removeRow(row.id)} disabled={rows.length <= 1 || Boolean(saved)} className="p-1.5 text-[#98A2B3] hover:text-[#DC2626] disabled:opacity-30 cursor-pointer">
+                      <button onClick={() => removeRow(row.id)} disabled={rows.length <= 1 || Boolean(saved)} className="p-1.5 text-[var(--text-faint)] hover:text-[var(--danger-deep)] disabled:opacity-30 cursor-pointer">
                         <Trash2 size={14} />
                       </button>
                     </td>
@@ -298,9 +298,9 @@ onSuccess: invoice => {
                 ))}
               </tbody>
               <tfoot>
-                <tr className="border-t-2 border-[#101828]">
-                  <td colSpan={3} className="py-3 pr-3 text-right font-bold text-[#101828]">Grand Total</td>
-                  <td className="py-3 pr-3 text-right font-bold text-[#101828]">{fmtMoney(grandTotal)}</td>
+                <tr className="border-t-2 border-[var(--text-primary)]">
+                  <td colSpan={3} className="py-3 pr-3 text-right font-bold text-[var(--text-primary)]">Grand Total</td>
+                  <td className="py-3 pr-3 text-right font-bold text-[var(--text-primary)]">{fmtMoney(grandTotal)}</td>
                   <td></td>
                 </tr>
               </tfoot>
@@ -313,17 +313,17 @@ onSuccess: invoice => {
       <div className="space-y-3 print:hidden">
         <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-[14px] font-semibold text-[#101828]">Saved Invoices</h2>
-            <p className="text-[11px] text-[#98A2B3]">Every legacy invoice you create is stored and can be reprinted anytime.</p>
+            <h2 className="text-[14px] font-semibold text-[var(--text-primary)]">Saved Invoices</h2>
+            <p className="text-[11px] text-[var(--text-faint)]">Every legacy invoice you create is stored and can be reprinted anytime.</p>
           </div>
           <div className="relative w-full sm:w-72">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-faint)]" />
             <input
               type="text"
               value={searchInput}
               onChange={e => setSearchInput(e.target.value)}
               placeholder="Search by shop / hotel…"
-              className="h-10 w-full rounded-lg border border-[#E4E7EC] bg-white pl-9 pr-3 text-[13px] text-[#101828] outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 shadow-sm"
+              className="h-10 w-full rounded-lg border border-[var(--border)] bg-white pl-9 pr-3 text-[13px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-text)] focus:ring-2 focus:ring-[var(--brand-text)]/10 shadow-sm"
             />
           </div>
         </div>
@@ -344,32 +344,32 @@ onSuccess: invoice => {
             description={searchInput.trim() ? 'Nothing matches that shop / hotel name.' : 'Invoices you save will appear here.'}
           />
         ) : (
-          <div className="rounded-xl border border-[#E4E7EC] bg-white shadow-sm overflow-x-auto">
+          <div className="rounded-xl border border-[var(--border)] bg-white shadow-sm overflow-x-auto">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-[#E4E7EC] bg-[#F9FAFB]">
-                  <th className="py-2.5 px-4 text-left font-semibold text-[#6B7280]">Invoice No.</th>
-                  <th className="py-2.5 px-4 text-left font-semibold text-[#6B7280]">Shop / Hotel</th>
-                  <th className="py-2.5 px-4 text-center font-semibold text-[#6B7280]">Entries</th>
-                  <th className="py-2.5 px-4 text-right font-semibold text-[#6B7280]">Grand Total</th>
-                  <th className="py-2.5 px-4 text-left font-semibold text-[#6B7280]">Created</th>
+                <tr className="border-b border-[var(--border)] bg-[var(--surface-2)]">
+                  <th className="py-2.5 px-4 text-left font-semibold text-[var(--text-secondary)]">Invoice No.</th>
+                  <th className="py-2.5 px-4 text-left font-semibold text-[var(--text-secondary)]">Shop / Hotel</th>
+                  <th className="py-2.5 px-4 text-center font-semibold text-[var(--text-secondary)]">Entries</th>
+                  <th className="py-2.5 px-4 text-right font-semibold text-[var(--text-secondary)]">Grand Total</th>
+                  <th className="py-2.5 px-4 text-left font-semibold text-[var(--text-secondary)]">Created</th>
                   <th className="py-2.5 px-4 w-[120px]"></th>
                 </tr>
               </thead>
               <tbody>
                 {listData.items.map((inv: LegacyInvoice) => (
-                  <tr key={inv.id} className="border-b border-[#F2F4F7] last:border-0 hover:bg-[#F9FAFB]/60">
-                    <td className="py-2.5 px-4 font-semibold text-[#2563EB] whitespace-nowrap">{inv.invoice_number}</td>
-                    <td className="py-2.5 px-4 text-[#101828] font-medium">{inv.shop_name}</td>
-                    <td className="py-2.5 px-4 text-center text-[#6B7280]">{inv.total_entries}</td>
-                    <td className="py-2.5 px-4 text-right font-semibold text-[#101828]">{fmtMoney(inv.grand_total)}</td>
-                    <td className="py-2.5 px-4 text-[#98A2B3] whitespace-nowrap">{formatDateOnly(inv.created_at)}</td>
+                  <tr key={inv.id} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface-2)]/60">
+                    <td className="py-2.5 px-4 font-semibold text-[var(--brand-text)] whitespace-nowrap">{inv.invoice_number}</td>
+                    <td className="py-2.5 px-4 text-[var(--text-primary)] font-medium">{inv.shop_name}</td>
+                    <td className="py-2.5 px-4 text-center text-[var(--text-secondary)]">{inv.total_entries}</td>
+                    <td className="py-2.5 px-4 text-right font-semibold text-[var(--text-primary)]">{fmtMoney(inv.grand_total)}</td>
+                    <td className="py-2.5 px-4 text-[var(--text-faint)] whitespace-nowrap">{formatDateOnly(inv.created_at)}</td>
                     <td className="py-2.5 px-4">
                       <div className="flex items-center justify-end gap-1">
                         <Button size="sm" variant="ghost" onClick={() => handleLoad(inv)} className="gap-1.5 cursor-pointer">
                           <Printer size={14} /> View / Print
                         </Button>
-                        <button onClick={() => setDeleteTarget(inv)} className="p-2 text-[#98A2B3] hover:text-[#DC2626] hover:bg-[#FEF2F2] rounded-lg cursor-pointer">
+                        <button onClick={() => setDeleteTarget(inv)} className="p-2 text-[var(--text-faint)] hover:text-[var(--danger-deep)] hover:bg-[var(--surface-2)] rounded-lg cursor-pointer">
                           <Trash2 size={15} />
                         </button>
                       </div>
@@ -379,7 +379,7 @@ onSuccess: invoice => {
               </tbody>
             </table>
             {listData.total > listData.items.length && (
-              <p className="px-4 py-2.5 text-[11px] text-[#98A2B3] border-t border-[#F2F4F7]">
+              <p className="px-4 py-2.5 text-[11px] text-[var(--text-faint)] border-t border-[var(--border)]">
                 Showing {listData.items.length} of {listData.total} — refine the search to narrow down.
               </p>
             )}

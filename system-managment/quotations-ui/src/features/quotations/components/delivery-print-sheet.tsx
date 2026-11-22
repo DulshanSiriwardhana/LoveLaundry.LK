@@ -36,7 +36,7 @@ const deliveryPrintStyles = `
     width: 80px;
     height: 80px;
     object-fit: contain;
-    border: 2px solid #DC2626;
+    border: 2px solid #FF0000;
     border-radius: 50%;
     padding: 4px;
   }
@@ -132,7 +132,7 @@ const deliveryPrintStyles = `
   }
   .dls-items-table th {
     text-align: left;
-    background: #f5f5f5;
+    background: var(--surface);
   }
   .dls-items-table td {
     height: 22px;

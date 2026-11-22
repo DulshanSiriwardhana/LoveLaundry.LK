@@ -8,6 +8,7 @@ import {
   type ServiceSummary,
   type Summary,
 } from "./api";
+import { ThemeSwitcher } from "./ll-theme";
 
 type Tab = "overview" | "services" | "routes" | "dependencies";
 
@@ -84,6 +85,7 @@ export default function App() {
           </p>
         </div>
         <div className="actions">
+          <ThemeSwitcher compact />
           <StatusPill health={health} />
           <button onClick={rescan} disabled={busy}>
             {busy ? "Scanning…" : "Re-scan"}

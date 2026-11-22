@@ -199,7 +199,7 @@ export default function DeliveriesPage() {
         if (passes.length === 0) {
             const qty = (delivery.items ?? []).reduce((sum, i) => sum + (i.quantity || 0), 0)
             return (
-                <span className="whitespace-nowrap text-[11px] font-medium text-[#98A2B3]">
+                <span className="whitespace-nowrap text-[11px] font-medium text-[var(--text-faint)]">
                     {qty} pcs
                 </span>
             )
@@ -211,10 +211,10 @@ export default function DeliveriesPage() {
             const pct = received > 0 ? Math.min(100, Math.round((delivered / received) * 100)) : 0
             return (
                 <div className="flex items-center gap-2">
-                    <div className="h-1.5 w-16 overflow-hidden rounded-full bg-[#E4E7EC]">
-                        <div className="h-full rounded-full bg-[#16A34A]" style={{ width: `${pct}%` }} />
+                    <div className="h-1.5 w-16 overflow-hidden rounded-full bg-[var(--surface-2)]">
+                        <div className="h-full rounded-full bg-[var(--success-text)]" style={{ width: `${pct}%` }} />
                     </div>
-                    <span className="whitespace-nowrap text-[11px] font-medium text-[#6B7280]">
+                    <span className="whitespace-nowrap text-[11px] font-medium text-[var(--text-secondary)]">
                         {delivered} / {received} pcs
                     </span>
                 </div>
@@ -228,10 +228,10 @@ export default function DeliveriesPage() {
                         <span
                             key={p.gate_pass_id}
                             title={`${p.gate_pass_number}: ${p.totals?.delivered_qty ?? 0}/${p.totals?.received_qty ?? 0} delivered, ${remaining} still owed`}
-                            className="whitespace-nowrap rounded-md border border-[#E4E7EC] bg-white px-1.5 py-0.5 font-mono text-[10px] font-semibold text-[#475467]"
+                            className="whitespace-nowrap rounded-md border border-[var(--border)] bg-white px-1.5 py-0.5 font-mono text-[10px] font-semibold text-[var(--brand-deep)]"
                         >
                             {p.gate_pass_number ?? `GP-${p.gate_pass_id.slice(-6).toUpperCase()}`}
-                            <span className={remaining > 0 ? 'ml-1 text-[#EA580C]' : 'ml-1 text-[#16A34A]'}>
+                            <span className={remaining > 0 ? 'ml-1 text-[var(--danger-text)]' : 'ml-1 text-[var(--success-text)]'}>
                                 {remaining > 0 ? `${remaining} due` : 'done'}
                             </span>
                         </span>
@@ -248,12 +248,12 @@ export default function DeliveriesPage() {
             .filter(Boolean) as string[]
         if (numbers.length === 0) {
             const short = String(delivery.gate_pass_id ?? '').slice(-8).toUpperCase()
-            return <span className="font-mono text-[11px] text-[#98A2B3]">GP-{short}</span>
+            return <span className="font-mono text-[11px] text-[var(--text-faint)]">GP-{short}</span>
         }
         if (numbers.length === 1) {
             const p = passes[0]
             return (
-                <Link to={`/gate-passes/${p.gate_pass_id}`} className="font-mono text-[11px] font-semibold text-[#10B981] transition-colors hover:text-[#047857]">
+                <Link to={`/gate-passes/${p.gate_pass_id}`} className="font-mono text-[11px] font-semibold text-[var(--success-text)] transition-colors hover:text-[var(--success-text)]">
                     {numbers[0]}
                 </Link>
             )
@@ -266,7 +266,7 @@ export default function DeliveriesPage() {
                     <Link
                         key={p.gate_pass_id}
                         to={`/gate-passes/${p.gate_pass_id}`}
-                        className="font-mono text-[11px] font-semibold text-[#10B981] transition-colors hover:text-[#047857]"
+                        className="font-mono text-[11px] font-semibold text-[var(--success-text)] transition-colors hover:text-[var(--success-text)]"
                     >
                         {p.gate_pass_number ?? `GP-${p.gate_pass_id.slice(-6).toUpperCase()}`}
                     </Link>
@@ -278,14 +278,14 @@ export default function DeliveriesPage() {
     const renderCard = (row: DeliveryRow) => {
         const delivery = row.delivery
         return (
-            <div className="rounded-xl border border-[#E4E7EC] bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.05)] transition-shadow hover:shadow-md">
+            <div className="rounded-xl border border-[var(--border)] bg-white p-4 shadow-[0_1px_2px_rgba(0, 0, 139, 0.05)] transition-shadow hover:shadow-md">
                 <div className="flex items-start justify-between gap-2">
                     <div className="flex min-w-0 items-start gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#BBF7D0] bg-[#F0FDF4] text-[#16A34A]">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--success-border)] bg-[var(--surface-2)] text-[var(--success-text)]">
                             <Truck size={16} />
                         </div>
                         <div className="min-w-0">
-                            <p className="font-mono text-[12px] font-semibold text-[#101828]">
+                            <p className="font-mono text-[12px] font-semibold text-[var(--text-primary)]">
                                 DLV-{delivery.id.slice(-8).toUpperCase()}
                             </p>
                             <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
@@ -294,7 +294,7 @@ export default function DeliveriesPage() {
                                     <p className="truncate text-[12px] text-[var(--text-muted)]">{delivery.client_name || '—'}</p>
                                 )}
                             </div>
-                            <p className="mt-1 text-[11px] text-[#98A2B3]">
+                            <p className="mt-1 text-[11px] text-[var(--text-faint)]">
                                 {formatDateOnly(delivery.delivery_date)} · {renderGatePassCell(delivery)}
                             </p>
                         </div>
@@ -302,14 +302,14 @@ export default function DeliveriesPage() {
                     <DeliveryStatusPill status={row.status} />
                 </div>
 
-                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-[#F2F4F7] pt-3 text-[12px] text-[#6B7280]">
-                    <span><span className="font-semibold text-[#374151]">{(delivery.items ?? []).length}</span> types</span>
+                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-[var(--border)] pt-3 text-[12px] text-[var(--text-secondary)]">
+                    <span><span className="font-semibold text-[var(--text-primary)]">{(delivery.items ?? []).length}</span> types</span>
                     <span>
-                        by <span className="font-medium text-[#374151]">{delivery.delivered_by || '—'}</span>
+                        by <span className="font-medium text-[var(--text-primary)]">{delivery.delivered_by || '—'}</span>
                     </span>
                 </div>
 
-                <div className="mt-2 flex items-center justify-between gap-3 border-t border-[#F2F4F7] pt-2">
+                <div className="mt-2 flex items-center justify-between gap-3 border-t border-[var(--border)] pt-2">
                     <div className="flex-1">{renderProgress(delivery)}</div>
                     <EntityCardActions
                         onQuickView={() => setQuickView({ row })}
@@ -328,11 +328,11 @@ export default function DeliveriesPage() {
                 <div>
                     <Breadcrumb items={[{ label: 'Dashboard', href: '/' }, { label: 'Deliveries' }]} />
                     <h1 className="text-dashboard-title mt-1">Deliveries</h1>
-                    <p className="text-[13px] text-[#98A2B3] mt-0.5">
+                    <p className="text-[13px] text-[var(--text-faint)] mt-0.5">
                         Outgoing laundry returned to hotels — quantities against each gate pass, organized by hotel.
                     </p>
                     <div className="mt-1.5">
-                        <span className="text-[12px] font-medium text-[#6B7280]">
+                        <span className="text-[12px] font-medium text-[var(--text-secondary)]">
                             {isLoading ? 'Loading…' : `${rows.length} delivery record${rows.length !== 1 ? 's' : ''}`}
                             {hotel ? ` · ${hotel}` : ' · All hotels'}
                         </span>
@@ -340,7 +340,7 @@ export default function DeliveriesPage() {
                     </div>
                 </div>
                 <Link to="/deliveries/new" className="shrink-0">
-                    <Button className="bg-[#16A34A] hover:bg-[#15803D] text-white shadow-lg shadow-green-600/20">
+                    <Button className="bg-[var(--success-text)] hover:bg-[var(--success)] text-white shadow-lg shadow-green-600/20">
                         <Plus className="h-4 w-4" /> Record Delivery
                     </Button>
                 </Link>
@@ -350,22 +350,22 @@ export default function DeliveriesPage() {
             <CompactMetrics items={kpis} />
 
             {/* Filters */}
-            <div className="rounded-xl border border-[#E4E7EC] bg-white p-3 shadow-[0_1px_2px_rgba(16,24,40,0.05)]">
+            <div className="rounded-xl border border-[var(--border)] bg-white p-3 shadow-[0_1px_2px_rgba(0, 0, 139, 0.05)]">
                 <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center">
                     <div className="relative flex-1">
-                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]" />
+                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-faint)]" />
                         <input
                             type="text"
                             value={searchInput}
                             onChange={event => setSearchInput(event.target.value)}
                             placeholder={`Search ${hotel ? hotel : 'all hotels'} by delivery no., item, person…`}
-                            className="h-10 w-full rounded-lg border border-[#E4E7EC] bg-white pl-9 pr-8 text-[13px] text-[#101828] shadow-sm outline-none focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/10"
+                            className="h-10 w-full rounded-lg border border-[var(--border)] bg-white pl-9 pr-8 text-[13px] text-[var(--text-primary)] shadow-sm outline-none focus:border-[var(--success-text)] focus:ring-2 focus:ring-[var(--success-text)]/10"
                         />
                         {searchInput && (
                             <button
                                 type="button"
                                 onClick={() => setSearchInput('')}
-                                className="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer text-[#98A2B3] hover:text-[#374151]"
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer text-[var(--text-faint)] hover:text-[var(--text-primary)]"
                             >
                                 <X className="h-3.5 w-3.5" />
                             </button>
@@ -387,13 +387,13 @@ export default function DeliveriesPage() {
                 </div>
 
                 {showMore && (
-                    <div className="mt-3 grid gap-2.5 border-t border-[#F2F4F7] pt-3 sm:grid-cols-3">
+                    <div className="mt-3 grid gap-2.5 border-t border-[var(--border)] pt-3 sm:grid-cols-3">
                         <div className="relative">
-                            <PackageCheck className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]" />
+                            <PackageCheck className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-faint)]" />
                             <select
                                 value={gpFilter}
                                 onChange={event => setGpFilter(event.target.value)}
-                                className="h-10 w-full cursor-pointer appearance-none rounded-lg border border-[#E4E7EC] bg-white pl-9 pr-3 text-[13px] text-[#101828] shadow-sm outline-none focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/10"
+                                className="h-10 w-full cursor-pointer appearance-none rounded-lg border border-[var(--border)] bg-white pl-9 pr-3 text-[13px] text-[var(--text-primary)] shadow-sm outline-none focus:border-[var(--success-text)] focus:ring-2 focus:ring-[var(--success-text)]/10"
                             >
                                 <option value="">All Gate Passes</option>
                                 {gpOptions.map(gp => (
@@ -402,23 +402,23 @@ export default function DeliveriesPage() {
                             </select>
                         </div>
                         <div className="relative">
-                            <CalendarDays className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]" />
+                            <CalendarDays className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-faint)]" />
                             <input
                                 type="date"
                                 value={dateFrom}
                                 onChange={event => setDateFrom(event.target.value)}
                                 aria-label="Delivered from"
-                                className="h-10 w-full rounded-lg border border-[#E4E7EC] bg-white pl-9 pr-3 text-[13px] text-[#101828] shadow-sm outline-none focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/10"
+                                className="h-10 w-full rounded-lg border border-[var(--border)] bg-white pl-9 pr-3 text-[13px] text-[var(--text-primary)] shadow-sm outline-none focus:border-[var(--success-text)] focus:ring-2 focus:ring-[var(--success-text)]/10"
                             />
                         </div>
                         <div className="relative">
-                            <CalendarDays className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]" />
+                            <CalendarDays className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-faint)]" />
                             <input
                                 type="date"
                                 value={dateTo}
                                 onChange={event => setDateTo(event.target.value)}
                                 aria-label="Delivered to"
-                                className="h-10 w-full rounded-lg border border-[#E4E7EC] bg-white pl-9 pr-3 text-[13px] text-[#101828] shadow-sm outline-none focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/10"
+                                className="h-10 w-full rounded-lg border border-[var(--border)] bg-white pl-9 pr-3 text-[13px] text-[var(--text-primary)] shadow-sm outline-none focus:border-[var(--success-text)] focus:ring-2 focus:ring-[var(--success-text)]/10"
                             />
                         </div>
                     </div>
@@ -446,7 +446,7 @@ export default function DeliveriesPage() {
                         description="Record a delivery when laundry is returned to a hotel client."
                         action={
                             <Link to="/deliveries/new">
-                                <Button className="bg-[#16A34A] hover:bg-[#15803D] text-white">
+                                <Button className="bg-[var(--success-text)] hover:bg-[var(--success)] text-white">
                                     <Plus className="h-4 w-4" /> Record Delivery
                                 </Button>
                             </Link>

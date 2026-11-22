@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import clsx from 'clsx'
+import { ThemeSwitcher } from '../ll-theme'
 import { useAuth } from '../auth/AuthContext'
 import { appConfig } from '../config/app'
 
@@ -30,6 +31,7 @@ export function AppShell() {
                 <span className="user-chip__role">{user?.role || 'Member'}</span>
               </span>
             </div>
+            <ThemeSwitcher compact />
             <button
               type="button"
               onClick={signOut}

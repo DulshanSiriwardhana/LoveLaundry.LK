@@ -13,8 +13,8 @@ import type {
    ───────────────────────────────────────────────────────────── */
 
 export const RECEIPT_PRINT_STYLE = `
-  .gp-cell-input:focus { border-bottom-color: #DC2626 !important; }
-  .gp-cell-input::placeholder { color: #B6BEC7; }
+  .gp-cell-input:focus { border-bottom-color: var(--danger-deep) !important; }
+  .gp-cell-input::placeholder { color: var(--border-2); }
   @media print {
     @page { size: A4; margin: 7mm; }
     @page :first { size: A4; margin: 7mm; }
@@ -63,12 +63,12 @@ export function EditableCell({ value, onChange, width, align = 'center', placeho
         padding: '0 2px',
         background: 'transparent',
         border: 0,
-        borderBottom: '1px dashed #9CA3AF',
+        borderBottom: '1px dashed #BFBFBF',
         outline: 0,
         fontSize,
         lineHeight: '1.2',
         fontWeight: bold ? 700 : 400,
-        color: '#111827',
+        color: 'var(--text-primary)',
         fontFamily: 'inherit',
         minWidth: 0,
         ...style,
@@ -81,7 +81,7 @@ export function EditableCell({ value, onChange, width, align = 'center', placeho
    full-bleed with an @page margin when printed. */
 export function ReceiptSheet({ children }: { children: ReactNode }) {
   return (
-    <div className="gp-page-bg" style={{ minHeight: '100vh', background: '#E7EAED', padding: '28px 12px 44px', boxSizing: 'border-box' }}>
+    <div className="gp-page-bg" style={{ minHeight: '100vh', background: 'var(--surface-2)', padding: '28px 12px 44px', boxSizing: 'border-box' }}>
       <div
         className="gp-sheet"
         style={{
@@ -91,9 +91,9 @@ export function ReceiptSheet({ children }: { children: ReactNode }) {
           margin: '0 auto',
           padding: '8mm 7mm',
           background: '#fff',
-          boxShadow: '0 2px 18px rgba(17,24,39,0.18)',
+          boxShadow: '0 2px 18px rgba(0, 0, 139, 0.18)',
           boxSizing: 'border-box',
-          color: '#111827',
+          color: 'var(--text-primary)',
         }}
       >
         {children}
@@ -118,7 +118,7 @@ export function ReceiptHeader({ title, subtitle, receiptNo, onReceiptNo, date, o
         display: 'flex',
         alignItems: 'flex-start',
         gap: 12,
-        borderBottom: '2px solid #DC2626',
+        borderBottom: '2px solid #FF0000',
         paddingBottom: 8,
         marginBottom: 12,
       }}
@@ -129,7 +129,7 @@ export function ReceiptHeader({ title, subtitle, receiptNo, onReceiptNo, date, o
       </div>
       <div style={{ flex: 1, textAlign: 'center', minWidth: 0 }}>
         <div style={{ fontSize: 17, fontWeight: 800, letterSpacing: 1, lineHeight: 1.2 }}>{title}</div>
-        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.6, color: '#DC2626', marginTop: 2 }}>{subtitle}</div>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.6, color: 'var(--danger-deep)', marginTop: 2 }}>{subtitle}</div>
       </div>
       <div style={{ whiteSpace: 'nowrap', paddingTop: 2 }}>
         <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.4 }}>DATE: </span>
@@ -311,7 +311,7 @@ export function SignatureSection() {
         <div key={r.label} style={{ flex: 1, textAlign: 'center' }}>
           <div
             className="gp-hairline"
-            style={{ height: 30, borderBottom: '1px dashed #9CA3AF' }}
+            style={{ height: 30, borderBottom: '1px dashed #BFBFBF' }}
           />
           <div style={{ fontSize: 10.5, fontWeight: 700, marginTop: 5 }}>........................</div>
           <div style={{ fontSize: 10.5, fontWeight: 700, marginTop: 2 }}>{r.label}</div>

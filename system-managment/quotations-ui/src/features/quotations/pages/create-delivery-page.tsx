@@ -59,8 +59,8 @@ function todayLocal(): string {
 }
 
 const inputClass =
-    'h-10 w-full rounded-lg border border-[#E4E7EC] bg-white px-3 text-[13px] text-[#101828] outline-none focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/10 shadow-sm transition'
-const labelClass = 'block text-[11px] font-semibold uppercase tracking-wide text-[#6B7280] mb-1.5'
+    'h-10 w-full rounded-lg border border-[var(--border)] bg-white px-3 text-[13px] text-[var(--text-primary)] outline-none focus:border-[var(--success-text)] focus:ring-2 focus:ring-[var(--success-text)]/10 shadow-sm transition'
+const labelClass = 'block text-[11px] font-semibold uppercase tracking-wide text-[var(--text-secondary)] mb-1.5'
 
 function itemKey(name: string, spec: string) {
     return spec ? `${name}||${spec}` : name
@@ -379,7 +379,7 @@ export default function CreateDeliveryPage() {
         <div className="space-y-5 pb-10">
             {/* Header */}
             <div className="flex items-start gap-3">
-                <Link to="/deliveries" className="mt-1 text-[#98A2B3] hover:text-[#374151] transition-colors">
+                <Link to="/deliveries" className="mt-1 text-[var(--text-faint)] hover:text-[var(--text-primary)] transition-colors">
                     <ArrowLeft className="h-4 w-4" />
                 </Link>
                 <div className="flex-1">
@@ -391,7 +391,7 @@ export default function CreateDeliveryPage() {
                         ]}
                     />
                     <h1 className="text-dashboard-title mt-1">Record Delivery</h1>
-                    <p className="text-[13px] text-[#98A2B3] mt-0.5">
+                    <p className="text-[13px] text-[var(--text-faint)] mt-0.5">
                         {form.step === 'select'
                             ? 'Select gate passes with pending items to deliver'
                             : `Delivering ${totalPieces} pieces across ${itemCount} item${itemCount !== 1 ? 's' : ''} from ${form.selectedIds.length} gate pass${form.selectedIds.length !== 1 ? 'es' : ''} · ${form.fillMode === 'auto' ? 'Auto-fill (FIFO)' : 'Manual'}`
@@ -402,7 +402,7 @@ export default function CreateDeliveryPage() {
                     <Button
                         onClick={() => setForm(prev => ({ ...prev, step: 'fill' }))}
                         disabled={!canContinueSelection}
-                        className="bg-[#16A34A] hover:bg-[#15803D] text-white gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="bg-[var(--success-text)] hover:bg-[var(--success)] text-white gap-2 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <Package size={16} /> Continue ({form.selectedIds.length} GP{form.selectedIds.length !== 1 ? 's' : ''})
                     </Button>
@@ -416,7 +416,7 @@ export default function CreateDeliveryPage() {
 
             <div className="flex items-center gap-2">
                 {dirty && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E4E7EC] bg-white px-2.5 py-1 text-[11px] font-medium text-[#6B7280]">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-white px-2.5 py-1 text-[11px] font-medium text-[var(--text-secondary)]">
                         <FileClock className="h-3 w-3" /> Autosaved draft
                     </span>
                 )}
@@ -431,13 +431,13 @@ export default function CreateDeliveryPage() {
             {form.step === 'select' && (
                 <div className="space-y-4">
                     <Card>
-                        <CardHeader className="border-b border-[#F2F4F7] pb-3">
+                        <CardHeader className="border-b border-[var(--border)] pb-3">
                             <div className="flex items-center justify-between">
                                 <CardTitle>Select Gate Passes</CardTitle>
                                 {pendingGPs.length > 0 && (
                                     <button
                                         onClick={toggleAll}
-                                        className="text-[12px] text-[#16A34A] hover:text-[#15803D] font-medium cursor-pointer"
+                                        className="text-[12px] text-[var(--success-text)] hover:text-[var(--success-text)] font-medium cursor-pointer"
                                     >
                                         {form.selectedIds.length === pendingGPs.length ? 'Deselect All' : 'Select All'}
                                     </button>
@@ -446,23 +446,23 @@ export default function CreateDeliveryPage() {
                         </CardHeader>
                         <CardContent className="pt-4 space-y-3">
                             <div className="relative">
-                                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]" />
+                                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-faint)]" />
                                 <input
                                     type="text"
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
                                     placeholder="Search by client name…"
-                                    className="h-10 w-full rounded-lg border border-[#E4E7EC] bg-white pl-9 pr-8 text-[13px] outline-none focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/10 shadow-sm"
+                                    className="h-10 w-full rounded-lg border border-[var(--border)] bg-white pl-9 pr-8 text-[13px] outline-none focus:border-[var(--success-text)] focus:ring-2 focus:ring-[var(--success-text)]/10 shadow-sm"
                                 />
                                 {search && (
-                                    <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#98A2B3] cursor-pointer">
+                                    <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-faint)] cursor-pointer">
                                         <X className="h-3.5 w-3.5" />
                                     </button>
                                 )}
                             </div>
 
                             {selectionIssue && form.selectedIds.length > 0 && (
-                                <div className="flex items-start gap-2 rounded-xl border border-[#FECACA] bg-[#FEF2F2] px-3 py-2.5 text-[12px] text-[#991B1B]">
+                                <div className="flex items-start gap-2 rounded-xl border border-[var(--danger-border)] bg-[var(--surface-2)] px-3 py-2.5 text-[12px] text-[var(--danger-deep)]">
                                     <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                                     <span>{selectionIssue}</span>
                                 </div>
@@ -475,7 +475,7 @@ export default function CreateDeliveryPage() {
                             ) : isError ? (
                                 <ErrorState description={error instanceof Error ? error.message : 'Failed to load gate passes'} />
                             ) : pendingGPs.length === 0 ? (
-                                <div className="py-8 text-center text-[13px] text-[#98A2B3]">
+                                <div className="py-8 text-center text-[13px] text-[var(--text-faint)]">
                                     No gate passes with pending items {search ? `for "${search}"` : ''}
                                 </div>
                             ) : (
@@ -489,24 +489,24 @@ export default function CreateDeliveryPage() {
                                                 onClick={() => toggleGP(gp.gate_pass_id)}
                                                 className={`group flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition cursor-pointer ${
                                                     isSelected
-                                                        ? 'border-[#BBF7D0] bg-[#F0FDF4]'
-                                                        : 'border-[#E4E7EC] bg-white hover:border-[#BBF7D0] hover:bg-[#F0FDF4]'
+                                                        ? 'border-[var(--success-border)] bg-[var(--surface-2)]'
+                                                        : 'border-[var(--border)] bg-white hover:border-[var(--success-border)] hover:bg-[var(--surface-2)]'
                                                 }`}
                                             >
                                                 <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors ${
                                                     isSelected
-                                                        ? 'bg-[#16A34A] text-white border-[#16A34A]'
-                                                        : 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE] group-hover:bg-[#DBEAFE]'
+                                                        ? 'bg-[var(--success-text)] text-white border-[var(--success-text)]'
+                                                        : 'bg-[var(--surface-2)] text-[var(--brand-text)] border-[var(--brand-border)] group-hover:bg-[var(--brand-border)]'
                                                 }`}>
                                                     {isSelected ? <Check size={16} /> : <span className="text-[11px] font-bold">GP</span>}
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <p className="text-[13px] font-semibold text-[#101828] truncate">{gp.client_name}</p>
-                                                    <p className="text-[11px] text-[#98A2B3] font-mono">{gp.gate_pass_number} · {gp.receiving_date}</p>
+                                                    <p className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{gp.client_name}</p>
+                                                    <p className="text-[11px] text-[var(--text-faint)] font-mono">{gp.gate_pass_number} · {gp.receiving_date}</p>
                                                 </div>
                                                 <div className="text-right shrink-0">
-                                                    <p className="text-[13px] font-bold text-[#EA580C]">{gp.total_pending} pending</p>
-                                                    <p className="text-[11px] text-[#98A2B3]">{(gp.items ?? []).length} item type{(gp.items ?? []).length !== 1 ? 's' : ''}</p>
+                                                    <p className="text-[13px] font-bold text-[var(--danger-text)]">{gp.total_pending} pending</p>
+                                                    <p className="text-[11px] text-[var(--text-faint)]">{(gp.items ?? []).length} item type{(gp.items ?? []).length !== 1 ? 's' : ''}</p>
                                                 </div>
                                             </button>
                                         )
@@ -522,14 +522,14 @@ export default function CreateDeliveryPage() {
             {form.step === 'fill' && (
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Selected GP Summary */}
-                    <Card className="border-[#BBF7D0] bg-[#F0FDF4]">
+                    <Card className="border-[var(--success-border)] bg-[var(--surface-2)]">
                         <CardContent className="pt-4">
                             <div className="flex flex-wrap gap-2">
                                 {selectedGPs.map(gp => (
-                                    <div key={gp.gate_pass_id} className="flex items-center gap-2 rounded-lg bg-white border border-[#BBF7D0] px-3 py-1.5 text-[12px]">
-                                        <span className="font-semibold text-[#101828]">{gp.client_name}</span>
-                                        <span className="font-mono text-[#6B7280]">{gp.gate_pass_number}</span>
-                                        <span className="font-bold text-[#EA580C]">{gp.total_pending} pcs</span>
+                                    <div key={gp.gate_pass_id} className="flex items-center gap-2 rounded-lg bg-white border border-[var(--success-border)] px-3 py-1.5 text-[12px]">
+                                        <span className="font-semibold text-[var(--text-primary)]">{gp.client_name}</span>
+                                        <span className="font-mono text-[var(--text-secondary)]">{gp.gate_pass_number}</span>
+                                        <span className="font-bold text-[var(--danger-text)]">{gp.total_pending} pcs</span>
                                     </div>
                                 ))}
                             </div>
@@ -538,10 +538,10 @@ export default function CreateDeliveryPage() {
 
                     {/* Delivery Details */}
                     <Card>
-                        <CardHeader className="border-b border-[#F2F4F7] pb-3">
+                        <CardHeader className="border-b border-[var(--border)] pb-3">
                             <div className="flex items-center gap-2">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F0FDF4] border border-[#BBF7D0]">
-                                    <Truck className="h-4 w-4 text-[#16A34A]" />
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--surface-2)] border border-[var(--success-border)]">
+                                    <Truck className="h-4 w-4 text-[var(--success-text)]" />
                                 </div>
                                 <CardTitle>Delivery Details</CardTitle>
                             </div>
@@ -572,15 +572,15 @@ export default function CreateDeliveryPage() {
                     <Card>
                         <CardContent className="pt-4">
                             <div className="flex items-center gap-3">
-                                <span className="text-[12px] font-semibold text-[#6B7280] uppercase tracking-wide">Fill Mode</span>
-                                <div className="flex rounded-lg border border-[#E4E7EC] overflow-hidden">
+                                <span className="text-[12px] font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Fill Mode</span>
+                                <div className="flex rounded-lg border border-[var(--border)] overflow-hidden">
                                     <button
                                         type="button"
                                         onClick={() => setForm(p => ({ ...p, fillMode: 'manual' }))}
                                         className={`flex items-center gap-1.5 px-4 py-2 text-[13px] font-medium transition cursor-pointer ${
                                             form.fillMode === 'manual'
-                                                ? 'bg-[#16A34A] text-white'
-                                                : 'bg-white text-[#6B7280] hover:bg-[#F9FAFB]'
+                                                ? 'bg-[var(--success-text)] text-white'
+                                                : 'bg-white text-[var(--text-secondary)] hover:bg-[var(--surface-2)]'
                                         }`}
                                     >
                                         <Hand size={14} /> Manual
@@ -590,14 +590,14 @@ export default function CreateDeliveryPage() {
                                         onClick={() => setForm(p => ({ ...p, fillMode: 'auto' }))}
                                         className={`flex items-center gap-1.5 px-4 py-2 text-[13px] font-medium transition cursor-pointer ${
                                             form.fillMode === 'auto'
-                                                ? 'bg-[#16A34A] text-white'
-                                                : 'bg-white text-[#6B7280] hover:bg-[#F9FAFB]'
+                                                ? 'bg-[var(--success-text)] text-white'
+                                                : 'bg-white text-[var(--text-secondary)] hover:bg-[var(--surface-2)]'
                                         }`}
                                     >
                                         <Wand2 size={14} /> Auto-fill (FIFO)
                                     </button>
                                 </div>
-                                <p className="text-[11px] text-[#98A2B3]">
+                                <p className="text-[11px] text-[var(--text-faint)]">
                                     {form.fillMode === 'auto'
                                         ? 'Enter totals per item — system fills from oldest gate pass first'
                                         : 'Fill quantities manually for each gate pass item'
@@ -610,18 +610,18 @@ export default function CreateDeliveryPage() {
                     {/* ── AUTO MODE: Item totals ──────────────────────────────── */}
                     {form.fillMode === 'auto' && (
                         <Card>
-                            <CardHeader className="border-b border-[#F2F4F7] pb-3">
+                            <CardHeader className="border-b border-[var(--border)] pb-3">
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <CardTitle>Item Totals</CardTitle>
-                                        <p className="text-[12px] text-[#98A2B3] mt-0.5">
+                                        <p className="text-[12px] text-[var(--text-faint)] mt-0.5">
                                             Enter how many of each item to deliver — auto-distributed from oldest GP
                                         </p>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={setAutoMaxAll}
-                                        className="text-[11px] font-medium text-[#16A34A] hover:text-[#15803D] cursor-pointer"
+                                        className="text-[11px] font-medium text-[var(--success-text)] hover:text-[var(--success-text)] cursor-pointer"
                                     >
                                         Fill All Max
                                     </button>
@@ -632,17 +632,17 @@ export default function CreateDeliveryPage() {
                                     const entered = form.autoTotals[total.item_key] ?? 0
                                     const over = entered > total.total_pending
                                     return (
-                                        <div key={total.item_key} className="flex items-center gap-3 rounded-lg border border-[#E4E7EC] px-4 py-3">
+                                        <div key={total.item_key} className="flex items-center gap-3 rounded-lg border border-[var(--border)] px-4 py-3">
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-[13px] font-medium text-[#101828] truncate">
+                                                <p className="text-[13px] font-medium text-[var(--text-primary)] truncate">
                                                     {total.item_name}
                                                     {total.specification && (
-                                                        <span className="ml-2 inline-flex items-center rounded bg-[#FFF7ED] border border-[#FED7AA] px-1.5 py-0.5 text-[10px] font-semibold text-[#EA580C]">
+                                                        <span className="ml-2 inline-flex items-center rounded bg-[var(--surface-2)] border border-[var(--danger-border)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--danger-text)]">
                                                             {total.specification}
                                                         </span>
                                                     )}
                                                 </p>
-                                                <p className="text-[11px] text-[#98A2B3]">
+                                                <p className="text-[11px] text-[var(--text-faint)]">
                                                     Available: {total.total_pending} across {allItems.filter(i => itemKey(i.item_name, i.specification) === total.item_key).length} GP{allItems.filter(i => itemKey(i.item_name, i.specification) === total.item_key).length !== 1 ? 's' : ''}
                                                 </p>
                                             </div>
@@ -655,17 +655,17 @@ export default function CreateDeliveryPage() {
                                                     value={entered || ''}
                                                     onChange={e => updateAutoTotal(total.item_key, Number(e.target.value))}
                                                     placeholder="0"
-                                                    className="h-9 w-24 rounded-lg border border-[#E4E7EC] bg-white px-3 text-[13px] text-center text-[#101828] outline-none focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/10"
+                                                    className="h-9 w-24 rounded-lg border border-[var(--border)] bg-white px-3 text-[13px] text-center text-[var(--text-primary)] outline-none focus:border-[var(--success-text)] focus:ring-2 focus:ring-[var(--success-text)]/10"
                                                 />
                                                 <button
                                                     type="button"
                                                     onClick={() => setAutoMax(total.item_key, total.total_pending)}
-                                                    className="text-[11px] font-medium text-[#16A34A] hover:text-[#15803D] cursor-pointer"
+                                                    className="text-[11px] font-medium text-[var(--success-text)] hover:text-[var(--success-text)] cursor-pointer"
                                                 >
                                                     Max
                                                 </button>
                                             </div>
-                                            {over && <AlertCircle className="h-4 w-4 text-[#EF4444] shrink-0" />}
+                                            {over && <AlertCircle className="h-4 w-4 text-[var(--danger-text)] shrink-0" />}
                                         </div>
                                     )
                                 })}
@@ -675,39 +675,39 @@ export default function CreateDeliveryPage() {
 
                     {/* ── AUTO MODE: Live distribution preview ────────────────── */}
                     {form.fillMode === 'auto' && activeItems.length > 0 && (
-                        <Card className="border-[#BFDBFE] bg-[#EFF6FF]">
-                            <CardHeader className="border-b border-[#BFDBFE] pb-3">
-                                <CardTitle className="text-[14px] text-[#1E40AF]">Live Distribution Preview</CardTitle>
-                                <p className="text-[12px] text-[#6B7280] mt-0.5">Auto-filled from oldest gate pass to newest</p>
+                        <Card className="border-[var(--brand-border)] bg-[var(--surface-2)]">
+                            <CardHeader className="border-b border-[var(--brand-border)] pb-3">
+                                <CardTitle className="text-[14px] text-[var(--brand-deep)]">Live Distribution Preview</CardTitle>
+                                <p className="text-[12px] text-[var(--text-secondary)] mt-0.5">Auto-filled from oldest gate pass to newest</p>
                             </CardHeader>
                             <CardContent className="pt-4 space-y-3">
                                 {itemsByGP.map(([gpId, group]) => (
-                                    <div key={gpId} className="rounded-lg border border-[#BFDBFE] bg-white overflow-hidden">
-                                        <div className="flex items-center justify-between bg-[#EFF6FF] px-4 py-2 border-b border-[#BFDBFE]">
+                                    <div key={gpId} className="rounded-lg border border-[var(--brand-border)] bg-white overflow-hidden">
+                                        <div className="flex items-center justify-between bg-[var(--surface-2)] px-4 py-2 border-b border-[var(--brand-border)]">
                                             <div className="flex items-center gap-2">
-                                                <span className="text-[13px] font-semibold text-[#101828]">{group.client_name}</span>
-                                                <span className="font-mono text-[11px] text-[#6B7280]">{group.gate_pass_number}</span>
+                                                <span className="text-[13px] font-semibold text-[var(--text-primary)]">{group.client_name}</span>
+                                                <span className="font-mono text-[11px] text-[var(--text-secondary)]">{group.gate_pass_number}</span>
                                             </div>
-                                            <span className="text-[11px] font-medium text-[#2563EB]">
+                                            <span className="text-[11px] font-medium text-[var(--brand-text)]">
                                                 {group.items.reduce((s, i) => s + i.quantity, 0)} pcs
                                             </span>
                                         </div>
-                                        <div className="divide-y divide-[#F2F4F7]">
+                                        <div className="divide-y divide-[var(--border)]">
                                             {group.items.map(item => (
                                                 <div key={`${item.gate_pass_id}||${item.item_name}||${item.specification}`} className="flex items-center gap-3 px-4 py-2.5">
                                                     <div className="flex-1 min-w-0">
-                                                        <p className="text-[13px] font-medium text-[#101828] truncate">
+                                                        <p className="text-[13px] font-medium text-[var(--text-primary)] truncate">
                                                             {item.item_name}
                                                             {item.specification && (
-                                                                <span className="ml-2 inline-flex items-center rounded bg-[#FFF7ED] border border-[#FED7AA] px-1.5 py-0.5 text-[10px] font-semibold text-[#EA580C]">
+                                                                <span className="ml-2 inline-flex items-center rounded bg-[var(--surface-2)] border border-[var(--danger-border)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--danger-text)]">
                                                                     {item.specification}
                                                                 </span>
                                                             )}
                                                         </p>
                                                     </div>
                                                     <div className="flex items-center gap-3 shrink-0 text-[12px]">
-                                                        <span className="text-[#98A2B3]">Pending: {item.pending_qty}</span>
-                                                        <span className="font-semibold text-[#16A34A]">→ Sending: {item.quantity}</span>
+                                                        <span className="text-[var(--text-faint)]">Pending: {item.pending_qty}</span>
+                                                        <span className="font-semibold text-[var(--success-text)]">→ Sending: {item.quantity}</span>
                                                     </div>
                                                 </div>
                                             ))}
@@ -721,35 +721,35 @@ export default function CreateDeliveryPage() {
                     {/* ── MANUAL MODE: Items per GP ──────────────────────────── */}
                     {form.fillMode === 'manual' && (
                         <Card>
-                            <CardHeader className="border-b border-[#F2F4F7] pb-3">
+                            <CardHeader className="border-b border-[var(--border)] pb-3">
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <CardTitle>Items to Deliver</CardTitle>
-                                        <p className="text-[12px] text-[#98A2B3] mt-0.5">Fill quantities for each gate pass item</p>
+                                        <p className="text-[12px] text-[var(--text-faint)] mt-0.5">Fill quantities for each gate pass item</p>
                                     </div>
-                                    <div className="text-[12px] text-[#6B7280]">
-                                        <span className="font-semibold text-[#16A34A]">{totalPieces}</span> pieces selected
+                                    <div className="text-[12px] text-[var(--text-secondary)]">
+                                        <span className="font-semibold text-[var(--success-text)]">{totalPieces}</span> pieces selected
                                     </div>
                                 </div>
                             </CardHeader>
                             <CardContent className="pt-4 space-y-4" onKeyDown={manualGrid.handleKeyDown}>
                                 {itemsByGP.map(([gpId, group]) => {
                                     return (
-                                        <div key={gpId} className="rounded-xl border border-[#E4E7EC] overflow-hidden">
-                                            <div className="flex items-center justify-between bg-[#F9FAFB] px-4 py-2.5 border-b border-[#E4E7EC]">
+                                        <div key={gpId} className="rounded-xl border border-[var(--border)] overflow-hidden">
+                                            <div className="flex items-center justify-between bg-[var(--surface-2)] px-4 py-2.5 border-b border-[var(--border)]">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-[13px] font-semibold text-[#101828]">{group.client_name}</span>
-                                                    <span className="font-mono text-[11px] text-[#98A2B3]">{group.gate_pass_number}</span>
+                                                    <span className="text-[13px] font-semibold text-[var(--text-primary)]">{group.client_name}</span>
+                                                    <span className="font-mono text-[11px] text-[var(--text-faint)]">{group.gate_pass_number}</span>
                                                 </div>
                                                 <button
                                                     type="button"
                                                     onClick={() => setMaxAll(gpId)}
-                                                    className="text-[11px] font-medium text-[#16A34A] hover:text-[#15803D] cursor-pointer"
+                                                    className="text-[11px] font-medium text-[var(--success-text)] hover:text-[var(--success-text)] cursor-pointer"
                                                 >
                                                     Fill All Max
                                                 </button>
                                             </div>
-                                            <div className="divide-y divide-[#F2F4F7]">
+                                            <div className="divide-y divide-[var(--border)]">
                                                 {group.items.map(item => {
                                                     const globalIdx = items.findIndex(i => i.gate_pass_id === item.gate_pass_id && i.item_name === item.item_name && i.specification === item.specification)
                                                     const rowKeyStr = `${item.gate_pass_id}||${item.item_name}||${item.specification}`
@@ -757,15 +757,15 @@ export default function CreateDeliveryPage() {
                                                     return (
                                                         <div key={rowKeyStr} className="flex items-center gap-3 px-4 py-3">
                                                             <div className="flex-1 min-w-0">
-                                                                <p className="text-[13px] font-medium text-[#101828] truncate">
+                                                                <p className="text-[13px] font-medium text-[var(--text-primary)] truncate">
                                                                     {item.item_name}
                                                                     {item.specification && (
-                                                                        <span className="ml-2 inline-flex items-center rounded bg-[#FFF7ED] border border-[#FED7AA] px-1.5 py-0.5 text-[10px] font-semibold text-[#EA580C]">
+                                                                        <span className="ml-2 inline-flex items-center rounded bg-[var(--surface-2)] border border-[var(--danger-border)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--danger-text)]">
                                                                             {item.specification}
                                                                         </span>
                                                                     )}
                                                                 </p>
-                                                                <p className="text-[11px] text-[#98A2B3]">Pending: {item.pending_qty}</p>
+                                                                <p className="text-[11px] text-[var(--text-faint)]">Pending: {item.pending_qty}</p>
                                                             </div>
                                                             <div className="flex items-center gap-2 shrink-0">
                                                                 <input
@@ -775,18 +775,18 @@ export default function CreateDeliveryPage() {
                                                                     max={item.pending_qty}
                                                                     value={item.quantity}
                                                                     onChange={e => globalIdx >= 0 && updateItem(globalIdx, Number(e.target.value))}
-                                                                    className="h-9 w-20 rounded-lg border border-[#E4E7EC] bg-white px-3 text-[13px] text-center text-[#101828] outline-none focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/10"
+                                                                    className="h-9 w-20 rounded-lg border border-[var(--border)] bg-white px-3 text-[13px] text-center text-[var(--text-primary)] outline-none focus:border-[var(--success-text)] focus:ring-2 focus:ring-[var(--success-text)]/10"
                                                                 />
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => globalIdx >= 0 && setMax(globalIdx)}
-                                                                    className="text-[11px] font-medium text-[#16A34A] hover:text-[#15803D] cursor-pointer transition"
+                                                                    className="text-[11px] font-medium text-[var(--success-text)] hover:text-[var(--success-text)] cursor-pointer transition"
                                                                 >
                                                                     Max
                                                                 </button>
                                                             </div>
                                                             {item.quantity > item.pending_qty && (
-                                                                <AlertCircle className="h-4 w-4 text-[#EF4444] shrink-0" />
+                                                                <AlertCircle className="h-4 w-4 text-[var(--danger-text)] shrink-0" />
                                                             )}
                                                         </div>
                                                     )
@@ -803,9 +803,9 @@ export default function CreateDeliveryPage() {
                     <Card>
                         <CardContent className="pt-4">
                             {hotelsSelected.length > 1 && (
-                                <div className="mb-3 flex items-start gap-2 rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-3 py-2.5">
-                                    <AlertCircle size={16} className="mt-0.5 shrink-0 text-[#DC2626]" />
-                                    <p className="text-[13px] text-[#991B1B]">
+                                <div className="mb-3 flex items-start gap-2 rounded-lg border border-[var(--danger-border)] bg-[var(--surface-2)] px-3 py-2.5">
+                                    <AlertCircle size={16} className="mt-0.5 shrink-0 text-[var(--danger-deep)]" />
+                                    <p className="text-[13px] text-[var(--danger-deep)]">
                                         A single delivery cannot mix hotels. This selection
                                         spans <span className="font-semibold">{hotelsSelected.join(', ')}</span>{' '}
                                         — deselect the other hotel&apos;s gate passes, or record
@@ -814,16 +814,16 @@ export default function CreateDeliveryPage() {
                                 </div>
                             )}
                             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                                <div className="text-[13px] text-[#6B7280]">
+                                <div className="text-[13px] text-[var(--text-secondary)]">
                                     Delivering{' '}
-                                    <span className="font-semibold text-[#101828]">{totalPieces}</span>{' '}
+                                    <span className="font-semibold text-[var(--text-primary)]">{totalPieces}</span>{' '}
                                     pieces across{' '}
-                                    <span className="font-semibold text-[#101828]">{itemCount}</span>{' '}
+                                    <span className="font-semibold text-[var(--text-primary)]">{itemCount}</span>{' '}
                                     item{itemCount !== 1 ? 's' : ''} from{' '}
-                                    <span className="font-semibold text-[#101828]">{form.selectedIds.length}</span>{' '}
+                                    <span className="font-semibold text-[var(--text-primary)]">{form.selectedIds.length}</span>{' '}
                                     gate pass{form.selectedIds.length !== 1 ? 'es' : ''}
                                     {hotelsSelected.length === 1 && (
-                                        <> for <span className="font-semibold text-[#101828]">{hotelsSelected[0]}</span></>
+                                        <> for <span className="font-semibold text-[var(--text-primary)]">{hotelsSelected[0]}</span></>
                                     )}
                                 </div>
                                 <div className="flex gap-2 w-full sm:w-auto">
@@ -833,7 +833,7 @@ export default function CreateDeliveryPage() {
                                     <Button
                                         type="submit"
                                         disabled={!isValid || createDelivery.isPending}
-                                        className="flex-1 sm:flex-none bg-[#16A34A] hover:bg-[#15803D] text-white disabled:opacity-40 cursor-pointer"
+                                        className="flex-1 sm:flex-none bg-[var(--success-text)] hover:bg-[var(--success)] text-white disabled:opacity-40 cursor-pointer"
                                     >
                                         {createDelivery.isPending ? 'Saving…' : `Record Delivery (${form.selectedIds.length} GP${form.selectedIds.length !== 1 ? 's' : ''})`}
                                     </Button>

@@ -140,7 +140,7 @@ const ChatWidget = () => {
         if (msg.sender === "guest") {
             return (
                 <div key={msg.id} className="flex justify-end">
-                    <div className="max-w-[80%] whitespace-pre-line rounded-2xl rounded-br-md bg-[#C1121F] px-4 py-3 text-[13px] leading-relaxed text-white">
+                    <div className="max-w-[80%] whitespace-pre-line rounded-2xl rounded-br-md bg-[var(--ll-red)] px-4 py-3 text-[13px] leading-relaxed text-white">
                         {msg.text}
                     </div>
                 </div>
@@ -149,11 +149,11 @@ const ChatWidget = () => {
         const isAdmin = msg.sender === "admin";
         return (
             <div key={msg.id} className="flex justify-start">
-                <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F9E7E9] text-[#C1121F]">
+                <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--danger-soft)] text-[var(--ll-red)]">
                     {isAdmin ? <RiUser3Line className="h-3.5 w-3.5" /> : <RiRobot2Line className="h-3.5 w-3.5" />}
                 </div>
-                <div className="max-w-[80%] whitespace-pre-line rounded-2xl rounded-bl-md bg-[#F5F5F5] px-4 py-3 text-[13px] leading-relaxed text-[#000000]">
-                    <p className="mb-0.5 text-[10px] font-semibold text-[#737373]">
+                <div className="max-w-[80%] whitespace-pre-line rounded-2xl rounded-bl-md bg-[var(--surface-2)] px-4 py-3 text-[13px] leading-relaxed text-[var(--ll-black)]">
+                    <p className="mb-0.5 text-[10px] font-semibold text-[var(--text-muted)]">
                         {isAdmin ? `Admin ${msg.senderName ?? ""}`.trim() : "Love Laundry Bot"}
                     </p>
                     {msg.text}
@@ -181,14 +181,14 @@ const ChatWidget = () => {
                     items-center
                     justify-center
                     rounded-full
-                    bg-[#C1121F]
+                    bg-[var(--ll-red)]
                     text-white
-                    shadow-[0_8px_28px_rgba(193, 18, 31, 0.4)]
+                    shadow-[0_8px_28px_rgba(255, 0, 0, 0.4)]
                     transition-all
                     duration-300
                     hover:-translate-y-1
-                    hover:bg-[#C1121F]
-                    hover:shadow-[0_12px_36px_rgba(193, 18, 31, 0.5)]
+                    hover:bg-[var(--ll-red)]
+                    hover:shadow-[0_12px_36px_rgba(255, 0, 0, 0.5)]
                     sm:bottom-8
                     sm:right-8
                     sm:h-16
@@ -229,7 +229,7 @@ const ChatWidget = () => {
                         overflow-hidden
                         rounded-2xl
                         border
-                        border-[#E5E5E5]
+                        border-[var(--border)]
                         bg-white
                         shadow-[0_24px_64px_rgba(0, 0, 0, 0.15)]
                         sm:bottom-28
@@ -242,7 +242,7 @@ const ChatWidget = () => {
                         maxHeight: "calc(100dvh - 160px)",
                     }}
                 >
-                    <div className="flex items-center gap-3 bg-[#C1121F] px-5 py-4">
+                    <div className="flex items-center gap-3 bg-[var(--ll-red)] px-5 py-4">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
                             {assignedAdmin ? (
                                 <RiUser3Line className="h-5 w-5 text-white" />
@@ -258,7 +258,7 @@ const ChatWidget = () => {
                                 {t("chatTitle")}
                             </div>
                             <div className="flex items-center gap-1.5 text-[11px] text-white/80">
-                                <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
+                                <span className="h-1.5 w-1.5 rounded-full bg-[var(--success)]" />
                                 {assignedAdmin
                                     ? `Chatting with ${assignedAdmin}`
                                     : t("chatOnline")}
@@ -275,7 +275,7 @@ const ChatWidget = () => {
                     </div>
 
                     {assignedAdmin && (
-                        <div className="bg-[#F9E7E9] px-5 py-2 text-center text-[11px] font-medium text-[#C1121F]">
+                        <div className="bg-[var(--danger-soft)] px-5 py-2 text-center text-[11px] font-medium text-[var(--ll-red)]">
                             You're now chatting with {assignedAdmin} from Love Laundry.
                         </div>
                     )}
@@ -287,10 +287,10 @@ const ChatWidget = () => {
                     >
                         {messages.length === 0 ? (
                             <div className="flex justify-start">
-                                <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F9E7E9] text-[#C1121F]">
+                                <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--danger-soft)] text-[var(--ll-red)]">
                                     <RiRobot2Line className="h-3.5 w-3.5" />
                                 </div>
-                                <div className="max-w-[80%] whitespace-pre-line rounded-2xl rounded-bl-md bg-[#F5F5F5] px-4 py-3 text-[13px] leading-relaxed text-[#000000]">
+                                <div className="max-w-[80%] whitespace-pre-line rounded-2xl rounded-bl-md bg-[var(--surface-2)] px-4 py-3 text-[13px] leading-relaxed text-[var(--ll-black)]">
                                     {t("chatWelcome")}
                                 </div>
                             </div>
@@ -300,13 +300,13 @@ const ChatWidget = () => {
 
                         {isTyping && (
                             <div className="flex justify-start">
-                                <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F9E7E9] text-[#C1121F]">
+                                <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--danger-soft)] text-[var(--ll-red)]">
                                     <RiRobot2Line className="h-3.5 w-3.5" />
                                 </div>
-                                <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-[#F5F5F5] px-4 py-3">
-                                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#737373]" style={{ animationDelay: "0ms" }} />
-                                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#737373]" style={{ animationDelay: "150ms" }} />
-                                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#737373]" style={{ animationDelay: "300ms" }} />
+                                <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-[var(--surface-2)] px-4 py-3">
+                                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--text-muted)]" style={{ animationDelay: "0ms" }} />
+                                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--text-muted)]" style={{ animationDelay: "150ms" }} />
+                                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--text-muted)]" style={{ animationDelay: "300ms" }} />
                                 </div>
                             </div>
                         )}
@@ -314,12 +314,12 @@ const ChatWidget = () => {
                     </div>
 
                     {sendError && (
-                        <p role="alert" className="border-t border-[#E5E5E5] px-4 py-2 text-xs text-[#C1121F]">
+                        <p role="alert" className="border-t border-[var(--border)] px-4 py-2 text-xs text-[var(--ll-red)]">
                             {sendError}
                         </p>
                     )}
 
-                    <div className="flex gap-2 overflow-x-auto border-t border-[#E5E5E5] px-4 py-2.5">
+                    <div className="flex gap-2 overflow-x-auto border-t border-[var(--border)] px-4 py-2.5">
                         {[
                             { value: "Services", label: t("chatQuickServices") },
                             { value: "Pricing", label: t("chatQuickPricing") },
@@ -335,18 +335,18 @@ const ChatWidget = () => {
                                     shrink-0
                                     rounded-full
                                     border
-                                    border-[#E5E5E5]
+                                    border-[var(--border)]
                                     bg-white
                                     px-3
                                     py-1.5
                                     text-[11px]
                                     font-semibold
-                                    text-[#404040]
+                                    text-[var(--text-secondary)]
                                     transition-all
                                     duration-200
-                                    hover:border-[#C1121F]/30
-                                    hover:bg-[#F9E7E9]
-                                    hover:text-[#C1121F]
+                                    hover:border-[var(--ll-red)]/30
+                                    hover:bg-[var(--danger-soft)]
+                                    hover:text-[var(--ll-red)]
                                     disabled:cursor-not-allowed
                                     disabled:opacity-50
                                 "
@@ -357,7 +357,7 @@ const ChatWidget = () => {
                     </div>
 
                     <form
-                        className="flex items-center gap-2 border-t border-[#E5E5E5] px-4 py-3"
+                        className="flex items-center gap-2 border-t border-[var(--border)] px-4 py-3"
                         onSubmit={(event) => {
                             event.preventDefault();
                             sendMessage(input);
@@ -378,17 +378,17 @@ const ChatWidget = () => {
                                 flex-1
                                 rounded-full
                                 border
-                                border-[#E5E5E5]
+                                border-[var(--border)]
                                 bg-white
                                 px-4
                                 py-2.5
                                 text-[13px]
-                                text-[#000000]
-                                placeholder-[#A3A3A3]
+                                text-[var(--ll-black)]
+                                placeholder-[var(--text-faint)]
                                 outline-none
                                 transition-colors
                                 duration-200
-                                focus:border-[#C1121F]/40
+                                focus:border-[var(--ll-red)]/40
                                 focus:bg-white
                             "
                         />
@@ -404,12 +404,12 @@ const ChatWidget = () => {
                                 items-center
                                 justify-center
                                 rounded-full
-                                bg-[#C1121F]
+                                bg-[var(--ll-red)]
                                 text-white
-                                shadow-[0_4px_12px_rgba(193, 18, 31, 0.25)]
+                                shadow-[0_4px_12px_rgba(255, 0, 0, 0.25)]
                                 transition-all
                                 duration-200
-                                hover:bg-[#C1121F]
+                                hover:bg-[var(--ll-red)]
                                 disabled:cursor-not-allowed
                                 disabled:opacity-40
                             "
@@ -418,7 +418,7 @@ const ChatWidget = () => {
                         </button>
                     </form>
 
-                    <div className="border-t border-[#E5E5E5] px-4 py-2 text-center text-[10px] text-[#A3A3A3]">
+                    <div className="border-t border-[var(--border)] px-4 py-2 text-center text-[10px] text-[var(--text-faint)]">
                         {t("chatPowered")}
                     </div>
                 </div>

@@ -39,7 +39,7 @@ const printStyles = `
 
     .inv-table th,
     .inv-table td {
-      border: 1px solid #D1D5DB;
+      border: 1px solid #BFBFBF;
       padding: 5px 6px;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -48,11 +48,11 @@ const printStyles = `
     }
 
     .inv-table th {
-      background: #DC2626;
+      background: var(--danger-deep);
       color: #fff;
       font-weight: 600;
       text-align: left;
-      border-color: #DC2626;
+      border-color: var(--danger-deep);
     }
     .inv-table th.num { text-align: right; }
     .inv-table th.ctr { text-align: center; }
@@ -61,9 +61,9 @@ const printStyles = `
     .inv-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
     .inv-table td.ctr { text-align: center; }
     .inv-table td.bold { font-weight: 600; }
-    .inv-table td.red  { color: #DC2626; font-weight: 600; }
+    .inv-table td.red  { color: var(--danger-deep); font-weight: 600; }
 
-    .inv-table tbody tr:nth-child(even) { background: #F9FAFB; }
+    .inv-table tbody tr:nth-child(even) { background: var(--surface); }
 
     /* Page-break controls */
     .inv-table thead { display: table-header-group; }
@@ -99,7 +99,7 @@ const printStyles = `
   .inv-table td { text-align: left; }
   .inv-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
   .inv-table td.ctr { text-align: center; }
-  .inv-table tbody tr:nth-child(even) { background: #F9FAFB; }
+  .inv-table tbody tr:nth-child(even) { background: var(--surface); }
 `
 
 export const ConsolidatedInvoiceTemplate = React.forwardRef<HTMLDivElement, ConsolidatedInvoiceTemplateProps>(
@@ -124,18 +124,18 @@ export const ConsolidatedInvoiceTemplate = React.forwardRef<HTMLDivElement, Cons
               <img
                 src="/icon.png"
                 alt="Love Laundry"
-                style={{ width: 72, height: 72, objectFit: 'contain', border: '2px solid #000', borderRadius: 0, padding: 3, background: '#fafafa' }}
+                style={{ width: 72, height: 72, objectFit: 'contain', border: '2px solid #000', borderRadius: 0, padding: 3, background: 'var(--surface-2)' }}
               />
             </div>
             <div style={{ textAlign: 'center', flex: 1 }}>
               <h1 style={{ fontSize: 22, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2, lineHeight: 1.2, margin: '0 0 3px 0' }}>
                 {COMPANY.name}
               </h1>
-              <h2 style={{ fontSize: 13, fontWeight: 500, fontStyle: 'italic', margin: 0, color: '#333' }}>
+              <h2 style={{ fontSize: 13, fontWeight: 500, fontStyle: 'italic', margin: 0, color: 'var(--text-primary)' }}>
                 {COMPANY.tagline}
               </h2>
             </div>
-            <div style={{ fontSize: 11, fontWeight: 600, textAlign: 'right', whiteSpace: 'nowrap', border: '1px solid #000', padding: '5px 10px', background: '#f9f9f9', borderRadius: 0, flexShrink: 0 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, textAlign: 'right', whiteSpace: 'nowrap', border: '1px solid #000', padding: '5px 10px', background: 'var(--surface)', borderRadius: 0, flexShrink: 0 }}>
               Reg. No: {COMPANY.registrationNo}
             </div>
           </div>
@@ -144,7 +144,7 @@ export const ConsolidatedInvoiceTemplate = React.forwardRef<HTMLDivElement, Cons
           <div style={{ display: 'flex', justifyContent: 'center', gap: 18, fontSize: 10, fontWeight: 600, borderBottom: '2px solid #000', paddingBottom: 8, marginBottom: 10, flexWrap: 'wrap' }}>
             {['Dry Cleaning', 'Free Pickup & Delivery', 'Wash & Pressed', 'Wash & Fold', 'Laundered Pressed'].map(s => (
               <span key={s} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#DC2626', display: 'inline-block' }} />
+                <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--danger-deep)', display: 'inline-block' }} />
                 {s}
               </span>
             ))}
@@ -202,7 +202,7 @@ export const ConsolidatedInvoiceTemplate = React.forwardRef<HTMLDivElement, Cons
             <tbody>
               {unpaid.length === 0 && (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', color: '#6B7280', whiteSpace: 'normal' }}>
+                  <td colSpan={6} style={{ textAlign: 'center', color: 'var(--text-secondary)', whiteSpace: 'normal' }}>
                     No unpaid bills in the selected period.
                   </td>
                 </tr>
@@ -220,10 +220,10 @@ export const ConsolidatedInvoiceTemplate = React.forwardRef<HTMLDivElement, Cons
             </tbody>
             <tfoot>
               <tr>
-                <td colSpan={3} style={{ textAlign: 'right', fontWeight: 700, background: '#F3F4F6' }}>TOTALS</td>
-                <td className="num bold" style={{ background: '#F3F4F6' }}>{g(totalBilled)}</td>
-                <td className="num bold" style={{ background: '#F3F4F6' }}>{g(totalPaid)}</td>
-                <td className="num red" style={{ background: '#F3F4F6' }}>{g(totalOutstanding)}</td>
+                <td colSpan={3} style={{ textAlign: 'right', fontWeight: 700, background: 'var(--surface)' }}>TOTALS</td>
+                <td className="num bold" style={{ background: 'var(--surface)' }}>{g(totalBilled)}</td>
+                <td className="num bold" style={{ background: 'var(--surface)' }}>{g(totalPaid)}</td>
+                <td className="num red" style={{ background: 'var(--surface)' }}>{g(totalOutstanding)}</td>
               </tr>
             </tfoot>
           </table>
@@ -231,18 +231,18 @@ export const ConsolidatedInvoiceTemplate = React.forwardRef<HTMLDivElement, Cons
           {/* ── Outstanding notice + notes (kept together) ── */}
           <div className="inv-footer-block">
             {/* Outstanding notice */}
-            <div style={{ marginTop: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '2px solid #DC2626', background: '#FFF1F1', padding: '10px 16px' }}>
+            <div style={{ marginTop: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '2px solid #FF0000', background: 'var(--surface)', padding: '10px 16px' }}>
               <div>
-                <p style={{ fontWeight: 800, textTransform: 'uppercase', color: '#DC2626', fontSize: 12, margin: 0 }}>Total Outstanding</p>
-                <p style={{ fontSize: 10, color: '#6B7280', margin: '3px 0 0 0' }}>
+                <p style={{ fontWeight: 800, textTransform: 'uppercase', color: 'var(--danger-deep)', fontSize: 12, margin: 0 }}>Total Outstanding</p>
+                <p style={{ fontSize: 10, color: 'var(--text-secondary)', margin: '3px 0 0 0' }}>
                   This amount is due across {unpaid.length} unpaid bill{unpaid.length === 1 ? '' : 's'} in the selected period.
                 </p>
               </div>
-              <p style={{ fontSize: 20, fontWeight: 800, color: '#DC2626', margin: 0, whiteSpace: 'nowrap' }}>LKR {g(totalOutstanding)}</p>
+              <p style={{ fontSize: 20, fontWeight: 800, color: 'var(--danger-deep)', margin: 0, whiteSpace: 'nowrap' }}>LKR {g(totalOutstanding)}</p>
             </div>
 
             {/* Notes */}
-            <div style={{ marginTop: 16, fontSize: 9, color: '#6B7280', lineHeight: 1.5, borderTop: '1px solid #D1D5DB', paddingTop: 10 }}>
+            <div style={{ marginTop: 16, fontSize: 9, color: 'var(--text-secondary)', lineHeight: 1.5, borderTop: '1px solid #BFBFBF', paddingTop: 10 }}>
               <p style={{ fontWeight: 700, color: '#000', margin: '0 0 3px 0', fontSize: 10 }}>Notes:</p>
               <ul style={{ margin: 0, paddingLeft: 16 }}>
                 <li>Payments received after the generated date are not reflected on this invoice.</li>

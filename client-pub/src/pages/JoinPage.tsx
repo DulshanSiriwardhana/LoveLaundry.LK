@@ -7,7 +7,7 @@ const JoinPage = () => {
                 and hotel linen. Roles cover laundry operations, pressing and folding,
                 pickup and delivery, and customer coordination at our Chilaw site.
             </p>
-            <div className="rounded-xl border border-green-600 bg-white p-4">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
                 <p className="font-semibold">How to apply</p>
                 <p className="mt-2 text-sm">
                     Send a WhatsApp message to +94 77 420 0919 telling us which kind

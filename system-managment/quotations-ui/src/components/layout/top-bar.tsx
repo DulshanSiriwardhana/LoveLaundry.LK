@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useId } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MagnifyingGlass, Bell, List, SignOut, User, UserCircle, PaperPlaneTilt, FileText } from '@phosphor-icons/react'
 import { cn } from '../../lib/utils'
+import { ThemeSwitcher } from '../../ll-theme'
 import { useAuth } from '../../context/AuthContext'
 import { useNotifications } from '../../features/quotations/hooks/useNotifications'
 import { NotificationDetailDialog } from '../../features/quotations/components/notification-detail-dialog'
@@ -288,6 +289,8 @@ export function TopBar({
               </div>
             )}
           </div>
+
+          <ThemeSwitcher compact />
 
           {/* Account */}
           <DropdownMenu

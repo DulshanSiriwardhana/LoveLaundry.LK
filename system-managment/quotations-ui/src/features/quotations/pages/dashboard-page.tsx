@@ -34,7 +34,7 @@ const TOOLTIP_STYLE = {
   background: 'var(--surface)',
   color: 'var(--text-primary)',
   fontSize: 12,
-  boxShadow: '0 4px 12px rgb(16 24 40 / 0.08)',
+  boxShadow: '0 4px 12px rgba(0, 0, 139, 0.08)',
 } as const
 
 const EXPORT_TARGETS = [

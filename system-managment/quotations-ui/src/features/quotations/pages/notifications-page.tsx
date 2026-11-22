@@ -85,7 +85,7 @@ export default function NotificationsPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-dashboard-title">Notifications</h1>
-          <p className="text-[13px] text-[#98A2B3] mt-0.5">
+          <p className="text-[13px] text-[var(--text-faint)] mt-0.5">
             {totalCount > 0
               ? `${totalCount} item${totalCount !== 1 ? 's' : ''} need your attention`
               : 'Everything is up to date'}
@@ -103,24 +103,24 @@ export default function NotificationsPage() {
 
       {/* Tabs + Search */}
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex gap-1 bg-[#F3F4F6] rounded-xl p-1 w-fit">
+        <div className="flex gap-1 bg-[var(--surface-2)] rounded-xl p-1 w-fit">
           {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setFilter(tab.key)}
               className={`flex items-center gap-2 px-4 py-2 text-[13px] font-medium rounded-lg transition-all cursor-pointer ${
                 filter === tab.key
-                  ? 'bg-white text-[#101828] shadow-sm'
-                  : 'text-[#6B7280] hover:text-[#111827]'
+                  ? 'bg-white text-[var(--text-primary)] shadow-sm'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               {tab.label}
               <span className={`inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-[10px] font-bold ${
                 tab.count > 0 && tab.key !== 'all'
-                  ? 'bg-[#DC2626] text-white'
+                  ? 'bg-[var(--danger-deep)] text-white'
                   : filter === tab.key
-                    ? 'bg-[#F3F4F6] text-[#6B7280]'
-                    : 'bg-[#E5E7EB] text-[#6B7280]'
+                    ? 'bg-[var(--surface-2)] text-[var(--text-secondary)]'
+                    : 'bg-[var(--surface-2)] text-[var(--text-secondary)]'
               }`}>
                 {tab.count}
               </span>
@@ -129,17 +129,17 @@ export default function NotificationsPage() {
         </div>
 
         <div className="relative w-full md:w-72">
-          <RiSearchLine size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#98A2B3]" />
+          <RiSearchLine size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-faint)]" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search client, item or gate pass..."
-            className="h-10 w-full rounded-lg border border-[#E4E7EC] bg-white pl-9 pr-9 text-[13px] text-[#101828] outline-none focus:border-[#DC2626] focus:ring-2 focus:ring-[#DC2626]/10 transition"
+            className="h-10 w-full rounded-lg border border-[var(--border)] bg-white pl-9 pr-9 text-[13px] text-[var(--text-primary)] outline-none focus:border-[var(--danger-deep)] focus:ring-2 focus:ring-[var(--danger-deep)]/10 transition"
           />
           {search && (
             <button
               onClick={() => setSearch('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#98A2B3] hover:text-[#111827]"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-faint)] hover:text-[var(--text-primary)]"
               aria-label="Clear search"
             >
               <RiCloseLine size={15} />
@@ -157,38 +157,38 @@ export default function NotificationsPage() {
             : "You're all caught up. No gate pass items pending to be sent or quotations waiting to be billed."}
         />
       ) : (
-        <div className="rounded-2xl border border-[#E4E7EC] bg-white overflow-hidden shadow-sm divide-y divide-[#F2F4F7]">
+        <div className="rounded-2xl border border-[var(--border)] bg-white overflow-hidden shadow-sm divide-y divide-[var(--border)]">
           {filtered.map((row, idx) => {
             if (row.kind === 'gatepass_pending') {
               const e = row.entry
               return (
                 <div
                   key={`gp-${e.gate_pass_id}-${e.item_name}-${idx}`}
-                  className="flex items-start justify-between gap-4 px-5 py-4 hover:bg-[#FAFAFA] transition-colors"
+                  className="flex items-start justify-between gap-4 px-5 py-4 hover:bg-[var(--surface-2)] transition-colors"
                 >
                   <button
                     onClick={() => setSelected(row)}
                     className="flex items-start gap-4 flex-1 min-w-0 text-left cursor-pointer"
                   >
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border bg-[#FEF2F2] text-[#DC2626] border-[#FECACA]">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border bg-[var(--surface-2)] text-[var(--danger-deep)] border-[var(--danger-border)]">
                       <RiTruckLine size={20} />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-[14px] font-semibold text-[#101828] truncate">
+                        <p className="text-[14px] font-semibold text-[var(--text-primary)] truncate">
                           {e.item_name}
                         </p>
-                        <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide whitespace-nowrap bg-[#FEF2F2] text-[#DC2626] border-[#FECACA]">
+                        <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide whitespace-nowrap bg-[var(--surface-2)] text-[var(--danger-deep)] border-[var(--danger-border)]">
                           Pending to Send
                         </span>
                       </div>
-                      <p className="text-[12px] text-[#6B7280] mt-0.5 truncate">
+                      <p className="text-[12px] text-[var(--text-secondary)] mt-0.5 truncate">
                         {e.client_name} · Gate Pass #{e.gate_pass_number}
                       </p>
-                      <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#98A2B3]">
+                      <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[var(--text-faint)]">
                         <span>Received: {e.received}</span>
                         <span>Delivered: {e.delivered}</span>
-                        <span className="font-semibold text-[#DC2626]">Pending: {e.pending}</span>
+                        <span className="font-semibold text-[var(--danger-deep)]">Pending: {e.pending}</span>
                       </div>
                     </div>
                   </button>
@@ -204,13 +204,13 @@ export default function NotificationsPage() {
                     <Button
                       size="sm"
                       onClick={() => navigate(`/gate-passes/${e.gate_pass_id}`)}
-                      className="bg-[#DC2626] hover:bg-[#B91C1C]"
+                      className="bg-[var(--danger-deep)] hover:bg-[var(--danger-deep)]"
                     >
                       <RiTruckLine size={14} /> View Gate Pass
                     </Button>
                     <button
                       onClick={() => setSelected(row)}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg text-[#98A2B3] hover:bg-[#F3F4F6] hover:text-[#111827] transition-colors cursor-pointer"
+                      className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-faint)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
                       aria-label="Open details"
                     >
                       <RiArrowRightSLine size={18} />
@@ -224,33 +224,33 @@ export default function NotificationsPage() {
             return (
               <div
                 key={`q-${q.id}-${idx}`}
-                className="flex items-start justify-between gap-4 px-5 py-4 hover:bg-[#FAFAFA] transition-colors"
+                className="flex items-start justify-between gap-4 px-5 py-4 hover:bg-[var(--surface-2)] transition-colors"
               >
                 <button
                   onClick={() => setSelected(row)}
                   className="flex items-start gap-4 flex-1 min-w-0 text-left cursor-pointer"
                 >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border bg-[#FFF7ED] text-[#EA580C] border-[#FED7AA]">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border bg-[var(--surface-2)] text-[var(--danger-text)] border-[var(--danger-border)]">
                     <RiFileTextLine size={20} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-[14px] font-semibold text-[#101828] truncate">
+                      <p className="text-[14px] font-semibold text-[var(--text-primary)] truncate">
                         {q.client_name}
                       </p>
-                      <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide whitespace-nowrap bg-[#FFF7ED] text-[#EA580C] border-[#FED7AA]">
+                      <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide whitespace-nowrap bg-[var(--surface-2)] text-[var(--danger-text)] border-[var(--danger-border)]">
                         Ready for Billing
                       </span>
                       {q.tag && (
-                        <span className="inline-flex items-center rounded-full bg-[#F3F4F6] border border-[#E5E7EB] px-2 py-0.5 text-[10px] font-semibold uppercase text-[#6B7280]">
+                        <span className="inline-flex items-center rounded-full bg-[var(--surface-2)] border border-[var(--border)] px-2 py-0.5 text-[10px] font-semibold uppercase text-[var(--text-secondary)]">
                           {q.tag}
                         </span>
                       )}
                     </div>
-                    <p className="text-[12px] text-[#6B7280] mt-0.5 truncate">
+                    <p className="text-[12px] text-[var(--text-secondary)] mt-0.5 truncate">
                       {q.quotation_title || 'General Price List'} · #{String(q.id).slice(0, 8)}
                     </p>
-                    <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#98A2B3]">
+                    <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[var(--text-faint)]">
                       <span>{q.line_items?.length ?? 0} items</span>
                       <span>
                         LKR {(q.line_items ?? []).reduce((sum, li) => sum + li.unit_price, 0).toFixed(2)} total rate value
@@ -270,13 +270,13 @@ export default function NotificationsPage() {
                   <Button
                     size="sm"
                     onClick={() => handleAction(row)}
-                    className="bg-[#101828] hover:bg-[#374151]"
+                    className="bg-[var(--text-primary)] hover:bg-[var(--text-primary)]"
                   >
                     <RiAddLine size={14} /> Create Bill
                   </Button>
                   <button
                     onClick={() => setSelected(row)}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-[#98A2B3] hover:bg-[#F3F4F6] hover:text-[#111827] transition-colors cursor-pointer"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-faint)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
                     aria-label="Open details"
                   >
                     <RiArrowRightSLine size={18} />

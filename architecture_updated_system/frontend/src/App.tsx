@@ -16,6 +16,7 @@ import {
 } from "react-router-dom";
 import { api, getToken, setToken, type LoginResponse } from "./api";
 import { GROUPS, ROUTES } from "./routes";
+import { ThemeSwitcher } from "./ll-theme";
 
 type AuthUser = LoginResponse["user"];
 
@@ -87,6 +88,7 @@ function LoginPage() {
   return (
     <div className="login">
       <form className="login-card" onSubmit={submit}>
+        <div className="theme-row"><ThemeSwitcher compact /></div>
         <h1>LoveLaundry</h1>
         <p className="muted">Sign in to continue</p>
         <input placeholder="User name" value={userName} onChange={(e) => setUserName(e.target.value)} />
@@ -164,6 +166,7 @@ function Layout() {
       </aside>
       <main className="content">
         <header className="content-head">
+          <ThemeSwitcher compact />
           <span className="mono muted">{user?.user_name} · {user?.role_id}</span>
           <button
             className="link"

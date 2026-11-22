@@ -16,11 +16,11 @@ import type { DispatchJob, DispatchStatus, RoutePlan } from '../../../types/oper
 import { toISODateTime } from '../../../lib/time'
 
 const STATUS_STYLE: Record<DispatchStatus, string> = {
-  SCHEDULED: 'bg-[#EFF4FF] text-[#3538CD] border-[#C7D7FE]',
-  ASSIGNED: 'bg-[#F2F4F7] text-[#475467] border-[#E4E7EC]',
-  EN_ROUTE: 'bg-[#FEF6E7] text-[#B54708] border-[#FCE7C0]',
-  COMPLETED: 'bg-[#ECFDF3] text-[#027A48] border-[#ABEFC6]',
-  CANCELLED: 'bg-[#FEF3F2] text-[#B42318] border-[#FECDCA]',
+  SCHEDULED: 'bg-[var(--surface-2)] text-[var(--brand-deep)] border-[var(--brand-border)]',
+  ASSIGNED: 'bg-[var(--surface-2)] text-[var(--brand-deep)] border-[var(--border)]',
+  EN_ROUTE: 'bg-[var(--surface-2)] text-[var(--danger-deep)] border-[var(--danger-border)]',
+  COMPLETED: 'bg-[var(--surface-2)] text-[var(--success-text)] border-[var(--success-border)]',
+  CANCELLED: 'bg-[var(--surface-2)] text-[var(--danger-deep)] border-[var(--danger-border)]',
 }
 
 const NEXT_STATUS: Partial<Record<DispatchStatus, DispatchStatus>> = {
@@ -61,11 +61,11 @@ export default function DispatchPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="flex items-center gap-2 text-[20px] font-bold text-[#101828]">
-            <Truck className="h-5 w-5 text-[#E01E31]" />
+          <h1 className="flex items-center gap-2 text-[20px] font-bold text-[var(--text-primary)]">
+            <Truck className="h-5 w-5 text-[var(--danger-deep)]" />
             Dispatch &amp; Pickups
           </h1>
-          <p className="text-[13px] text-[#667085]">
+          <p className="text-[13px] text-[var(--brand-text)]">
             Schedule customer pickups and deliveries, assign drivers and track each job.
           </p>
         </div>
@@ -86,8 +86,8 @@ export default function DispatchPage() {
             onClick={() => setTypeFilter(t)}
             className={`rounded-full border px-3 py-1.5 text-[12px] font-semibold ${
               typeFilter === t
-                ? 'border-[#E01E31] bg-[#FEF2F2] text-[#E01E31]'
-                : 'border-[#E5E5E5] text-[#475467]'
+                ? 'border-[var(--danger-deep)] bg-[var(--surface-2)] text-[var(--danger-deep)]'
+                : 'border-[var(--border)] text-[var(--brand-deep)]'
             }`}
           >
             {t === '' ? 'All types' : t === 'pickup' ? 'Pickups' : 'Deliveries'}
@@ -100,8 +100,8 @@ export default function DispatchPage() {
               onClick={() => setStatusFilter(s)}
               className={`rounded-full border px-3 py-1.5 text-[12px] font-semibold ${
                 statusFilter === s
-                  ? 'border-[#E01E31] bg-[#FEF2F2] text-[#E01E31]'
-                  : 'border-[#E5E5E5] text-[#475467]'
+                  ? 'border-[var(--danger-deep)] bg-[var(--surface-2)] text-[var(--danger-deep)]'
+                  : 'border-[var(--border)] text-[var(--brand-deep)]'
               }`}
             >
               {s === '' ? 'All statuses' : STATUS_LABEL[s]}
@@ -111,7 +111,7 @@ export default function DispatchPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-[13px] text-[#98A2B3]">Loading jobs…</p>
+        <p className="text-[13px] text-[var(--text-faint)]">Loading jobs…</p>
       ) : jobs.length === 0 ? (
         <EmptyState
           title="No dispatch jobs"
@@ -184,8 +184,8 @@ function JobCard({
       <CardContent className="space-y-3 pt-5">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <p className="text-[14px] font-semibold text-[#101828]">{job.client_name}</p>
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-[#98A2B3]">
+            <p className="text-[14px] font-semibold text-[var(--text-primary)]">{job.client_name}</p>
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-faint)]">
               {job.job_type === 'pickup' ? 'Pickup' : 'Delivery'}
             </span>
           </div>
@@ -199,20 +199,20 @@ function JobCard({
         </div>
 
         {job.address && (
-          <p className="flex items-start gap-1.5 text-[12px] text-[#475467]">
-            <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#98A2B3]" />
+          <p className="flex items-start gap-1.5 text-[12px] text-[var(--brand-deep)]">
+            <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--text-faint)]" />
             {job.address}
           </p>
         )}
         {job.scheduled_at && (
-          <p className="flex items-center gap-1.5 text-[12px] text-[#475467]">
-            <CalendarDays className="h-3.5 w-3.5 text-[#98A2B3]" />
+          <p className="flex items-center gap-1.5 text-[12px] text-[var(--brand-deep)]">
+            <CalendarDays className="h-3.5 w-3.5 text-[var(--text-faint)]" />
             {formatDate(job.scheduled_at)}
           </p>
         )}
         {job.contact_name && (
-          <p className="flex items-center gap-1.5 text-[12px] text-[#475467]">
-            <User className="h-3.5 w-3.5 text-[#98A2B3]" />
+          <p className="flex items-center gap-1.5 text-[12px] text-[var(--brand-deep)]">
+            <User className="h-3.5 w-3.5 text-[var(--text-faint)]" />
             {job.contact_name}
             {job.contact_phone ? ` · ${job.contact_phone}` : ''}
           </p>
@@ -223,7 +223,7 @@ function JobCard({
             value={driver}
             onChange={(e) => setDriver(e.target.value)}
             placeholder="Assign driver"
-            className="flex-1 rounded-lg border border-[#E5E5E5] px-2.5 py-1.5 text-[12px] outline-none focus:border-[#E01E31]"
+            className="flex-1 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-[12px] outline-none focus:border-[var(--danger-deep)]"
           />
           <Button size="sm" variant="outline" onClick={() => onAssign(driver)}>
             Assign
@@ -244,7 +244,7 @@ function JobCard({
           <Button
             size="sm"
             variant="ghost"
-            className="text-[#B42318]"
+            className="text-[var(--danger-deep)]"
             onClick={() => setShowDeleteConfirm(true)}
           >
             Delete
@@ -302,9 +302,9 @@ function NewJobModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-md rounded-2xl bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-[#F2F2F2] px-5 py-4">
-          <h3 className="text-[15px] font-semibold text-[#101828]">New Dispatch Job</h3>
-          <button onClick={onClose} aria-label="Close" className="rounded-lg p-1.5 hover:bg-[#F5F5F5]">
+        <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
+          <h3 className="text-[15px] font-semibold text-[var(--text-primary)]">New Dispatch Job</h3>
+          <button onClick={onClose} aria-label="Close" className="rounded-lg p-1.5 hover:bg-[var(--surface-2)]">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -316,8 +316,8 @@ function NewJobModal({
                 onClick={() => set('job_type', t)}
                 className={`flex-1 rounded-lg border px-3 py-2 text-[12px] font-semibold capitalize ${
                   form.job_type === t
-                    ? 'border-[#E01E31] bg-[#FEF2F2] text-[#E01E31]'
-                    : 'border-[#E5E5E5] text-[#475467]'
+                    ? 'border-[var(--danger-deep)] bg-[var(--surface-2)] text-[var(--danger-deep)]'
+                    : 'border-[var(--border)] text-[var(--brand-deep)]'
                 }`}
               >
                 {t}
@@ -328,14 +328,14 @@ function NewJobModal({
             <input
               value={form.client_name}
               onChange={(e) => set('client_name', e.target.value)}
-              className="w-full rounded-lg border border-[#E5E5E5] px-3 py-2 text-[13px] outline-none focus:border-[#E01E31]"
+              className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-[13px] outline-none focus:border-[var(--danger-deep)]"
             />
           </Field>
           <Field label="Address">
             <input
               value={form.address}
               onChange={(e) => set('address', e.target.value)}
-              className="w-full rounded-lg border border-[#E5E5E5] px-3 py-2 text-[13px] outline-none focus:border-[#E01E31]"
+              className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-[13px] outline-none focus:border-[var(--danger-deep)]"
             />
           </Field>
           <div className="grid grid-cols-2 gap-3">
@@ -343,14 +343,14 @@ function NewJobModal({
               <input
                 value={form.contact_name}
                 onChange={(e) => set('contact_name', e.target.value)}
-                className="w-full rounded-lg border border-[#E5E5E5] px-3 py-2 text-[13px] outline-none focus:border-[#E01E31]"
+                className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-[13px] outline-none focus:border-[var(--danger-deep)]"
               />
             </Field>
             <Field label="Contact phone">
               <input
                 value={form.contact_phone}
                 onChange={(e) => set('contact_phone', e.target.value)}
-                className="w-full rounded-lg border border-[#E5E5E5] px-3 py-2 text-[13px] outline-none focus:border-[#E01E31]"
+                className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-[13px] outline-none focus:border-[var(--danger-deep)]"
               />
             </Field>
           </div>
@@ -359,14 +359,14 @@ function NewJobModal({
               type="datetime-local"
               value={form.scheduled_at}
               onChange={(e) => set('scheduled_at', e.target.value)}
-              className="w-full rounded-lg border border-[#E5E5E5] px-3 py-2 text-[13px] outline-none focus:border-[#E01E31]"
+              className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-[13px] outline-none focus:border-[var(--danger-deep)]"
             />
           </Field>
           <Field label="Assign driver">
             <input
               value={form.assigned_to}
               onChange={(e) => set('assigned_to', e.target.value)}
-              className="w-full rounded-lg border border-[#E5E5E5] px-3 py-2 text-[13px] outline-none focus:border-[#E01E31]"
+              className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-[13px] outline-none focus:border-[var(--danger-deep)]"
             />
           </Field>
           <div className="grid grid-cols-2 gap-3">
@@ -376,7 +376,7 @@ function NewJobModal({
                 step="any"
                 value={form.latitude}
                 onChange={(e) => set('latitude', e.target.value)}
-                className="w-full rounded-lg border border-[#E5E5E5] px-3 py-2 text-[13px] outline-none focus:border-[#E01E31]"
+                className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-[13px] outline-none focus:border-[var(--danger-deep)]"
               />
             </Field>
             <Field label="Longitude (optional)">
@@ -385,7 +385,7 @@ function NewJobModal({
                 step="any"
                 value={form.longitude}
                 onChange={(e) => set('longitude', e.target.value)}
-                className="w-full rounded-lg border border-[#E5E5E5] px-3 py-2 text-[13px] outline-none focus:border-[#E01E31]"
+                className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-[13px] outline-none focus:border-[var(--danger-deep)]"
               />
             </Field>
           </div>
@@ -394,11 +394,11 @@ function NewJobModal({
               value={form.notes}
               onChange={(e) => set('notes', e.target.value)}
               rows={2}
-              className="w-full rounded-lg border border-[#E5E5E5] px-3 py-2 text-[13px] outline-none focus:border-[#E01E31]"
+              className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-[13px] outline-none focus:border-[var(--danger-deep)]"
             />
           </Field>
         </div>
-        <div className="flex justify-end gap-2 border-t border-[#F2F2F2] px-5 py-4">
+        <div className="flex justify-end gap-2 border-t border-[var(--border)] px-5 py-4">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
@@ -440,9 +440,9 @@ function RoutePlannerModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-md rounded-2xl bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-[#F2F2F2] px-5 py-4">
-          <h3 className="text-[15px] font-semibold text-[#101828]">Plan Driver Route</h3>
-          <button onClick={onClose} aria-label="Close" className="rounded-lg p-1.5 hover:bg-[#F5F5F5]">
+        <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
+          <h3 className="text-[15px] font-semibold text-[var(--text-primary)]">Plan Driver Route</h3>
+          <button onClick={onClose} aria-label="Close" className="rounded-lg p-1.5 hover:bg-[var(--surface-2)]">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -452,7 +452,7 @@ function RoutePlannerModal({
               value={driver}
               onChange={(e) => setDriver(e.target.value)}
               placeholder="Driver name"
-              className="w-full rounded-lg border border-[#E5E5E5] px-3 py-2 text-[13px] outline-none focus:border-[#E01E31]"
+              className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-[13px] outline-none focus:border-[var(--danger-deep)]"
             />
           </Field>
           <Field label="Date (optional)">
@@ -460,22 +460,22 @@ function RoutePlannerModal({
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full rounded-lg border border-[#E5E5E5] px-3 py-2 text-[13px] outline-none focus:border-[#E01E31]"
+              className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-[13px] outline-none focus:border-[var(--danger-deep)]"
             />
           </Field>
 
           {plan && plan.stops.length > 0 && (
-            <ol className="space-y-2 rounded-xl border border-[#EEF0F3] p-3">
+            <ol className="space-y-2 rounded-xl border border-[var(--border)] p-3">
               {plan.stops.map((stop, i) => (
                 <li key={stop.id} className="flex items-start gap-3">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#E01E31] text-[11px] font-bold text-white">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--danger-deep)] text-[11px] font-bold text-white">
                     {i + 1}
                   </span>
                   <div>
-                    <p className="text-[13px] font-semibold text-[#101828]">
+                    <p className="text-[13px] font-semibold text-[var(--text-primary)]">
                       {stop.client_name}
                     </p>
-                    <p className="text-[11px] text-[#667085]">
+                    <p className="text-[11px] text-[var(--brand-text)]">
                       {stop.job_type === 'pickup' ? 'Pickup' : 'Delivery'}
                       {stop.address ? ` · ${stop.address}` : ''}
                     </p>
@@ -485,12 +485,12 @@ function RoutePlannerModal({
             </ol>
           )}
           {plan && plan.stops.length === 0 && (
-            <p className="text-[12px] text-[#98A2B3]">
+            <p className="text-[12px] text-[var(--text-faint)]">
               No active jobs found for this driver{date ? ` on ${date}` : ''}.
             </p>
           )}
         </div>
-        <div className="flex justify-end gap-2 border-t border-[#F2F2F2] px-5 py-4">
+        <div className="flex justify-end gap-2 border-t border-[var(--border)] px-5 py-4">
           <Button variant="outline" onClick={onClose}>
             Close
           </Button>
@@ -509,7 +509,7 @@ function RoutePlannerModal({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[12px] font-medium text-[#475467]">{label}</span>
+      <span className="mb-1 block text-[12px] font-medium text-[var(--brand-deep)]">{label}</span>
       {children}
     </label>
   )

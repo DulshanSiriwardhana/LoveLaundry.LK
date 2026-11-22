@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import { clearSession } from './api'
+import { ThemeSwitcher } from './ll-theme'
 
 export default function App() {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('ll_token'))
@@ -21,8 +22,9 @@ export default function App() {
 
   if (booting) {
     return (
-      <div className="min-h-screen w-full bg-[#101828] flex items-center justify-center">
-        <p className="text-white font-semibold">Loading LoveLaundry…</p>
+      <div className="min-h-screen w-full bg-[var(--brand-dark)] flex flex-col items-center justify-center gap-4">
+        <ThemeSwitcher compact />
+        <p className="text-[var(--ll-white)] font-semibold">Loading LoveLaundry…</p>
       </div>
     )
   }

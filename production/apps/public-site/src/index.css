@@ -2,26 +2,26 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-brand: #C1121F;
-  --color-brand-100: #F9E7E9;
-  --color-brand-200: #EEBDC0;
-  --color-brand-dark: #C1121F;
-  --color-brand-deep: #7D0C14;
-  --color-brand-soft: #F9E7E9;
-  --color-ink: #171717;
-  --color-muted: #525252;
-  --color-faint: #737373;
-  --color-subtle: #A3A3A3;
-  --color-surface: #FFFFFF;
-  --color-surface-muted: #FAFAFA;
-  --color-card: #FFFFFF;
-  --color-line: #E5E5E5;
-  --color-line-strong: #D4D4D4;
-  --color-accent: #CC3D47;
-  --color-surface-dark: #7D0C14;
-  --color-on-dark: #FFFFFF;
-  --color-info: #3A5277;
-  --color-info-soft: #E7EAEE;
+  --color-brand: var(--ll-red);
+  --color-brand-100: var(--danger-soft);
+  --color-brand-200: var(--danger-border);
+  --color-brand-dark: var(--ll-red);
+  --color-brand-deep: var(--brand-dark);
+  --color-brand-soft: var(--danger-soft);
+  --color-ink: var(--text-primary);
+  --color-muted: var(--text-muted);
+  --color-faint: var(--text-faint);
+  --color-subtle: var(--text-faint);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-2);
+  --color-card: var(--surface);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-2);
+  --color-accent: var(--ll-red);
+  --color-surface-dark: var(--brand-dark);
+  --color-on-dark: var(--ll-white);
+  --color-info: var(--ll-blue);
+  --color-info-soft: var(--surface-2);
 }
 
 @layer base {
@@ -39,11 +39,11 @@
     --card: var(--color-card);
     --line: var(--color-line);
     --gold: var(--color-accent);
-    --brand-rgb: 224, 30, 49;
-    --brand-dark-rgb: 193, 19, 36;
-    --accent-rgb: 227, 161, 60;
-    --info-rgb: 59, 130, 246;
-    --night-rgb: 12, 7, 8;
+    --brand-rgb: 0, 0, 139;
+    --brand-dark-rgb: 0, 0, 139;
+    --accent-rgb: 255, 0, 0;
+    --info-rgb: 0, 0, 139;
+    --night-rgb: 0, 0, 0;
     --surface-rgb: 255, 255, 255;
     --shadow-rgb: 0, 0, 0;
     --page-gutter: clamp(1rem, 4vw, 2.5rem);

@@ -7,6 +7,7 @@ import {
   type Bill,
   type ExpenseCategoryTotal,
 } from '../api'
+import { ThemeSwitcher } from '../ll-theme'
 
 interface HotelAgg {
   name: string
@@ -76,72 +77,75 @@ export default function DashboardPage({ token, onLogout }: Props) {
   const expenseTotal = expenses.reduce((s, e) => s + Number(e?.total ?? 0), 0)
 
   return (
-    <div className="min-h-screen w-full bg-[#F9FAFB] pb-10">
-      <div className="sticky top-0 z-10 bg-[#101828] px-4 py-4">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen w-full bg-[var(--bg)] pb-10">
+      <div className="sticky top-0 z-10 bg-[var(--brand-dark)] px-4 py-4">
+        <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-[18px] font-bold text-white">LoveLaundry</p>
-            <p className="text-[11px] text-[#98A2B3] mt-0.5">{today}</p>
+            <p className="text-[18px] font-bold text-[var(--ll-white)]">LoveLaundry</p>
+            <p className="text-[11px] text-[var(--sidebar-text)] mt-0.5">{today}</p>
           </div>
-          <button
-            type="button"
-            onClick={onLogout}
-            className="h-9 px-3 rounded-xl bg-[#1D2939] text-white text-[12px] font-semibold"
-          >
-            Logout
-          </button>
+          <div className="flex items-center gap-2">
+            <ThemeSwitcher compact />
+            <button
+              type="button"
+              onClick={onLogout}
+              className="h-9 px-3 rounded-xl bg-[var(--sidebar-active-bg)] text-[var(--ll-white)] text-[12px] font-semibold"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="px-4 pt-5">
-        <h2 className="text-[16px] font-bold text-[#101828]">Today's Analytics</h2>
-        <p className="text-[11px] text-[#98A2B3] mt-0.5">Income &amp; expenses for {today}</p>
+        <h2 className="text-[16px] font-bold text-[var(--text-primary)]">Today's Analytics</h2>
+        <p className="text-[11px] text-[var(--text-muted)] mt-0.5">Income &amp; expenses for {today}</p>
 
-        {error ? <p className="mt-4 text-[13px] text-[#DC2626]">{error}</p> : null}
+        {error ? <p className="mt-4 text-[13px] text-[var(--danger-text)]">{error}</p> : null}
 
         {loading ? (
-          <p className="mt-6 text-[13px] text-[#6B7280]">Loading…</p>
+          <p className="mt-6 text-[13px] text-[var(--text-secondary)]">Loading…</p>
         ) : (
           <>
             <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-2xl border border-[#E4E7EC] bg-white p-4">
-                <p className="text-[11px] text-[#6B7280]">Income Today</p>
-                <p className="text-[18px] font-bold text-[#101828] mt-1">Rs. {fmt(totals.income)}</p>
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
+                <p className="text-[11px] text-[var(--text-secondary)]">Income Today</p>
+                <p className="text-[18px] font-bold text-[var(--text-primary)] mt-1">Rs. {fmt(totals.income)}</p>
               </div>
-              <div className="rounded-2xl border border-[#E4E7EC] bg-white p-4">
-                <p className="text-[11px] text-[#6B7280]">Collected Today</p>
-                <p className="text-[18px] font-bold text-[#101828] mt-1">Rs. {fmt(totals.collected)}</p>
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
+                <p className="text-[11px] text-[var(--text-secondary)]">Collected Today</p>
+                <p className="text-[18px] font-bold text-[var(--text-primary)] mt-1">Rs. {fmt(totals.collected)}</p>
               </div>
-              <div className="rounded-2xl border border-[#E4E7EC] bg-white p-4">
-                <p className="text-[11px] text-[#6B7280]">Outstanding Today</p>
-                <p className="text-[18px] font-bold text-[#101828] mt-1">Rs. {fmt(totals.outstanding)}</p>
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
+                <p className="text-[11px] text-[var(--text-secondary)]">Outstanding Today</p>
+                <p className="text-[18px] font-bold text-[var(--text-primary)] mt-1">Rs. {fmt(totals.outstanding)}</p>
               </div>
-              <div className="rounded-2xl border border-[#E4E7EC] bg-white p-4">
-                <p className="text-[11px] text-[#6B7280]">Expenses Today</p>
-                <p className="text-[18px] font-bold text-[#101828] mt-1">Rs. {fmt(expenseTotal)}</p>
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
+                <p className="text-[11px] text-[var(--text-secondary)]">Expenses Today</p>
+                <p className="text-[18px] font-bold text-[var(--text-primary)] mt-1">Rs. {fmt(expenseTotal)}</p>
               </div>
             </div>
 
-            <h3 className="mt-6 text-[14px] font-bold text-[#101828]">Hotels</h3>
+            <h3 className="mt-6 text-[14px] font-bold text-[var(--text-primary)]">Hotels</h3>
             {hotels.length === 0 ? (
-              <p className="mt-3 text-[13px] text-[#6B7280]">No income recorded for today yet.</p>
+              <p className="mt-3 text-[13px] text-[var(--text-secondary)]">No income recorded for today yet.</p>
             ) : (
               <div className="mt-3 space-y-3">
                 {hotels.map((h) => (
-                  <div key={h.name} className="rounded-2xl border border-[#E4E7EC] bg-white p-4">
-                    <p className="text-[13px] font-bold text-[#101828]">{h.name}</p>
+                  <div key={h.name} className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
+                    <p className="text-[13px] font-bold text-[var(--text-primary)]">{h.name}</p>
                     <div className="mt-3 grid grid-cols-3 gap-2">
                       <div>
-                        <p className="text-[10px] text-[#6B7280]">Income</p>
-                        <p className="text-[13px] font-semibold text-[#101828]">Rs. {fmt(h.income)}</p>
+                        <p className="text-[10px] text-[var(--text-secondary)]">Income</p>
+                        <p className="text-[13px] font-semibold text-[var(--text-primary)]">Rs. {fmt(h.income)}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-[#6B7280]">Collected</p>
-                        <p className="text-[13px] font-semibold text-[#101828]">Rs. {fmt(h.collected)}</p>
+                        <p className="text-[10px] text-[var(--text-secondary)]">Collected</p>
+                        <p className="text-[13px] font-semibold text-[var(--text-primary)]">Rs. {fmt(h.collected)}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-[#6B7280]">Outstanding</p>
-                        <p className="text-[13px] font-semibold text-[#101828]">Rs. {fmt(h.outstanding)}</p>
+                        <p className="text-[10px] text-[var(--text-secondary)]">Outstanding</p>
+                        <p className="text-[13px] font-semibold text-[var(--text-primary)]">Rs. {fmt(h.outstanding)}</p>
                       </div>
                     </div>
                   </div>
@@ -150,13 +154,13 @@ export default function DashboardPage({ token, onLogout }: Props) {
             )}
 
             {expenses.length > 0 ? (
-              <div className="mt-6 rounded-2xl border border-[#E4E7EC] bg-white p-4">
-                <p className="text-[13px] font-bold text-[#101828]">Expenses by Category</p>
+              <div className="mt-6 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
+                <p className="text-[13px] font-bold text-[var(--text-primary)]">Expenses by Category</p>
                 <div className="mt-3 space-y-2">
                   {expenses.map((e, idx) => (
                     <div key={idx} className="flex items-center justify-between">
-                      <p className="text-[12px] text-[#374151]">{e?.category || 'Uncategorized'}</p>
-                      <p className="text-[12px] font-semibold text-[#101828]">Rs. {fmt(e?.total)}</p>
+                      <p className="text-[12px] text-[var(--text-secondary)]">{e?.category || 'Uncategorized'}</p>
+                      <p className="text-[12px] font-semibold text-[var(--text-primary)]">Rs. {fmt(e?.total)}</p>
                     </div>
                   ))}
                 </div>

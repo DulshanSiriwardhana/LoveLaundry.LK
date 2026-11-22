@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ThemeSwitcher } from "../../ll-theme";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     RiMenuLine,
@@ -185,6 +186,7 @@ const Navbar = ({ actions }: NavbarProps) => {
                             <RiArrowRightLine className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
                         </button>
 
+                        <div className="ml-2 flex items-center"><ThemeSwitcher compact /></div>
                         <div className="ml-2 flex items-center rounded-full border border-line bg-surface p-0.5 lg:ml-3">
                             <button
                                 type="button"

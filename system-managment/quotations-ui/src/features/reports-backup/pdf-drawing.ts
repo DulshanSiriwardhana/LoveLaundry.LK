@@ -1,18 +1,20 @@
 import type { DailyReportSnapshot, MonthlyReportSnapshot } from './types'
 
-// ── Brand palette ─────────────────────────────────────────────────────────────
-export const RED = '#C42127'
-export const DARK = '#1F2937'
-export const GRAY = '#6B7280'
-export const LIGHT = '#F3F4F6'
-export const BORDER = '#E5E7EB'
-export const GREEN = '#15803D'
-export const AMBER = '#B45309'
-export const BLUE = '#2563EB'
-export const INDIGO = '#5B21B6'
-export const TEAL = '#0D9488'
-export const SKY = '#0284C7'
-export const FADED = '#CBD5E1'
+// ── Print palette ─────────────────────────────────────────────────────────────
+// pdfmake renders in JS and cannot resolve CSS variables, so these are literal
+// values. Bases are the five approved colours; greys are neutral tints of black.
+export const RED = '#FF0000'
+export const DARK = '#000000'
+export const GRAY = '#767676'
+export const LIGHT = '#E6E6E6'
+export const BORDER = '#BFBFBF'
+export const GREEN = '#008000'
+export const AMBER = '#FF0000'
+export const BLUE = '#00008B'
+export const INDIGO = '#00008B'
+export const TEAL = '#008000'
+export const SKY = '#00008B'
+export const FADED = '#BFBFBF'
 
 const TONES: Record<string, string> = {
   red: RED,
@@ -267,7 +269,7 @@ export function groupedBars(opts: BarChartOpts): unknown[] {
   const impact = 4
   for (let g = 1; g < impact; g++) {
     const y = bottom - (plotHeight * g) / impact
-    draw.push({ type: 'line', x1: PAD_X, y1: y, x2: PAD_X + plotW, y2: y, lineColor: '#EEF2F7', lineWidth: 0.5 })
+    draw.push({ type: 'line', x1: PAD_X, y1: y, x2: PAD_X + plotW, y2: y, lineColor: '#E6E6E6', lineWidth: 0.5 })
   }
 
   const groupW = plotW / n
@@ -373,7 +375,7 @@ export function segmentedBar(segments: Segment[], labelBefore?: string) {
       columns: segments.map(s => ({
         text: `${s.name} ${count(s.value)} · ${pct(s.value, total)}`,
         fontSize: 6.8,
-        color: tone(colorOf(s.color)),
+        color: s.color,
         alignment: 'center' as const,
         margin: [0, 1, 0, 0],
       })),
@@ -382,20 +384,6 @@ export function segmentedBar(segments: Segment[], labelBefore?: string) {
   ]
 }
 
-function colorOf(color: string): string {
-  const map: Record<string, string> = {
-    '#15803D': 'green',
-    '#B45309': 'amber',
-    '#6B7280': 'gray',
-    '#C42127': 'red',
-    '#2563EB': 'blue',
-    '#5B21B6': 'indigo',
-    '#0D9488': 'teal',
-    '#0284C7': 'sky',
-    '#1F2937': 'dark',
-  }
-  return map[color] ?? color
-}
 
 // ── Horizontal breakdown bars ─────────────────────────────────────────────────
 export interface BreakdownItem {

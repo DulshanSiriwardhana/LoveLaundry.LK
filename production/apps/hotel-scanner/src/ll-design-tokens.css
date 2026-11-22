@@ -1,0 +1,657 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LOVE LAUNDRY — ENTERPRISE DESIGN SYSTEM / CANONICAL TOKENS
+   ───────────────────────────────────────────────────────────────────────────
+   Strict five-colour system. Every visual value below derives from one of the
+   five approved base colours or an alpha/tint of them. No other colour enters
+   the system.
+
+     BLACK  #000000  typography, strong contrast, dark surfaces
+     WHITE  #FFFFFF  surfaces, text on dark surfaces
+     RED    #FF0000  controlled accents, destructive actions, errors
+     GREEN  #008000  success, positive indicators
+     BLUE   #00008B  primary identity, navigation, selection
+
+   This file is deliberately plain CSS so it can be consumed by Tailwind v4
+   apps, plain-CSS apps, and legacy theme layers. Import it AFTER the app's own
+   stylesheet so its :root declarations win source-order specificity.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root,
+:host,
+[data-theme='light'] {
+  color-scheme: light;
+
+  /* ── 1. The five base colours — the only literals in this system ──────── */
+  --ll-black: #000000;
+  --ll-white: #FFFFFF;
+  --ll-red: #FF0000;
+  --ll-green: #008000;
+  --ll-blue: #00008B;
+
+  /* ── 2. Semantic surfaces (tints of black/white/blue only) ────────────── */
+  --bg: color-mix(in srgb, var(--ll-black) 4%, var(--ll-white));
+  --canvas: var(--bg);
+  --surface: var(--ll-white);
+  --surface-2: color-mix(in srgb, var(--ll-black) 6%, var(--ll-white));
+  --surface-3: color-mix(in srgb, var(--ll-black) 11%, var(--ll-white));
+  --surface-hover: color-mix(in srgb, var(--ll-blue) 6%, var(--ll-white));
+  --surface-sunken: color-mix(in srgb, var(--ll-black) 2%, var(--ll-white));
+
+  --border: color-mix(in srgb, var(--ll-black) 14%, var(--ll-white));
+  --border-2: color-mix(in srgb, var(--ll-black) 24%, var(--ll-white));
+  --border-strong: color-mix(in srgb, var(--ll-black) 42%, var(--ll-white));
+  --line: var(--border);
+  --line-strong: var(--border-strong);
+
+  /* ── 3. Typography ────────────────────────────────────────────────────── */
+  --text-primary: var(--ll-black);
+  --text-secondary: color-mix(in srgb, var(--ll-black) 78%, var(--ll-white));
+  --text-tertiary: color-mix(in srgb, var(--ll-black) 62%, var(--ll-white));
+  --text-muted: color-mix(in srgb, var(--ll-black) 55%, var(--ll-white));
+  --text-faint: color-mix(in srgb, var(--ll-black) 40%, var(--ll-white));
+  --text-placeholder: color-mix(in srgb, var(--ll-black) 38%, var(--ll-white));
+  --ink: var(--text-primary);
+  --ink-soft: var(--text-secondary);
+  --ink-muted: var(--text-muted);
+
+  --font-sans: 'Inter', 'Inter var', ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', ui-monospace,
+    SFMono-Regular, Menlo, Consolas, monospace;
+
+  --text-micro: 10px;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-md: 14px;
+  --text-lg: 15px;
+  --text-xl: 16px;
+  --text-2xl: 20px;
+  --text-3xl: 26px;
+
+  /* ── 4. Primary identity — dark blue ─────────────────────────────────── */
+  --brand: var(--ll-blue);
+  --brand-dark: color-mix(in srgb, var(--ll-blue) 72%, var(--ll-black));
+  --brand-hover: var(--brand-dark);
+  --brand-active: color-mix(in srgb, var(--ll-blue) 55%, var(--ll-black));
+  --brand-soft: color-mix(in srgb, var(--ll-blue) 8%, var(--ll-white));
+  --brand-border: color-mix(in srgb, var(--ll-blue) 24%, var(--ll-white));
+  --brand-text: var(--ll-blue);
+  --brand-ring: color-mix(in srgb, var(--ll-blue) 22%, transparent);
+
+  /* ── 5. Status — green / red / blue, never decorative ─────────────────── */
+  --success: var(--ll-green);
+  --success-text: var(--ll-green);
+  --success-soft: color-mix(in srgb, var(--ll-green) 9%, var(--ll-white));
+  --success-border: color-mix(in srgb, var(--ll-green) 26%, var(--ll-white));
+
+  --danger: var(--ll-red);
+  --danger-text: var(--ll-red);
+  --danger-soft: color-mix(in srgb, var(--ll-red) 8%, var(--ll-white));
+  --danger-border: color-mix(in srgb, var(--ll-red) 26%, var(--ll-white));
+
+  --warning: var(--ll-red);
+  --warning-text: var(--ll-red);
+  --warning-soft: var(--danger-soft);
+  --warning-border: var(--danger-border);
+
+  --info: var(--ll-blue);
+  --info-text: var(--ll-blue);
+  --info-soft: var(--brand-soft);
+  --info-border: var(--brand-border);
+
+  --accent: var(--ll-red);
+  --accent-text: var(--ll-red);
+  --accent-soft: var(--danger-soft);
+  --accent-border: var(--danger-border);
+
+  /* ── 6. Navigation ────────────────────────────────────────────────────── */
+  --sidebar-bg: var(--ll-blue);
+  --sidebar-border: var(--ll-blue);
+  --sidebar-text: color-mix(in srgb, var(--ll-white) 78%, transparent);
+  --sidebar-label: color-mix(in srgb, var(--ll-white) 58%, transparent);
+  --sidebar-active: var(--ll-white);
+  --sidebar-active-bg: color-mix(in srgb, var(--ll-white) 14%, var(--ll-blue));
+  --sidebar-active-border: var(--ll-white);
+  --sidebar-hover-bg: color-mix(in srgb, var(--ll-white) 9%, var(--ll-blue));
+  --sidebar-hover-text: var(--ll-white);
+  --sidebar-indicator: var(--ll-red);
+
+  --ring: var(--ll-blue);
+  --ring-offset: var(--ll-white);
+  --focus-ring: color-mix(in srgb, var(--ll-blue) 45%, transparent);
+
+  /* ── 7. Depth — black alpha only ──────────────────────────────────────── */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.07), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 6px 16px -6px rgba(0, 0, 0, 0.12), 0 2px 6px -2px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 18px 34px -12px rgba(0, 0, 0, 0.18), 0 6px 12px -6px rgba(0, 0, 0, 0.08);
+  --shadow-pop: 0 16px 42px -10px rgba(0, 0, 0, 0.24), 0 4px 10px -3px rgba(0, 0, 0, 0.10);
+
+  /* ── 8. Spacing scale ─────────────────────────────────────────────────── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --sidebar-width: 248px;
+  --topbar-height: 60px;
+  --control-height: 38px;
+
+  /* ── 9. Radius / motion — restrained ─────────────────────────────────── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-pill: 999px;
+
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 260ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --skeleton-from: color-mix(in srgb, var(--ll-black) 6%, var(--ll-white));
+  --skeleton-via: color-mix(in srgb, var(--ll-black) 12%, var(--ll-white));
+  --skeleton-to: color-mix(in srgb, var(--ll-black) 6%, var(--ll-white));
+
+  /* ── 10. Legacy aliases — pre-token code keeps resolving ─────────────── */
+  --red-50: var(--danger-soft);
+  --red-100: var(--danger-soft);
+  --red-500: var(--ll-red);
+  --red-600: var(--ll-red);
+  --red-700: color-mix(in srgb, var(--ll-red) 72%, var(--ll-black));
+  --body-font-size: 14px;
+  --body-font-zoom: 1;
+}
+
+/* ── Dark mode — designed independently, not inverted ───────────────────── */
+[data-theme='dark'],
+:root.dark,
+.dark {
+  color-scheme: dark;
+
+  --bg: var(--ll-black);
+  --canvas: var(--ll-black);
+  --surface: color-mix(in srgb, var(--ll-white) 5%, var(--ll-black));
+  --surface-2: color-mix(in srgb, var(--ll-blue) 12%, var(--ll-black));
+  --surface-3: color-mix(in srgb, var(--ll-blue) 20%, var(--ll-black));
+  --surface-hover: color-mix(in srgb, var(--ll-blue) 18%, var(--ll-black));
+  --surface-sunken: var(--ll-black);
+
+  --border: color-mix(in srgb, var(--ll-white) 16%, transparent);
+  --border-2: color-mix(in srgb, var(--ll-white) 28%, transparent);
+  --border-strong: color-mix(in srgb, var(--ll-white) 45%, transparent);
+  --line: var(--border);
+  --line-strong: var(--border-strong);
+
+  --text-primary: var(--ll-white);
+  --text-secondary: color-mix(in srgb, var(--ll-white) 84%, transparent);
+  --text-tertiary: color-mix(in srgb, var(--ll-white) 68%, transparent);
+  --text-muted: color-mix(in srgb, var(--ll-white) 62%, transparent);
+  --text-faint: color-mix(in srgb, var(--ll-white) 46%, transparent);
+  --text-placeholder: color-mix(in srgb, var(--ll-white) 42%, transparent);
+  --ink: var(--text-primary);
+  --ink-soft: var(--text-secondary);
+  --ink-muted: var(--text-muted);
+
+  --brand: color-mix(in srgb, var(--ll-blue) 58%, var(--ll-white));
+  --brand-dark: var(--ll-blue);
+  --brand-hover: var(--ll-blue);
+  --brand-active: color-mix(in srgb, var(--ll-blue) 42%, var(--ll-white));
+  --brand-soft: color-mix(in srgb, var(--ll-blue) 26%, var(--ll-black));
+  --brand-border: color-mix(in srgb, var(--ll-blue) 52%, var(--ll-white));
+  --brand-text: color-mix(in srgb, var(--ll-blue) 62%, var(--ll-white));
+  --brand-ring: color-mix(in srgb, var(--ll-blue) 55%, transparent);
+
+  --success: color-mix(in srgb, var(--ll-green) 72%, var(--ll-white));
+  --success-text: var(--success);
+  --success-soft: color-mix(in srgb, var(--ll-green) 16%, var(--ll-black));
+  --success-border: color-mix(in srgb, var(--ll-green) 46%, var(--ll-white));
+
+  --danger: color-mix(in srgb, var(--ll-red) 72%, var(--ll-white));
+  --danger-text: var(--danger);
+  --danger-soft: color-mix(in srgb, var(--ll-red) 16%, var(--ll-black));
+  --danger-border: color-mix(in srgb, var(--ll-red) 46%, var(--ll-white));
+
+  --warning: var(--danger);
+  --warning-text: var(--danger-text);
+  --warning-soft: var(--danger-soft);
+  --warning-border: var(--danger-border);
+
+  --info: var(--brand);
+  --info-text: var(--brand-text);
+  --info-soft: var(--brand-soft);
+  --info-border: var(--brand-border);
+
+  --accent: var(--danger);
+  --accent-text: var(--danger-text);
+  --accent-soft: var(--danger-soft);
+  --accent-border: var(--danger-border);
+
+  --sidebar-bg: var(--ll-blue);
+  --sidebar-border: color-mix(in srgb, var(--ll-white) 12%, var(--ll-blue));
+  --sidebar-text: color-mix(in srgb, var(--ll-white) 82%, transparent);
+  --sidebar-label: color-mix(in srgb, var(--ll-white) 55%, transparent);
+  --sidebar-active: var(--ll-white);
+  --sidebar-active-bg: color-mix(in srgb, var(--ll-white) 18%, var(--ll-blue));
+  --sidebar-active-border: var(--ll-white);
+  --sidebar-hover-bg: color-mix(in srgb, var(--ll-white) 11%, var(--ll-blue));
+  --sidebar-hover-text: var(--ll-white);
+  --sidebar-indicator: var(--ll-red);
+
+  --ring: var(--brand);
+  --ring-offset: var(--ll-black);
+  --focus-ring: color-mix(in srgb, var(--ll-blue) 70%, transparent);
+
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.40);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.50);
+  --shadow-md: 0 6px 18px -6px rgba(0, 0, 0, 0.65);
+  --shadow-lg: 0 18px 36px -12px rgba(0, 0, 0, 0.72);
+  --shadow-pop: 0 16px 44px -10px rgba(0, 0, 0, 0.78);
+
+  --skeleton-from: color-mix(in srgb, var(--ll-white) 6%, var(--ll-black));
+  --skeleton-via: color-mix(in srgb, var(--ll-white) 13%, var(--ll-black));
+  --skeleton-to: color-mix(in srgb, var(--ll-white) 6%, var(--ll-black));
+
+  --red-50: var(--danger-soft);
+  --red-100: var(--danger-soft);
+  --red-500: var(--danger);
+  --red-600: var(--danger);
+  --red-700: var(--danger-text);
+}
+
+/* ── Tailwind default utility variables: collapse to the five colours ──── */
+/* Loaded after Tailwind's @theme, so these win. Arbitrary hex utilities are
+   handled by each app's legacy remap where present. */
+:root {
+  --color-black: var(--ll-black);
+  --color-white: var(--ll-white);
+  --color-red-50: var(--danger-soft);
+  --color-red-100: var(--danger-soft);
+  --color-red-200: var(--danger-soft);
+  --color-red-300: var(--danger-border);
+  --color-red-400: var(--danger);
+  --color-red-500: var(--ll-red);
+  --color-red-600: var(--ll-red);
+  --color-red-700: var(--danger);
+  --color-red-800: var(--danger);
+  --color-red-900: var(--danger);
+  --color-green-50: var(--success-soft);
+  --color-green-100: var(--success-soft);
+  --color-green-200: var(--success-soft);
+  --color-green-300: var(--success-border);
+  --color-green-400: var(--success);
+  --color-green-500: var(--ll-green);
+  --color-green-600: var(--ll-green);
+  --color-green-700: var(--success);
+  --color-green-800: var(--success);
+  --color-green-900: var(--success);
+  --color-blue-50: var(--brand-soft);
+  --color-blue-100: var(--brand-soft);
+  --color-blue-200: var(--brand-soft);
+  --color-blue-300: var(--brand-border);
+  --color-blue-400: var(--brand);
+  --color-blue-500: var(--ll-blue);
+  --color-blue-600: var(--ll-blue);
+  --color-blue-700: var(--ll-blue);
+  --color-blue-800: var(--brand-dark);
+  --color-blue-900: var(--brand-dark);
+  --color-gray-50: var(--surface-2);
+  --color-gray-100: var(--surface-2);
+  --color-gray-200: var(--border);
+  --color-gray-300: var(--border-2);
+  --color-gray-400: var(--text-faint);
+  --color-gray-500: var(--text-muted);
+  --color-gray-600: var(--text-secondary);
+  --color-gray-700: var(--text-secondary);
+  --color-gray-800: var(--text-primary);
+  --color-gray-900: var(--text-primary);
+  --color-zinc-50: var(--surface-2);
+  --color-zinc-100: var(--surface-2);
+  --color-zinc-200: var(--border);
+  --color-zinc-300: var(--border-2);
+  --color-zinc-400: var(--text-faint);
+  --color-zinc-500: var(--text-muted);
+  --color-zinc-600: var(--text-secondary);
+  --color-zinc-700: var(--text-secondary);
+  --color-zinc-800: var(--text-primary);
+  --color-zinc-900: var(--text-primary);
+  --color-slate-50: var(--surface-2);
+  --color-slate-100: var(--surface-2);
+  --color-slate-200: var(--border);
+  --color-slate-300: var(--border-2);
+  --color-slate-400: var(--text-faint);
+  --color-slate-500: var(--text-muted);
+  --color-slate-600: var(--text-secondary);
+  --color-slate-700: var(--text-secondary);
+  --color-slate-800: var(--text-primary);
+  --color-slate-900: var(--text-primary);
+  --color-neutral-50: var(--surface-2);
+  --color-neutral-100: var(--surface-2);
+  --color-neutral-200: var(--border);
+  --color-neutral-300: var(--border-2);
+  --color-neutral-400: var(--text-faint);
+  --color-neutral-500: var(--text-muted);
+  --color-neutral-600: var(--text-secondary);
+  --color-neutral-700: var(--text-secondary);
+  --color-neutral-800: var(--text-primary);
+  --color-neutral-900: var(--text-primary);
+}
+
+/* ── Foundation rules shared by every frontend ─────────────────────────── */
+html { background: var(--bg); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+*, *::before, *::after { box-sizing: border-box; border-color: var(--border); }
+a { color: inherit; }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: 0.55; }
+:where(a, button, summary, [tabindex]):focus-visible,
+:where(input, select, textarea):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+:focus:not(:focus-visible) { outline: none; }
+::selection { background: var(--brand-ring); color: var(--text-primary); }
+
+/* ── Purposeful glass: overlays only, with solid fallbacks ─────────────── */
+.ll-glass {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .ll-glass {
+    background: color-mix(in srgb, var(--surface) 82%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    backdrop-filter: blur(14px) saturate(1.1);
+  }
+}
+
+/* ── Purposeful gradient: approved colours only ────────────────────────── */
+.ll-gradient-brand {
+  background: linear-gradient(135deg, var(--ll-blue) 0%, color-mix(in srgb, var(--ll-blue) 72%, var(--ll-black)) 100%);
+}
+.ll-gradient-accent {
+  background: linear-gradient(135deg, var(--ll-blue) 0%, var(--ll-red) 100%);
+}
+
+/* ── Unified focus ring helper ─────────────────────────────────────────── */
+.ll-focus:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+
+/* ── Complete Tailwind default ramp overrides ─────────────────────────────── */
+/* Every default Tailwind colour ramp is mapped onto the five-colour system,  */
+/* so no legacy utility class can introduce an unapproved colour at runtime.  */
+:root {
+  --danger-deep: color-mix(in srgb, var(--ll-red) 62%, var(--ll-black));
+  --success-deep: color-mix(in srgb, var(--ll-green) 62%, var(--ll-black));
+  --brand-deep: color-mix(in srgb, var(--ll-blue) 70%, var(--ll-black));
+  --color-red-50: var(--danger-soft);
+  --color-red-100: var(--danger-soft);
+  --color-red-200: var(--danger-soft);
+  --color-red-300: var(--danger-border);
+  --color-red-400: var(--ll-red);
+  --color-red-500: var(--ll-red);
+  --color-red-600: var(--ll-red);
+  --color-red-700: var(--ll-red);
+  --color-red-800: var(--danger-deep);
+  --color-red-900: var(--danger-deep);
+  --color-red-950: var(--danger-deep);
+  --color-rose-50: var(--danger-soft);
+  --color-rose-100: var(--danger-soft);
+  --color-rose-200: var(--danger-soft);
+  --color-rose-300: var(--danger-border);
+  --color-rose-400: var(--ll-red);
+  --color-rose-500: var(--ll-red);
+  --color-rose-600: var(--ll-red);
+  --color-rose-700: var(--ll-red);
+  --color-rose-800: var(--danger-deep);
+  --color-rose-900: var(--danger-deep);
+  --color-rose-950: var(--danger-deep);
+  --color-pink-50: var(--danger-soft);
+  --color-pink-100: var(--danger-soft);
+  --color-pink-200: var(--danger-soft);
+  --color-pink-300: var(--danger-border);
+  --color-pink-400: var(--ll-red);
+  --color-pink-500: var(--ll-red);
+  --color-pink-600: var(--ll-red);
+  --color-pink-700: var(--ll-red);
+  --color-pink-800: var(--danger-deep);
+  --color-pink-900: var(--danger-deep);
+  --color-pink-950: var(--danger-deep);
+  --color-orange-50: var(--danger-soft);
+  --color-orange-100: var(--danger-soft);
+  --color-orange-200: var(--danger-soft);
+  --color-orange-300: var(--danger-border);
+  --color-orange-400: var(--ll-red);
+  --color-orange-500: var(--ll-red);
+  --color-orange-600: var(--ll-red);
+  --color-orange-700: var(--ll-red);
+  --color-orange-800: var(--danger-deep);
+  --color-orange-900: var(--danger-deep);
+  --color-orange-950: var(--danger-deep);
+  --color-amber-50: var(--danger-soft);
+  --color-amber-100: var(--danger-soft);
+  --color-amber-200: var(--danger-soft);
+  --color-amber-300: var(--danger-border);
+  --color-amber-400: var(--ll-red);
+  --color-amber-500: var(--ll-red);
+  --color-amber-600: var(--ll-red);
+  --color-amber-700: var(--ll-red);
+  --color-amber-800: var(--danger-deep);
+  --color-amber-900: var(--danger-deep);
+  --color-amber-950: var(--danger-deep);
+  --color-yellow-50: var(--danger-soft);
+  --color-yellow-100: var(--danger-soft);
+  --color-yellow-200: var(--danger-soft);
+  --color-yellow-300: var(--danger-border);
+  --color-yellow-400: var(--ll-red);
+  --color-yellow-500: var(--ll-red);
+  --color-yellow-600: var(--ll-red);
+  --color-yellow-700: var(--ll-red);
+  --color-yellow-800: var(--danger-deep);
+  --color-yellow-900: var(--danger-deep);
+  --color-yellow-950: var(--danger-deep);
+  --color-green-50: var(--success-soft);
+  --color-green-100: var(--success-soft);
+  --color-green-200: var(--success-soft);
+  --color-green-300: var(--success-border);
+  --color-green-400: var(--ll-green);
+  --color-green-500: var(--ll-green);
+  --color-green-600: var(--ll-green);
+  --color-green-700: var(--ll-green);
+  --color-green-800: var(--success-deep);
+  --color-green-900: var(--success-deep);
+  --color-green-950: var(--success-deep);
+  --color-emerald-50: var(--success-soft);
+  --color-emerald-100: var(--success-soft);
+  --color-emerald-200: var(--success-soft);
+  --color-emerald-300: var(--success-border);
+  --color-emerald-400: var(--ll-green);
+  --color-emerald-500: var(--ll-green);
+  --color-emerald-600: var(--ll-green);
+  --color-emerald-700: var(--ll-green);
+  --color-emerald-800: var(--success-deep);
+  --color-emerald-900: var(--success-deep);
+  --color-emerald-950: var(--success-deep);
+  --color-teal-50: var(--success-soft);
+  --color-teal-100: var(--success-soft);
+  --color-teal-200: var(--success-soft);
+  --color-teal-300: var(--success-border);
+  --color-teal-400: var(--ll-green);
+  --color-teal-500: var(--ll-green);
+  --color-teal-600: var(--ll-green);
+  --color-teal-700: var(--ll-green);
+  --color-teal-800: var(--success-deep);
+  --color-teal-900: var(--success-deep);
+  --color-teal-950: var(--success-deep);
+  --color-lime-50: var(--success-soft);
+  --color-lime-100: var(--success-soft);
+  --color-lime-200: var(--success-soft);
+  --color-lime-300: var(--success-border);
+  --color-lime-400: var(--ll-green);
+  --color-lime-500: var(--ll-green);
+  --color-lime-600: var(--ll-green);
+  --color-lime-700: var(--ll-green);
+  --color-lime-800: var(--success-deep);
+  --color-lime-900: var(--success-deep);
+  --color-lime-950: var(--success-deep);
+  --color-blue-50: var(--brand-soft);
+  --color-blue-100: var(--brand-soft);
+  --color-blue-200: var(--brand-soft);
+  --color-blue-300: var(--brand-border);
+  --color-blue-400: var(--ll-blue);
+  --color-blue-500: var(--ll-blue);
+  --color-blue-600: var(--ll-blue);
+  --color-blue-700: var(--ll-blue);
+  --color-blue-800: var(--brand-deep);
+  --color-blue-900: var(--brand-deep);
+  --color-blue-950: var(--brand-deep);
+  --color-sky-50: var(--brand-soft);
+  --color-sky-100: var(--brand-soft);
+  --color-sky-200: var(--brand-soft);
+  --color-sky-300: var(--brand-border);
+  --color-sky-400: var(--ll-blue);
+  --color-sky-500: var(--ll-blue);
+  --color-sky-600: var(--ll-blue);
+  --color-sky-700: var(--ll-blue);
+  --color-sky-800: var(--brand-deep);
+  --color-sky-900: var(--brand-deep);
+  --color-sky-950: var(--brand-deep);
+  --color-cyan-50: var(--brand-soft);
+  --color-cyan-100: var(--brand-soft);
+  --color-cyan-200: var(--brand-soft);
+  --color-cyan-300: var(--brand-border);
+  --color-cyan-400: var(--ll-blue);
+  --color-cyan-500: var(--ll-blue);
+  --color-cyan-600: var(--ll-blue);
+  --color-cyan-700: var(--ll-blue);
+  --color-cyan-800: var(--brand-deep);
+  --color-cyan-900: var(--brand-deep);
+  --color-cyan-950: var(--brand-deep);
+  --color-indigo-50: var(--brand-soft);
+  --color-indigo-100: var(--brand-soft);
+  --color-indigo-200: var(--brand-soft);
+  --color-indigo-300: var(--brand-border);
+  --color-indigo-400: var(--ll-blue);
+  --color-indigo-500: var(--ll-blue);
+  --color-indigo-600: var(--ll-blue);
+  --color-indigo-700: var(--ll-blue);
+  --color-indigo-800: var(--brand-deep);
+  --color-indigo-900: var(--brand-deep);
+  --color-indigo-950: var(--brand-deep);
+  --color-violet-50: var(--brand-soft);
+  --color-violet-100: var(--brand-soft);
+  --color-violet-200: var(--brand-soft);
+  --color-violet-300: var(--brand-border);
+  --color-violet-400: var(--ll-blue);
+  --color-violet-500: var(--ll-blue);
+  --color-violet-600: var(--ll-blue);
+  --color-violet-700: var(--ll-blue);
+  --color-violet-800: var(--brand-deep);
+  --color-violet-900: var(--brand-deep);
+  --color-violet-950: var(--brand-deep);
+  --color-purple-50: var(--brand-soft);
+  --color-purple-100: var(--brand-soft);
+  --color-purple-200: var(--brand-soft);
+  --color-purple-300: var(--brand-border);
+  --color-purple-400: var(--ll-blue);
+  --color-purple-500: var(--ll-blue);
+  --color-purple-600: var(--ll-blue);
+  --color-purple-700: var(--ll-blue);
+  --color-purple-800: var(--brand-deep);
+  --color-purple-900: var(--brand-deep);
+  --color-purple-950: var(--brand-deep);
+  --color-fuchsia-50: var(--brand-soft);
+  --color-fuchsia-100: var(--brand-soft);
+  --color-fuchsia-200: var(--brand-soft);
+  --color-fuchsia-300: var(--brand-border);
+  --color-fuchsia-400: var(--ll-blue);
+  --color-fuchsia-500: var(--ll-blue);
+  --color-fuchsia-600: var(--ll-blue);
+  --color-fuchsia-700: var(--ll-blue);
+  --color-fuchsia-800: var(--brand-deep);
+  --color-fuchsia-900: var(--brand-deep);
+  --color-fuchsia-950: var(--brand-deep);
+  --color-slate-50: var(--surface-2);
+  --color-slate-100: var(--surface-2);
+  --color-slate-200: var(--border);
+  --color-slate-300: var(--border-2);
+  --color-slate-400: var(--text-faint);
+  --color-slate-500: var(--text-muted);
+  --color-slate-600: var(--text-secondary);
+  --color-slate-700: var(--text-secondary);
+  --color-slate-800: var(--text-primary);
+  --color-slate-900: var(--text-primary);
+  --color-slate-950: var(--text-primary);
+  --color-zinc-50: var(--surface-2);
+  --color-zinc-100: var(--surface-2);
+  --color-zinc-200: var(--border);
+  --color-zinc-300: var(--border-2);
+  --color-zinc-400: var(--text-faint);
+  --color-zinc-500: var(--text-muted);
+  --color-zinc-600: var(--text-secondary);
+  --color-zinc-700: var(--text-secondary);
+  --color-zinc-800: var(--text-primary);
+  --color-zinc-900: var(--text-primary);
+  --color-zinc-950: var(--text-primary);
+  --color-gray-50: var(--surface-2);
+  --color-gray-100: var(--surface-2);
+  --color-gray-200: var(--border);
+  --color-gray-300: var(--border-2);
+  --color-gray-400: var(--text-faint);
+  --color-gray-500: var(--text-muted);
+  --color-gray-600: var(--text-secondary);
+  --color-gray-700: var(--text-secondary);
+  --color-gray-800: var(--text-primary);
+  --color-gray-900: var(--text-primary);
+  --color-gray-950: var(--text-primary);
+  --color-neutral-50: var(--surface-2);
+  --color-neutral-100: var(--surface-2);
+  --color-neutral-200: var(--border);
+  --color-neutral-300: var(--border-2);
+  --color-neutral-400: var(--text-faint);
+  --color-neutral-500: var(--text-muted);
+  --color-neutral-600: var(--text-secondary);
+  --color-neutral-700: var(--text-secondary);
+  --color-neutral-800: var(--text-primary);
+  --color-neutral-900: var(--text-primary);
+  --color-neutral-950: var(--text-primary);
+  --color-stone-50: var(--surface-2);
+  --color-stone-100: var(--surface-2);
+  --color-stone-200: var(--border);
+  --color-stone-300: var(--border-2);
+  --color-stone-400: var(--text-faint);
+  --color-stone-500: var(--text-muted);
+  --color-stone-600: var(--text-secondary);
+  --color-stone-700: var(--text-secondary);
+  --color-stone-800: var(--text-primary);
+  --color-stone-900: var(--text-primary);
+  --color-stone-950: var(--text-primary);
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

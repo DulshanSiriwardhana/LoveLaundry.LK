@@ -67,10 +67,10 @@ export function QuickViewModal({ open, onOpenChange, type, entity, deliveryStatu
                         <div
                             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${
                                 type === 'gatepass'
-                                    ? 'border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB]'
+                                    ? 'border-[var(--brand-border)] bg-[var(--surface-2)] text-[var(--brand-text)]'
                                     : type === 'delivery'
-                                        ? 'border-[#BBF7D0] bg-[#F0FDF4] text-[#16A34A]'
-                                        : 'border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB]'
+                                        ? 'border-[var(--success-border)] bg-[var(--surface-2)] text-[var(--success-text)]'
+                                        : 'border-[var(--brand-border)] bg-[var(--surface-2)] text-[var(--brand-text)]'
                             }`}
                         >
                             {type === 'gatepass' ? <ClipboardList size={18} /> : type === 'delivery' ? <Truck size={18} /> : <Receipt size={18} />}
@@ -137,14 +137,14 @@ function GatePassQuickView({ gp }: { gp: GatePass }) {
             </div>
 
             {mismatches.length > 0 && (
-                <div className="flex items-center gap-2 rounded-lg border border-[#FDE68A] bg-[#FFFBEB] px-3 py-2 text-[12px] font-medium text-[#B45309]">
+                <div className="flex items-center gap-2 rounded-lg border border-[var(--danger-border)] bg-[var(--surface-2)] px-3 py-2 text-[12px] font-medium text-[var(--danger-text)]">
                     <AlertTriangle size={14} />
                     {mismatches.length} item{mismatches.length > 1 ? 's' : ''} with receipt mismatch
                 </div>
             )}
 
             {rewashed.length > 0 && (
-                <div className="flex items-center gap-2 rounded-lg border border-[#BBF7D0] bg-[#F0FDF4] px-3 py-2 text-[12px] font-medium text-[#15803D]">
+                <div className="flex items-center gap-2 rounded-lg border border-[var(--success-border)] bg-[var(--surface-2)] px-3 py-2 text-[12px] font-medium text-[var(--success-text)]">
                     <RotateCw size={14} />
                     {rewashed.length} rewashed type{rewashed.length > 1 ? 's' : ''} ({rewashedQty} pcs received) · free, not billed
                 </div>
@@ -227,11 +227,11 @@ function BillQuickView({ bill }: { bill: Bill }) {
                 </div>
                 <div className="flex items-center justify-between text-[12px]">
                     <span className="font-medium text-[var(--text-muted)]">Paid</span>
-                    <span className="font-semibold text-[#16A34A]">LKR {paid.toFixed(2)}</span>
+                    <span className="font-semibold text-[var(--success-text)]">LKR {paid.toFixed(2)}</span>
                 </div>
                 <div className="flex items-center justify-between text-[12px]">
                     <span className="font-medium text-[var(--text-muted)]">Outstanding</span>
-                    <span className="font-semibold text-[#DC2626]">LKR {outstanding.toFixed(2)}</span>
+                    <span className="font-semibold text-[var(--danger-deep)]">LKR {outstanding.toFixed(2)}</span>
                 </div>
             </div>
 
@@ -266,12 +266,12 @@ function ItemsTable({
                 <tbody className="divide-y divide-[var(--border)]">
                     {rows.map((row, i) => (
                         <tr key={`${row.name}-${row.spec}-${i}`}>
-                            <td className={row.flag ? 'px-3 py-2 font-medium text-[#B45309]' : 'px-3 py-2 font-medium text-[var(--text-primary)]'}>
-                                {row.flag && <AlertTriangle size={11} className="mr-1 inline text-[#D97706]" />}
-                                {row.rewashed && <RotateCw size={11} className="mr-1 inline text-[#16A34A]" />}
+                            <td className={row.flag ? 'px-3 py-2 font-medium text-[var(--danger-text)]' : 'px-3 py-2 font-medium text-[var(--text-primary)]'}>
+                                {row.flag && <AlertTriangle size={11} className="mr-1 inline text-[var(--danger-text)]" />}
+                                {row.rewashed && <RotateCw size={11} className="mr-1 inline text-[var(--success-text)]" />}
                                 {row.name}
                                 {row.rewashed && (
-                                    <span className="ml-1.5 rounded-full bg-[#F0FDF4] px-1.5 py-0.5 text-[10px] font-semibold text-[#15803D]">
+                                    <span className="ml-1.5 rounded-full bg-[var(--surface-2)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--success-text)]">
                                         re-wash
                                     </span>
                                 )}

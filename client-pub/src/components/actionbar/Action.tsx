@@ -11,7 +11,7 @@ const Action = ({ item, isSelected, setSelected }: { item: ActionType, isSelecte
                 setSelected(item);
                 navigateTo(item.path);
             }}
-            className={`border rounded-full w-12 h-12 flex items-center justify-center transition-colors duration-200 ${isSelected ? "bg-green-600 text-white" : "bg-white text-black hover:bg-green-100"}`}
+            className={`border rounded-full w-12 h-12 flex items-center justify-center transition-colors duration-200 ${isSelected ? "bg-[var(--brand-dark)] text-[var(--ll-white)]" : "bg-[var(--surface)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"}`}
         >
             <item.icon className="w-6" />
         </button>

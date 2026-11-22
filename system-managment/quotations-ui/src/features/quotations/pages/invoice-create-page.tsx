@@ -113,7 +113,7 @@ export default function InvoiceCreatePage() {
                     type="date"
                     value={dateFrom}
                     onChange={e => setDateFrom(e.target.value)}
-                    className="h-10 rounded-lg border border-[var(--border)] bg-[var(--surface)] pl-8 pr-2.5 text-[13px] text-[var(--text-primary)] outline-none focus:border-[#DC2626] focus:ring-2 focus:ring-[#DC2626]/10 shadow-sm"
+                    className="h-10 rounded-lg border border-[var(--border)] bg-[var(--surface)] pl-8 pr-2.5 text-[13px] text-[var(--text-primary)] outline-none focus:border-[var(--danger-deep)] focus:ring-2 focus:ring-[var(--danger-deep)]/10 shadow-sm"
                   />
                 </div>
               </label>
@@ -123,7 +123,7 @@ export default function InvoiceCreatePage() {
                   type="date"
                   value={dateTo}
                   onChange={e => setDateTo(e.target.value)}
-                  className="h-10 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2.5 text-[13px] text-[var(--text-primary)] outline-none focus:border-[#DC2626] focus:ring-2 focus:ring-[#DC2626]/10 shadow-sm"
+                  className="h-10 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2.5 text-[13px] text-[var(--text-primary)] outline-none focus:border-[var(--danger-deep)] focus:ring-2 focus:ring-[var(--danger-deep)]/10 shadow-sm"
                 />
               </label>
             </div>
@@ -134,7 +134,7 @@ export default function InvoiceCreatePage() {
                 onClick={toggleAll}
                 className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[12px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition cursor-pointer"
               >
-                {allSelected ? <CheckSquare className="h-4 w-4 text-[#DC2626]" /> : <Square className="h-4 w-4" />}
+                {allSelected ? <CheckSquare className="h-4 w-4 text-[var(--danger-deep)]" /> : <Square className="h-4 w-4" />}
                 {allSelected ? 'Deselect all' : 'Select all'}
               </button>
             )}
@@ -170,7 +170,7 @@ export default function InvoiceCreatePage() {
               </p>
               <p className="text-[13px]" style={{ color: 'var(--text-faint)' }}>
                 <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{chosen.length}</span> selected · Outstanding{' '}
-                <span className="font-bold text-[#DC2626]">LKR {totalOutstanding.toFixed(2)}</span>
+                <span className="font-bold text-[var(--danger-deep)]">LKR {totalOutstanding.toFixed(2)}</span>
               </p>
             </div>
 
@@ -185,14 +185,14 @@ export default function InvoiceCreatePage() {
                     onClick={() => toggleOne(bill.id)}
                     className={`flex flex-col gap-2 rounded-xl border p-4 text-left transition-all cursor-pointer ${
                       checked
-                        ? 'border-[#DC2626] bg-[color-mix(in_srgb,var(--red-600)_6%,var(--surface))] shadow-sm'
+                        ? 'border-[var(--danger-deep)] bg-[color-mix(in_srgb,var(--red-600)_6%,var(--surface))] shadow-sm'
                         : 'border-[var(--border)] bg-[var(--surface)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-hover)]'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5 min-w-0">
                         {checked
-                          ? <CheckSquare className="h-5 w-5 shrink-0 text-[#DC2626]" />
+                          ? <CheckSquare className="h-5 w-5 shrink-0 text-[var(--danger-deep)]" />
                           : <Square className="h-5 w-5 shrink-0 text-[var(--text-faint)]" />}
                         <div className="min-w-0">
                           <p className="text-[13px] font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
@@ -207,7 +207,7 @@ export default function InvoiceCreatePage() {
                     </div>
                     <div className="flex items-center justify-between border-t pt-2" style={{ borderColor: 'var(--border)' }}>
                       <Badge variant="secondary">{bill.total_quantity} items</Badge>
-                      <span className="text-[13px] font-bold text-[#DC2626]">LKR {outstanding.toFixed(2)}</span>
+                      <span className="text-[13px] font-bold text-[var(--danger-deep)]">LKR {outstanding.toFixed(2)}</span>
                     </div>
                   </button>
                 )

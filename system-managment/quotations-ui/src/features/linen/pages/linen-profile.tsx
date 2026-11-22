@@ -44,7 +44,7 @@ export default function LinenProfile() {
   )
   if (isError || !linen) return <ErrorState />
 
-  const stCfg = LINEN_STATUS_CONFIG[linen.status as LinenStatus] ?? { label: linen.status, color: '#6B7280', bg: '#F3F4F6' }
+  const stCfg = LINEN_STATUS_CONFIG[linen.status as LinenStatus] ?? { label: linen.status, color: 'var(--text-secondary)', bg: 'var(--surface)' }
 
   const handleQuickAction = (action: string) => {
     if (!id) return
@@ -105,7 +105,7 @@ export default function LinenProfile() {
                     key={sa.value}
                     variant="outline"
                     size="sm"
-                    className="text-xs justify-start h-8 focus:ring-2 focus:ring-[#DC2626]/20"
+                    className="text-xs justify-start h-8 focus:ring-2 focus:ring-[var(--danger-deep)]/20"
                     style={{ borderColor: sa.color + '30', color: sa.color }}
                     onClick={() => handleQuickAction(sa.value)}
                     disabled={scanMutation.isPending}
@@ -163,7 +163,7 @@ export default function LinenProfile() {
                 <div className="space-y-0">
                   {events.items.map((evt, i) => {
                     const fromCfg = evt.from_status ? LINEN_STATUS_CONFIG[evt.from_status as LinenStatus] : null
-                    const toCfg = LINEN_STATUS_CONFIG[evt.to_status as LinenStatus] ?? { label: evt.to_status, color: '#6B7280' }
+                    const toCfg = LINEN_STATUS_CONFIG[evt.to_status as LinenStatus] ?? { label: evt.to_status, color: 'var(--text-secondary)' }
                     return (
                       <div key={evt.id} className="flex gap-3 relative pb-4 last:pb-0">
                         {i < events.items.length - 1 && <div className="absolute left-[7px] top-5 bottom-0 w-px bg-[var(--border)]" />}

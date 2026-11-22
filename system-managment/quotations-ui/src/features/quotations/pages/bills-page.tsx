@@ -33,7 +33,7 @@ export default function BillsPage() {
           ]}
         />
         <h1 className="text-dashboard-title mt-1">Create Bill</h1>
-        <p className="text-[13px] text-[#98A2B3] mt-0.5">
+        <p className="text-[13px] text-[var(--text-faint)] mt-0.5">
           {selected
             ? 'Search items in this quotation and set quantities to build the bill'
             : 'Pick a quotation to start a bill for it'}
@@ -52,19 +52,19 @@ export default function BillsPage() {
       ) : !selected ? (
         <>
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-faint)]" />
             <input
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search quotations by client or title…"
-              className="h-11 w-full rounded-xl border border-[#E4E7EC] bg-white pl-10 pr-9 text-[14px] text-[#101828] outline-none focus:border-[#DC2626] focus:ring-2 focus:ring-[#DC2626]/10 shadow-sm"
+              className="h-11 w-full rounded-xl border border-[var(--border)] bg-white pl-10 pr-9 text-[14px] text-[var(--text-primary)] outline-none focus:border-[var(--danger-deep)] focus:ring-2 focus:ring-[var(--danger-deep)]/10 shadow-sm"
             />
             {search && (
               <button
                 type="button"
                 onClick={() => setSearch('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#98A2B3] hover:text-[#374151] cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-faint)] hover:text-[var(--text-primary)] cursor-pointer"
                 aria-label="Clear search"
               >
                 <X className="h-4 w-4" />
@@ -91,14 +91,14 @@ export default function BillsPage() {
                   className="cursor-pointer p-4"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FFF1F1] text-[#DC2626] border border-[#FECACA]">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--surface-2)] text-[var(--danger-deep)] border border-[var(--danger-border)]">
                       <Building2 className="h-4 w-4" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[13px] font-semibold text-[#101828] truncate">
+                      <p className="text-[13px] font-semibold text-[var(--text-primary)] truncate">
                         {q.client_name}
                       </p>
-                      <p className="text-[12px] text-[#98A2B3] truncate">
+                      <p className="text-[12px] text-[var(--text-faint)] truncate">
                         {q.quotation_title || 'Price List'} · {q.line_items?.length ?? 0} items
                       </p>
                     </div>
@@ -111,14 +111,14 @@ export default function BillsPage() {
       ) : (
         <>
           <Card>
-            <CardHeader className="border-b border-[#F2F4F7] pb-4">
+            <CardHeader className="border-b border-[var(--border)] pb-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FFF1F1] text-[#DC2626] border border-[#FECACA]">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--surface-2)] text-[var(--danger-deep)] border border-[var(--danger-border)]">
                   <Receipt className="h-4 w-4" />
                 </div>
                 <div>
                   <CardTitle>{selected.client_name}</CardTitle>
-                  <p className="text-[12px] text-[#98A2B3] mt-0.5">
+                  <p className="text-[12px] text-[var(--text-faint)] mt-0.5">
                     {selected.quotation_title || 'Price List'} · {selected.line_items?.length ?? 0} items
                   </p>
                 </div>
@@ -128,7 +128,7 @@ export default function BillsPage() {
               </Button>
             </CardHeader>
             <CardContent className="pt-4">
-              <p className="text-[12px] text-[#98A2B3]">
+              <p className="text-[12px] text-[var(--text-faint)]">
                 Only this quotation's items can be added to this bill. To bill a different
                 client, change the quotation above — a bill can't mix items from two quotations.
               </p>

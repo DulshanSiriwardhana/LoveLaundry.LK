@@ -32,6 +32,7 @@ import {
   type SessionUser,
 } from "./auth";
 import { LoginScreen } from "./LoginScreen";
+import { ThemeSwitcher } from "./ll-theme";
 
 type Route =
   | "summary"
@@ -190,7 +191,7 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState({ title: "", body: "", applications: "" });
-  const [theme, setTheme] = useState({ scope: "global", theme: '{"primary":"#0F2C59"}' });
+  const [theme, setTheme] = useState({ scope: "global", theme: '{"primary":"#00008B"}' });
   const [dashboardScope, setDashboardScope] = useState<DashboardScope>("platform");
   const [dashboardOrganization, setDashboardOrganization] = useState("");
   const [tagDraft, setTagDraft] = useState({
@@ -478,6 +479,7 @@ export function App() {
           <h1>Platform Admin</h1>
         </div>
         <div className="session">
+          <ThemeSwitcher compact />
           <span>{lastUpdated ? `Updated ${lastUpdated}` : ""}</span>
           <button type="button" onClick={() => void refreshPage()} disabled={refreshing || loading}>
             {refreshing || loading ? "Refreshing…" : "Refresh"}

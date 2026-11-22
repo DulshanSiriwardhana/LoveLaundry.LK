@@ -87,28 +87,28 @@ export default function LinenInventory() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search linen ID, type, client..."
-                className="w-full pl-9 pr-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--surface)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[#DC2626]/20 focus:border-[#DC2626] transition-colors"
+                className="w-full pl-9 pr-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--surface)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--danger-deep)]/20 focus:border-[var(--danger-deep)] transition-colors"
               />
             </div>
             <select value={category} onChange={e => { setCategory(e.target.value); setPage(0) }}
-              className="px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--surface)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[#DC2626]/20 focus:border-[#DC2626] transition-colors">
+              className="px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--surface)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--danger-deep)]/20 focus:border-[var(--danger-deep)] transition-colors">
               <option value="">All Categories</option>
               {LINEN_CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
             </select>
             <select value={status} onChange={e => { setStatus(e.target.value); setPage(0) }}
-              className="px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--surface)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[#DC2626]/20 focus:border-[#DC2626] transition-colors">
+              className="px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--surface)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--danger-deep)]/20 focus:border-[var(--danger-deep)] transition-colors">
               <option value="">All Statuses</option>
               {(Object.keys(LINEN_STATUS_CONFIG) as LinenStatus[]).map(s => (
                 <option key={s} value={s}>{LINEN_STATUS_CONFIG[s].label}</option>
               ))}
             </select>
             <select value={condition} onChange={e => { setCondition(e.target.value); setPage(0) }}
-              className="px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--surface)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[#DC2626]/20 focus:border-[#DC2626] transition-colors">
+              className="px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--surface)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--danger-deep)]/20 focus:border-[var(--danger-deep)] transition-colors">
               <option value="">All Conditions</option>
               {LINEN_CONDITIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
             </select>
             {hasFilters && (
-              <Button variant="ghost" size="sm" onClick={clearFilters} className="text-[var(--text-muted)] hover:text-[#DC2626]">
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="text-[var(--text-muted)] hover:text-[var(--danger-deep)]">
                 <X size={14} className="mr-1" />Clear
               </Button>
             )}
@@ -134,7 +134,7 @@ export default function LinenInventory() {
               </thead>
               <tbody>
                 {data.items.map(linen => {
-                  const stCfg = LINEN_STATUS_CONFIG[linen.status as LinenStatus] ?? { label: linen.status, color: '#6B7280', bg: '#F3F4F6' }
+                  const stCfg = LINEN_STATUS_CONFIG[linen.status as LinenStatus] ?? { label: linen.status, color: 'var(--text-secondary)', bg: 'var(--surface)' }
                   return (
                     <tr
                       key={linen.id}
@@ -154,7 +154,7 @@ export default function LinenInventory() {
                       <td className="px-4 py-3 text-[var(--text-secondary)] text-center">{linen.wash_count}</td>
                       <td className="px-4 py-3 text-[var(--text-muted)] text-xs">{linen.last_scanned_date ? formatDate(linen.last_scanned_date) : '—'}</td>
                       <td className="px-4 py-3">
-                        <Link to={`/linen/${linen.id}`} onClick={e => e.stopPropagation()} className="text-[#DC2626] hover:underline text-xs font-semibold">View</Link>
+                        <Link to={`/linen/${linen.id}`} onClick={e => e.stopPropagation()} className="text-[var(--danger-deep)] hover:underline text-xs font-semibold">View</Link>
                       </td>
                     </tr>
                   )

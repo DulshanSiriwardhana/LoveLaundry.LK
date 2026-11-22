@@ -21,8 +21,8 @@ const CountDown = () => {
     const seconds = Math.floor((remaining % 60_000) / 1000);
 
     return (
-        <div className="mt-4 text-sm text-gray-600">
-            Today ends in <span className="font-mono font-semibold text-green-700">{pad(hours)}:{pad(minutes)}:{pad(seconds)}</span>
+        <div className="mt-4 text-sm text-[var(--text-secondary)]">
+            Today ends in <span className="font-mono font-semibold text-[var(--brand-text)]">{pad(hours)}:{pad(minutes)}:{pad(seconds)}</span>
         </div>
     );
 };

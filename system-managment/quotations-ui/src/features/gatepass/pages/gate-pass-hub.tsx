@@ -9,14 +9,14 @@ const TEMPLATES = [
     title: 'Camelot Linen Receipt',
     description: 'Linen laundry gatepass — bedsheets, towels, curtains, banquet cloth and more with color columns.',
     icon: BedDouble,
-    accent: '#2563EB',
+    accent: 'var(--brand-text)',
   },
   {
     to: '/linen/gate-pass/uniform',
     title: 'Camelot Uniform Receipt',
     description: 'Uniform laundry gatepass — department-wise uniforms, kitchen and apron sections with signature area.',
     icon: Shirt,
-    accent: '#DC2626',
+    accent: 'var(--danger-deep)',
   },
 ]
 
@@ -44,7 +44,7 @@ export default function GatePassHub() {
                   >
                     <t.icon size={22} />
                   </div>
-                  <ArrowUpRight size={18} className="text-[var(--text-muted)] group-hover:text-[#DC2626] transition-colors" />
+                  <ArrowUpRight size={18} className="text-[var(--text-muted)] group-hover:text-[var(--danger-deep)] transition-colors" />
                 </div>
                 <h2 className="mt-4 text-base font-bold text-[var(--text-primary)]">{t.title}</h2>
                 <p className="mt-1 text-sm text-[var(--text-muted)] leading-relaxed">{t.description}</p>

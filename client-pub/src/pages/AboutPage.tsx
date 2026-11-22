@@ -13,7 +13,7 @@ const AboutPage = () => {
                 send bed linen, towels, table linens and curtains in bulk, with item
                 counts recorded for every batch.
             </p>
-            <div className="rounded-xl border border-green-600 bg-white p-4 text-sm">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-sm">
                 <p className="font-semibold">Visit or contact us</p>
                 <p className="mt-2">Kuda Bingiriya, Panirendawa, Madagama, Chilaw</p>
                 <p>Phone / WhatsApp: +94 77 420 0919</p>

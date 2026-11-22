@@ -32,58 +32,58 @@ const THEME_OPTIONS: ThemePresetOption[] = [
   // Light themes
   {
     value: 'light', label: 'Light', desc: 'The classic clean look',
-    icon: <RiSunLine className="h-4 w-4 text-[#F59E0B]" />,
+    icon: <RiSunLine className="h-4 w-4 text-[var(--danger-text)]" />,
     group: 'light',
-    swatchBg: '#F9FAFB', swatchSurface: '#FFFFFF', swatchBorder: '#E5E7EB', swatchText: '#101828', swatchMuted: '#6B7280',
+    swatchBg: 'var(--surface)', swatchSurface: 'var(--ll-white)', swatchBorder: 'var(--surface-2)', swatchText: 'var(--text-primary)', swatchMuted: 'var(--text-secondary)',
   },
   {
     value: 'contrast', label: 'High Contrast', desc: 'Stronger borders, darker text',
-    icon: <RiContrastLine className="h-4 w-4 text-[#2563EB]" />,
+    icon: <RiContrastLine className="h-4 w-4 text-[var(--brand-text)]" />,
     group: 'light',
-    swatchBg: '#F3F4F6', swatchSurface: '#FFFFFF', swatchBorder: '#94A3B8', swatchText: '#0B1220', swatchMuted: '#334155',
+    swatchBg: 'var(--surface)', swatchSurface: 'var(--ll-white)', swatchBorder: 'var(--brand-text)', swatchText: 'var(--text-primary)', swatchMuted: 'var(--brand-deep)',
   },
   {
     value: 'ocean', label: 'Ocean Blue', desc: 'Cool blue-tinted professional',
-    icon: <RiDropLine className="h-4 w-4 text-[#2563EB]" />,
+    icon: <RiDropLine className="h-4 w-4 text-[var(--brand-text)]" />,
     group: 'light',
-    swatchBg: '#F0F5FF', swatchSurface: '#FFFFFF', swatchBorder: '#C7D7F0', swatchText: '#0C1929', swatchMuted: '#4A6485',
+    swatchBg: 'var(--surface)', swatchSurface: 'var(--ll-white)', swatchBorder: 'var(--brand-border)', swatchText: 'var(--text-primary)', swatchMuted: 'var(--brand-text)',
   },
   {
     value: 'forest', label: 'Forest Green', desc: 'Natural green-tinted warmth',
-    icon: <RiLeafLine className="h-4 w-4 text-[#16A34A]" />,
+    icon: <RiLeafLine className="h-4 w-4 text-[var(--success-text)]" />,
     group: 'light',
-    swatchBg: '#F0FAF4', swatchSurface: '#FFFFFF', swatchBorder: '#C5E0CC', swatchText: '#0A1F12', swatchMuted: '#376B44',
+    swatchBg: 'var(--surface)', swatchSurface: 'var(--ll-white)', swatchBorder: 'var(--surface-2)', swatchText: 'var(--text-primary)', swatchMuted: 'var(--success-text)',
   },
   {
     value: 'sepia', label: 'Warm Sepia', desc: 'Cream newspaper tone',
-    icon: <RiArtboard2Line className="h-4 w-4 text-[#D9520A]" />,
+    icon: <RiArtboard2Line className="h-4 w-4 text-[var(--danger-text)]" />,
     group: 'light',
-    swatchBg: '#FAF6F0', swatchSurface: '#FFFDF9', swatchBorder: '#DDD5C7', swatchText: '#2C2416', swatchMuted: '#6E6047',
+    swatchBg: 'var(--surface)', swatchSurface: 'var(--surface)', swatchBorder: 'var(--border-2)', swatchText: 'var(--text-primary)', swatchMuted: 'var(--danger-text)',
   },
   {
     value: 'slate', label: 'Slate', desc: 'Balanced medium-grey professional',
-    icon: <RiCloudLine className="h-4 w-4 text-[#475569]" />,
+    icon: <RiCloudLine className="h-4 w-4 text-[var(--brand-deep)]" />,
     group: 'light',
-    swatchBg: '#E8ECF1', swatchSurface: '#FFFFFF', swatchBorder: '#B8C0CC', swatchText: '#0F172A', swatchMuted: '#475569',
+    swatchBg: 'var(--surface-2)', swatchSurface: 'var(--ll-white)', swatchBorder: 'var(--border-2)', swatchText: 'var(--text-primary)', swatchMuted: 'var(--brand-deep)',
   },
   // Dark themes
   {
     value: 'dark', label: 'Midnight', desc: 'Professional dark mode',
-    icon: <RiMoonLine className="h-4 w-4 text-[#7C8A99]" />,
+    icon: <RiMoonLine className="h-4 w-4 text-[var(--text-faint)]" />,
     group: 'dark',
-    swatchBg: '#0F141B', swatchSurface: '#171E27', swatchBorder: '#2A3543', swatchText: '#F4F7FB', swatchMuted: '#93A0AE',
+    swatchBg: 'var(--text-primary)', swatchSurface: 'var(--text-primary)', swatchBorder: 'var(--text-primary)', swatchText: 'var(--surface)', swatchMuted: 'var(--text-faint)',
   },
   {
     value: 'nightblue', label: 'Night Blue', desc: 'Deep blue-tinted dark',
-    icon: <RiMoonLine className="h-4 w-4 text-[#818CF8]" />,
+    icon: <RiMoonLine className="h-4 w-4 text-[var(--brand-text)]" />,
     group: 'dark',
-    swatchBg: '#0D0F1A', swatchSurface: '#141728', swatchBorder: '#252A42', swatchText: '#E8EAFF', swatchMuted: '#8890C0',
+    swatchBg: 'var(--text-primary)', swatchSurface: 'var(--text-primary)', swatchBorder: 'var(--text-primary)', swatchText: 'var(--surface-2)', swatchMuted: 'var(--brand-text)',
   },
   {
     value: 'contrast-dark', label: 'Contrast Dark', desc: 'Maximum contrast dark mode',
-    icon: <RiEyeLine className="h-4 w-4 text-[#FF4444]" />,
+    icon: <RiEyeLine className="h-4 w-4 text-[var(--danger-text)]" />,
     group: 'dark',
-    swatchBg: '#000000', swatchSurface: '#0D0D0D', swatchBorder: '#3A3A3A', swatchText: '#FFFFFF', swatchMuted: '#AAAAAA',
+    swatchBg: 'var(--ll-black)', swatchSurface: 'var(--text-primary)', swatchBorder: 'var(--text-primary)', swatchText: 'var(--ll-white)', swatchMuted: 'var(--text-faint)',
   },
 ]
 
@@ -136,8 +136,8 @@ export default function SettingsPage() {
       <Card>
         <CardHeader className="border-b pb-4" style={{ borderColor: 'var(--border)' }}>
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#EFF6FF] border border-[#BFDBFE]">
-              <RiPaletteLine className="h-4 w-4 text-[#2563EB]" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--surface-2)] border border-[var(--brand-border)]">
+              <RiPaletteLine className="h-4 w-4 text-[var(--brand-text)]" />
             </div>
             <div>
               <CardTitle>Light Themes</CardTitle>
@@ -173,8 +173,8 @@ export default function SettingsPage() {
       <Card>
         <CardHeader className="border-b pb-4" style={{ borderColor: 'var(--border)' }}>
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1E1B4B] border border-[#4338CA]">
-              <RiMoonLine className="h-4 w-4 text-[#A5B4FC]" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--brand-deep)] border border-[var(--brand-deep)]">
+              <RiMoonLine className="h-4 w-4 text-[var(--brand-text)]" />
             </div>
             <div>
               <CardTitle>Dark Themes</CardTitle>
@@ -210,8 +210,8 @@ export default function SettingsPage() {
       <Card>
         <CardHeader className="border-b pb-4" style={{ borderColor: 'var(--border)' }}>
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F0FDF4] border border-[#BBF7D0]">
-              <RiTextSpacing className="h-4 w-4 text-[#16A34A]" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--surface-2)] border border-[var(--success-border)]">
+              <RiTextSpacing className="h-4 w-4 text-[var(--success-text)]" />
             </div>
             <div>
               <CardTitle>Font Size</CardTitle>
@@ -238,8 +238,8 @@ export default function SettingsPage() {
       <Card>
         <CardHeader className="border-b pb-4" style={{ borderColor: 'var(--border)' }}>
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFF7ED] border border-[#FED7AA]">
-              <RiPaletteLine className="h-4 w-4 text-[#EA580C]" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--surface-2)] border border-[var(--danger-border)]">
+              <RiPaletteLine className="h-4 w-4 text-[var(--danger-text)]" />
             </div>
             <div>
               <CardTitle>Live Preview</CardTitle>
@@ -271,7 +271,7 @@ export default function SettingsPage() {
               </div>
               <div className="rounded-lg border px-3 py-2" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
                 <p className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-tertiary)' }}>Status</p>
-                <p className="font-semibold text-[#16A34A]" style={{ fontSize: 'var(--body-font-size)' }}>Paid</p>
+                <p className="font-semibold text-[var(--success-text)]" style={{ fontSize: 'var(--body-font-size)' }}>Paid</p>
               </div>
             </div>
           </div>

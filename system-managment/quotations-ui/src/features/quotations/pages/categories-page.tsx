@@ -29,7 +29,7 @@ export default function ClientsPage() {
       <div>
         <Breadcrumb items={[{ label: 'Dashboard', href: '/' }, { label: 'By Client' }]} />
         <h1 className="text-dashboard-title mt-1">By Client</h1>
-        <p className="text-[13px] text-[#98A2B3] mt-0.5">All hotels and venues with their quotations</p>
+        <p className="text-[13px] text-[var(--text-faint)] mt-0.5">All hotels and venues with their quotations</p>
       </div>
 
       {isLoading ? (
@@ -51,15 +51,15 @@ export default function ClientsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: Math.min(idx * 0.04, 0.3) }}
             >
-              <Card className="h-full hover:border-[#FECACA] transition-colors">
-                <CardHeader className="border-b border-[#F2F4F7] pb-3">
+              <Card className="h-full hover:border-[var(--danger-border)] transition-colors">
+                <CardHeader className="border-b border-[var(--border)] pb-3">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FFF1F1] text-[#DC2626] border border-[#FECACA] text-[15px] font-bold">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--surface-2)] text-[var(--danger-deep)] border border-[var(--danger-border)] text-[15px] font-bold">
                       {clientName.charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0">
                       <CardTitle className="truncate">{clientName}</CardTitle>
-                      <p className="text-[11px] text-[#98A2B3] mt-0.5">
+                      <p className="text-[11px] text-[var(--text-faint)] mt-0.5">
                         {quotes?.length ?? 0} quotation{(quotes?.length ?? 0) !== 1 ? 's' : ''}
                       </p>
                     </div>
@@ -76,14 +76,14 @@ export default function ClientsPage() {
                     <Link
                       key={q.id}
                       to={`/quotations/${q.id}`}
-                      className="flex items-center gap-3 rounded-lg border border-[#E4E7EC] bg-white px-3 py-2.5 hover:border-[#FECACA] hover:bg-[#FFF8F8] transition-all group"
+                      className="flex items-center gap-3 rounded-lg border border-[var(--border)] bg-white px-3 py-2.5 hover:border-[var(--danger-border)] hover:bg-[var(--surface-2)] transition-all group"
                     >
-                      <FileText className="h-3.5 w-3.5 shrink-0 text-[#D1D5DB] group-hover:text-[#DC2626] transition-colors" />
+                      <FileText className="h-3.5 w-3.5 shrink-0 text-[var(--text-primary)] group-hover:text-[var(--danger-deep)] transition-colors" />
                       <div className="min-w-0 flex-1">
-                        <p className="text-[12px] font-medium text-[#374151] truncate">
+                        <p className="text-[12px] font-medium text-[var(--text-primary)] truncate">
                           {q.quotation_title || `Quotation #${q.id}`}
                         </p>
-                        <p className="text-[10px] text-[#98A2B3]">
+                        <p className="text-[10px] text-[var(--text-faint)]">
                           {q.line_items?.length ?? 0} items · {formatDate(q.updated_at ?? q.created_at)}
                         </p>
                       </div>

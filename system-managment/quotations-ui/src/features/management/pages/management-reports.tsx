@@ -6,7 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Filter } from 'lucide-react'
 import { currentMonth, currentYear } from '../../../lib/time'
 
-const COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
+const COLORS = ['var(--danger-text)', 'var(--brand-text)', 'var(--success-text)', 'var(--danger-text)', 'var(--brand-text)', 'var(--danger-text)', 'var(--success-text)', 'var(--danger-text)']
 const LIST_LIMIT = 500
 
 export default function ManagementReports() {
@@ -133,7 +133,7 @@ export default function ManagementReports() {
                   <XAxis type="number" />
                   <YAxis type="category" dataKey="name" width={120} />
                   <Tooltip formatter={(v: number) => `LKR ${v.toLocaleString()}`} />
-                  <Bar dataKey="value" fill="#22c55e" />
+                  <Bar dataKey="value" fill="var(--success-text)" />
                 </BarChart>
               </ResponsiveContainer>
             </div>

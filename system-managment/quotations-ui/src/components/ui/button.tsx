@@ -33,11 +33,11 @@ const buttonVariants = cva(
           'border-[var(--brand)] bg-[var(--brand)] text-white',
           'hover:border-[var(--brand-hover)] hover:bg-[var(--brand-hover)]',
           'active:bg-[var(--brand-active)]',
-          'shadow-[0_1px_2px_rgb(16_24_40/0.08)]',
+          'shadow-[0_1px_2px_rgba(0, 0, 139, 0.08)]',
         ].join(' '),
         secondary: [
           'border-[var(--border-2)] bg-[var(--surface)] text-[var(--text-secondary)]',
-          'shadow-[0_1px_2px_rgb(16_24_40/0.04)]',
+          'shadow-[0_1px_2px_rgba(0, 0, 139, 0.04)]',
           'hover:border-[var(--border-strong)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]',
         ].join(' '),
         ghost: [

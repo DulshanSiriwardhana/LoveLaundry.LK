@@ -15,6 +15,7 @@ import {
 } from "./api";
 import { actorId, getSession, logout, type SessionUser } from "./auth";
 import { LoginScreen } from "./LoginScreen";
+import { ThemeSwitcher } from "./ll-theme";
 
 const CURRENT_PERIOD = new Date().toISOString().slice(0, 7);
 
@@ -207,6 +208,7 @@ export function App() {
           <p className="muted">Billing and adjustment control for the current period.</p>
         </div>
         <div className="session">
+          <ThemeSwitcher compact />
           <span className="badge badge--soft">{session.user_name}</span>
           {lastUpdated ? <span className="muted">{`Updated ${lastUpdated}`}</span> : null}
           <button type="button" className="btn btn--ghost" onClick={() => void refreshPage()} disabled={refreshing}>

@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage'
 import AboutPage from './pages/AboutPage'
 import WorkPage from './pages/WorkPage'
 import JoinPage from './pages/JoinPage'
+import { ThemeSwitcher } from './ll-theme'
 
 const pages: Record<string, ComponentType> = {
   '/': HomePage,
@@ -25,10 +26,13 @@ function App() {
   }, [path])
 
   return (
-    <div className='min-h-screen w-full bg-zinc-50 text-zinc-900'>
-      <header className='border-b border-green-600 bg-white px-5 py-4'>
-        <p className='text-lg font-bold text-green-700'>Love Laundry</p>
-        <p className='text-xs text-zinc-500'>Fresh clothes, more free time</p>
+    <div className='min-h-screen w-full bg-[var(--bg)] text-[var(--text-primary)]'>
+      <header className='flex items-center justify-between gap-4 border-b border-[var(--border)] bg-[var(--surface)] px-5 py-4'>
+        <div>
+          <p className='text-lg font-bold text-[var(--brand-text)]'>Love Laundry</p>
+          <p className='text-xs text-[var(--text-muted)]'>Fresh clothes, more free time</p>
+        </div>
+        <ThemeSwitcher compact />
       </header>
       <main className='mx-auto max-w-3xl px-5 pb-40 pt-8 text-sm leading-relaxed'>
         <Page />

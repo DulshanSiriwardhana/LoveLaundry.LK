@@ -63,7 +63,7 @@ function ForecastChart({ title, series, forecast, color, formatter = fmt }: {
           <Tooltip formatter={(v: number) => (v == null ? '—' : formatter(v))} />
           <Legend />
           <Line type="monotone" dataKey="historical" name="History" stroke={color} strokeWidth={2.5} dot={false} />
-          <Line type="monotone" dataKey="forecasted" name="Forecast" stroke="#94a3b8" strokeWidth={2} strokeDasharray="5 4" dot={false} />
+          <Line type="monotone" dataKey="forecasted" name="Forecast" stroke="var(--brand-text)" strokeWidth={2} strokeDasharray="5 4" dot={false} />
         </LineChart>
       </ResponsiveContainer>
       <p className="text-xs text-gray-400 mt-2">
@@ -146,13 +146,13 @@ export default function AiInsightsPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ForecastChart title="Revenue Forecast" series={d.revenue?.series || []} forecast={d.revenue?.forecast || {}} color="#10b981" />
-            <ForecastChart title="Expenses Forecast" series={d.expenses?.series || []} forecast={d.expenses?.forecast || {}} color="#ef4444" />
+            <ForecastChart title="Revenue Forecast" series={d.revenue?.series || []} forecast={d.revenue?.forecast || {}} color="var(--success-text)" />
+            <ForecastChart title="Expenses Forecast" series={d.expenses?.series || []} forecast={d.expenses?.forecast || {}} color="var(--danger-text)" />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <ForecastChart title="Payroll Forecast" series={d.payroll?.series || []} forecast={d.payroll?.forecast || {}} color="#7c3aed" />
-            <ForecastChart title="Net Profit View" series={(d.net_profit?.history || []).map((v: number, i: number) => ({ month: d.revenue?.series?.[i]?.month ?? `M${i + 1}`, value: v }))} forecast={{}} color="#14b8a6" />
+            <ForecastChart title="Payroll Forecast" series={d.payroll?.series || []} forecast={d.payroll?.forecast || {}} color="var(--brand-deep)" />
+            <ForecastChart title="Net Profit View" series={(d.net_profit?.history || []).map((v: number, i: number) => ({ month: d.revenue?.series?.[i]?.month ?? `M${i + 1}`, value: v }))} forecast={{}} color="var(--success-text)" />
             <div className="bg-white dark:bg-gray-800 rounded-xl border p-5">
               <h3 className="font-semibold mb-4 flex items-center gap-2"><Sparkles size={16} className="text-violet-500" /> Payroll Risk</h3>
               <div className="space-y-3">

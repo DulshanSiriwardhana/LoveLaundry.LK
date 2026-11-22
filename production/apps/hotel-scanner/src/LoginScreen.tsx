@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { login, type SessionUser } from "./auth";
+import { ThemeSwitcher } from "./ll-theme";
 
 interface LoginScreenProps {
   onAuthenticated: (user: SessionUser) => void;
@@ -32,6 +33,9 @@ export function LoginScreen({ onAuthenticated }: LoginScreenProps) {
   return (
     <main className="login-shell">
       <form className="login-card" onSubmit={(event) => void submit(event)}>
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <ThemeSwitcher compact />
+        </div>
         <div className="login-card__header">
           <span className="login-mark" aria-hidden="true">LL</span>
           <p className="eyebrow">Love Laundry · secure access</p>

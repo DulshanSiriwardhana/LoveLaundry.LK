@@ -52,13 +52,13 @@ export default function QuotationPrintPage() {
         <h1 style={{
           fontSize: '24px',
           fontWeight: 700,
-          color: '#dc2626',
+          color: 'var(--danger-deep)',
           margin: '0 0 10px 0',
           textAlign: 'center',
         }}>Quotation Not Found</h1>
         <p style={{
           fontSize: '14px',
-          color: '#666',
+          color: 'var(--text-secondary)',
           textAlign: 'center',
           maxWidth: '400px',
         }}>This quotation may have been deleted or the link is invalid.</p>
@@ -85,7 +85,7 @@ export default function QuotationPrintPage() {
   return (
     <div className="quotation-print-page" style={{
       minHeight: '100vh',
-      background: '#f5f5f5',
+      background: 'var(--surface-2)',
       padding: '40px 20px',
       fontFamily: '"Spectral", Georgia, serif',
     }}>
@@ -114,7 +114,7 @@ export default function QuotationPrintPage() {
             fontFamily: '"Spectral", Georgia, serif',
             boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
           }}
-          onMouseOver={(e) => e.currentTarget.style.background = '#dc2626'}
+          onMouseOver={(e) => e.currentTarget.style.background = 'var(--danger-deep)'}
           onMouseOut={(e) => e.currentTarget.style.background = '#000'}
         >
           <Printer size={18} /> Print / Save as PDF
