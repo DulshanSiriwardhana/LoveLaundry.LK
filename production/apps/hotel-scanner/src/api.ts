@@ -148,6 +148,43 @@ export interface ScanResult {
   message?: string;
 }
 
+/** Distinct/verification view of one scanned tag (GET /linen/items/{id}). */
+export interface LinenVerification {
+  linen_id: string;
+  category?: string;
+  item_type?: string;
+  description?: string;
+  size?: string;
+  client_name?: string;
+  status?: string;
+  current_stage?: string;
+}
+
+/** One admin-defined allowed move, from the shared scan catalogue. */
+export interface TransitionRule {
+  from_status: string;
+  to_statuses: string[];
+}
+
+export interface TransitionCatalogue {
+  statuses: string[];
+  transition_rules: TransitionRule[];
+  violation_mode: "block" | "warn";
+}
+
+/** GET a single linen profile without mutating its scan state. */
+export function verifyLinen(linenId: string): Promise<LinenVerification> {
+  return request<LinenVerification>(
+    `/linen/items/${encodeURIComponent(linenId)}`,
+  );
+}
+
+/** Best-effort catalogue for the UI. Older backends return 404; callers fall
+ * back to a sensible local catalogue so scanning still works. */
+export function getTransitionCatalogue(): Promise<TransitionCatalogue> {
+  return request<TransitionCatalogue>("/linens/transitions");
+}
+
 export interface MissingAlertRow {
   alert_id: string;
   linen_id: string;

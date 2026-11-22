@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   captureReaderReads,
   fetchHotelDashboard,
   fetchLinenOperations,
   fetchMissingAlerts,
   getScanSession,
+  getTransitionCatalogue,
   listLinenProfiles,
   listScanSessions,
   newScanId,
@@ -13,13 +14,22 @@ import {
   resolveMissingAlert,
   submitReaderReads,
   submitScan,
+  verifyLinen,
   type LinenOperations,
   type MissingAlertRow,
   type ScanMethod,
-  type ScanResult,
+  type TransitionCatalogue,
 } from "./api";
 import { actorId, getSession, logout, type SessionUser } from "./auth";
 import { LoginScreen } from "./LoginScreen";
+import {
+  classifyLinen,
+  normaliseCode,
+  summarise,
+  transitionViolation,
+  type ScanRow,
+} from "./scan-session";
+import { useLinenLiveFeed, type LinenLiveEvent } from "./useLinenLiveFeed";
 
 type Route = "operations" | "scan" | "bulk" | "exceptions" | "dashboard";
 
@@ -135,7 +145,7 @@ export function App() {
   const [alerts, setAlerts] = useState<MissingAlertRow[]>([]);
   const [profiles, setProfiles] = useState<Array<Record<string, unknown>>>([]);
   const [bulkResult, setBulkResult] = useState<Record<string, unknown> | null>(null);
-  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -155,6 +165,12 @@ export function App() {
     identifier: "",
     action: "dispatch_from_client",
   });
+  // Enhanced batch session: queue distinct reads, verify tags, then submit.
+  const [sessionRows, setSessionRows] = useState<ScanRow[]>([]);
+  const [catalogue, setCatalogue] = useState<TransitionCatalogue | null>(null);
+  const [scanFilter, setScanFilter] = useState("");
+  const [liveEvents, setLiveEvents] = useState<LinenLiveEvent[]>([]);
+  const scanInputRef = useRef<HTMLInputElement>(null);
   const [bulkDraft, setBulkDraft] = useState({
     session_id: "",
     reader_id: "",
@@ -198,6 +214,33 @@ export function App() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // Best-effort admin catalogue. Older backends answer 404; scanning still
+  // works with the backend's own transition validation in that case.
+  useEffect(() => {
+    if (!session) return;
+    let active = true;
+    void getTransitionCatalogue()
+      .then((value) => { if (active) setCatalogue(value); })
+      .catch(() => { if (active) setCatalogue(null); });
+    return () => { active = false; };
+  }, [session]);
+
+  const onLiveEvent = useCallback((event: LinenLiveEvent) => {
+    setLiveEvents((current) => [event, ...current].slice(0, 20));
+    const code = event.linen?.linen_id || event.linen_ids?.[0];
+    if (code) {
+      const status = event.linen?.status;
+      setSessionRows((rows) =>
+        rows.map((row) =>
+          row.code === normaliseCode(code) && status
+            ? { ...row, status, message: `Live: ${status}` }
+            : row,
+        ),
+      );
+    }
+  }, []);
+  const feedStatus = useLinenLiveFeed(onLiveEvent, Boolean(session) && route === "scan");
 
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -249,35 +292,95 @@ export function App() {
     }
   };
 
-  const submitItemScan = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const identifier = scanDraft.identifier.trim();
-    if (!identifier) {
-      setError("Scan or enter a QR identifier, linen ID, or RFID EPC.");
+  /** Queue one tag read and verify it without mutating linen state. */
+  const recordTag = useCallback(async (raw: string) => {
+    const code = normaliseCode(raw);
+    if (!code) return;
+    setSessionRows((rows) => {
+      const existing = rows.find((row) => row.code === code && row.outcome !== "error");
+      if (existing) {
+        return [{ ...existing, outcome: "duplicate", at: Date.now() }, ...rows];
+      }
+      return [{ code, outcome: "queued", at: Date.now() }, ...rows];
+    });
+    setScanDraft((draft) => ({ ...draft, identifier: "" }));
+    requestAnimationFrame(() => scanInputRef.current?.focus());
+
+    try {
+      const profile = await verifyLinen(code);
+      const category = classifyLinen(profile);
+      const violation = transitionViolation(
+        catalogue,
+        profile.status || profile.current_stage,
+        scanDraft.action,
+      );
+      setSessionRows((rows) =>
+        rows.map((row) =>
+          row.code === code
+            ? {
+                ...row,
+                category,
+                verified: true,
+                status: profile.status || profile.current_stage,
+                message: violation ?? undefined,
+                blocked: Boolean(violation),
+              }
+            : row,
+        ),
+      );
+    } catch {
+      // Verification is best-effort: a QR that is not in the local directory is
+      // flagged but can still be submitted. The backend validates it on scan.
+      setSessionRows((rows) =>
+        rows.map((row) =>
+          row.code === code
+            ? { ...row, verified: false, message: "Not registered in this hotel" }
+            : row,
+        ),
+      );
+    }
+  }, [catalogue, scanDraft.action]);
+
+  /** Submit all queued, verified tags as one batch of transaction scans. */
+  const commitSession = async () => {
+    const pending = sessionRows.filter(
+      (row) => row.outcome === "queued" && !row.blocked,
+    );
+    if (!pending.length) {
+      setError("No verified tags are ready to submit.");
       return;
     }
     setSaving(true);
     setError(null);
     setNotice(null);
     try {
-      const result = await submitScan({
-        scan_id: newScanId("HOTEL"),
-        identifier,
-        method: scanDraft.method,
-        action: scanDraft.action,
-        organization_id: organizationFor(session),
-        scanner_id: actorId(),
-      });
-      setScanResult(result);
-      setNotice(
-        result.duplicate
-          ? "Duplicate scan ignored; no new lifecycle event was created."
-          : `Scan accepted with result: ${result.result}.`,
+      const results = await Promise.all(
+        pending.map((row) =>
+          submitScan({
+            scan_id: newScanId("HOTEL"),
+            identifier: row.code,
+            method: scanDraft.method,
+            action: scanDraft.action,
+            organization_id: organizationFor(session),
+            scanner_id: actorId(),
+          }),
+        ),
       );
-      setScanDraft({ ...scanDraft, identifier: "" });
+      const accepted = new Set(
+        results.map((result, index) => ({
+          ok: result.result !== "rejected" && !result.duplicate,
+          code: pending[index].code,
+        })).filter((x) => x.ok).map((x) => x.code),
+      );
+      setSessionRows((rows) =>
+        rows.map((row) =>
+          accepted.has(row.code) ? { ...row, outcome: "accepted" } : row,
+        ),
+      );
+      setNotice(`${accepted.size} linen item(s) updated.`);
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to submit scan");
+      setError(err instanceof Error ? err.message : "Failed to submit the batch");
     } finally {
       setSaving(false);
     }
@@ -414,6 +517,19 @@ export function App() {
     return <LoginScreen onAuthenticated={setSession} />;
   }
 
+  const summary = useMemo(() => summarise(sessionRows), [sessionRows]);
+  const visibleRows = useMemo(() => {
+    const needle = scanFilter.trim().toLowerCase();
+    if (!needle) return sessionRows;
+    return sessionRows.filter((row) =>
+      [row.code, row.category, row.status, row.message]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(needle)),
+    );
+  }, [sessionRows, scanFilter]);
+  const pendingCount = sessionRows.filter(
+    (row) => row.outcome === "queued" && !row.blocked,
+  ).length;
   const rows = Array.isArray(data) ? (data as Array<Record<string, unknown>>) : [];
   const dashboard = route === "dashboard" && data && !Array.isArray(data)
     ? (data as Record<string, unknown>)
@@ -526,56 +642,179 @@ export function App() {
         ) : null}
 
         {route === "scan" ? (
-          <>
-            <form className="editor" onSubmit={(event) => void submitItemScan(event)}>
-              <h2>Scan a linen item</h2>
-              <label className="field">
-                Identifier source
-                <select
-                  value={scanDraft.method}
-                  onChange={(event) =>
-                    setScanDraft({
-                      ...scanDraft,
-                      method: event.target.value as ScanMethod,
-                    })
-                  }
+          <div className="scan-session">
+            <div className="page-header">
+              <div>
+                <p className="page-header__eyebrow">Linen scanning</p>
+                <h2>Scan session</h2>
+                <p className="muted">
+                  Choose a lifecycle step, keep passing tags, then submit them together.
+                </p>
+              </div>
+              <div className="actions">
+                <span className={`badge badge--${feedStatus === "live" ? "success" : "soft"}`}>
+                  {feedStatus === "live" ? "● Live" : `○ ${feedStatus}`}
+                </span>
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  onClick={() => { void load(); }}
                 >
-                  <option value="qr">QR / linen ID</option>
-                  <option value="epc">EPC</option>
-                  <option value="rfid">RFID</option>
-                </select>
-              </label>
-              <label className="field">
-                Identifier
+                  Refresh
+                </button>
+              </div>
+            </div>
+
+            <section className="panel scan-setup">
+              <div className="setup-grid">
+                <label className="field">
+                  Identifier source
+                  <select
+                    value={scanDraft.method}
+                    onChange={(event) =>
+                      setScanDraft({ ...scanDraft, method: event.target.value as ScanMethod })
+                    }
+                  >
+                    <option value="qr">QR / linen ID</option>
+                    <option value="epc">EPC</option>
+                    <option value="rfid">RFID</option>
+                  </select>
+                </label>
+                <label className="field">
+                  Lifecycle action
+                  <select
+                    value={scanDraft.action}
+                    onChange={(event) => setScanDraft({ ...scanDraft, action: event.target.value })}
+                  >
+                    {SCAN_ACTIONS.map((action) => (
+                      <option key={action} value={action}>{action.replace(/_/g, " ")}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <form
+                className="scan-input"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void recordTag(scanDraft.identifier);
+                }}
+              >
                 <input
+                  ref={scanInputRef}
                   value={scanDraft.identifier}
                   onChange={(event) =>
                     setScanDraft({ ...scanDraft, identifier: event.target.value })
                   }
-                  placeholder="Paste a QR URL, linen ID, or RFID EPC"
+                  placeholder="Scan or type a linen ID — Enter to queue"
+                  aria-label="Linen identifier"
                 />
-              </label>
-              <label className="field">
-                Lifecycle action
-                <select
-                  value={scanDraft.action}
-                  onChange={(event) =>
-                    setScanDraft({ ...scanDraft, action: event.target.value })
-                  }
-                >
-                  {SCAN_ACTIONS.map((action) => (
-                    <option key={action} value={action}>
-                      {action}
-                    </option>
+                <button type="submit" disabled={saving || !scanDraft.identifier.trim()}>
+                  Queue scan
+                </button>
+              </form>
+              <p className="muted scan-hint">
+                Focus stays here after every read so a keyboard-wedge scanner can keep going.
+              </p>
+            </section>
+
+            <section className="scan-summary" aria-label="Session summary">
+              {[
+                ["Scans", summary.total],
+                ["Distinct linen", summary.distinct],
+                ["Bath towels", summary.bathTowels],
+                ["Pool towels", summary.poolTowels],
+                ["Single bedsheets", summary.singleBedsheets],
+                ["Double bedsheets", summary.doubleBedsheets],
+                ["Verified", summary.verified],
+                ["Issues", summary.errors],
+              ].map(([label, value]) => (
+                <article key={String(label)}>
+                  <p>{label}</p>
+                  <strong>{value}</strong>
+                </article>
+              ))}
+            </section>
+
+            <section className="panel scan-history">
+              <div className="section-heading">
+                <h2>Scan history ({sessionRows.length})</h2>
+                <div className="actions">
+                  <input
+                    value={scanFilter}
+                    onChange={(event) => setScanFilter(event.target.value)}
+                    placeholder="Filter by code, category or result…"
+                    aria-label="Filter scan history"
+                    className="filter-input"
+                  />
+                  <button
+                    type="button"
+                    className="btn btn--ghost"
+                    onClick={() => setSessionRows([])}
+                    disabled={saving}
+                  >
+                    Clear
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void commitSession()}
+                    disabled={saving || !pendingCount}
+                  >
+                    {saving ? "Submitting…" : `Submit ${pendingCount} item(s)`}
+                  </button>
+                </div>
+              </div>
+
+              {visibleRows.length === 0 ? (
+                <p className="empty">Nothing scanned yet — pass the first tag.</p>
+              ) : (
+                <ul className="scan-rows">
+                  {visibleRows.map((row, index) => (
+                    <li key={`${row.code}-${row.at}-${index}`} className={`scan-row scan-row--${row.outcome}`}>
+                      <div className="scan-row__main">
+                        <code className="code-chip">{row.code}</code>
+                        <span className="badge badge--soft">
+                          {row.category ? row.category.replace(/_/g, " ") : "unclassified"}
+                        </span>
+                        {row.verified ? (
+                          <span className="badge badge--success">✓ Verified</span>
+                        ) : (
+                          <span className="badge">Checking</span>
+                        )}
+                        {row.status ? <span className="badge badge--brand">{row.status}</span> : null}
+                      </div>
+                      <div className="scan-row__meta">
+                        <span>{row.outcome}</span>
+                        {row.message ? <span className="scan-row__message">{row.message}</span> : null}
+                        <span>{new Date(row.at).toLocaleTimeString()}</span>
+                      </div>
+                    </li>
                   ))}
-                </select>
-              </label>
-              <button type="submit" disabled={saving}>
-                {saving ? "Submitting…" : "Submit scan"}
-              </button>
-            </form>
-            {scanResult ? <pre className="result">{JSON.stringify(scanResult, null, 2)}</pre> : null}
-          </>
+                </ul>
+              )}
+            </section>
+
+            {liveEvents.length > 0 ? (
+              <section className="panel">
+                <h2>Recent live events</h2>
+                <ul className="scan-rows">
+                  {liveEvents.slice(0, 5).map((event, index) => (
+                    <li key={`${event.at ?? ""}-${index}`} className="scan-row">
+                      <div className="scan-row__main">
+                        <code className="code-chip">
+                          {event.linen?.linen_id ?? event.linen_ids?.[0] ?? "linen"}
+                        </code>
+                        <span className="badge badge--brand">{event.event ?? event.type ?? "event"}</span>
+                      </div>
+                      <div className="scan-row__meta">
+                        <span>{event.linen?.status ?? "updated"}</span>
+                        {event.at ? <span>{new Date(event.at).toLocaleTimeString()}</span> : null}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+          </div>
         ) : null}
 
         {route === "bulk" ? (
