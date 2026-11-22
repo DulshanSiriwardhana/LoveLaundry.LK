@@ -23,6 +23,8 @@ const NAV_ITEMS: NavTarget[] = [
   { label: 'New Quotation', keywords: 'quote new quotation create', path: '/quotations/new' },
   { label: 'Quotations', keywords: 'quotations quotes list price', path: '/quotations' },
   { label: 'Bills', keywords: 'bills invoices list', path: '/bills' },
+  { label: 'Invoices', keywords: 'consolidated invoices created list', path: '/invoices' },
+  { label: 'New Consolidated Invoice', keywords: 'invoice new consolidated create print', path: '/invoices/new' },
   { label: 'Client Statement', keywords: 'statement client ledger history balance', path: '/statements' },
   { label: 'New Bill', keywords: 'bill create bill invoice', path: '/bills/new' },
   { label: 'Gate Passes', keywords: 'gate passes receiving received', path: '/gate-passes' },
@@ -58,6 +60,7 @@ const NAV_ITEMS: NavTarget[] = [
 const QUICK_ACTIONS: { label: string; path: string; icon: Icon }[] = [
   { label: 'New Quotation', path: '/quotations/new', icon: FilePlus },
   { label: 'New Bill', path: '/bills/new', icon: Receipt },
+  { label: 'New Consolidated Invoice', path: '/invoices/new', icon: FileText },
   { label: 'New Gate Pass', path: '/gate-passes/new', icon: ClipboardText },
   { label: 'New Shop Bill', path: '/shop-bills/new', icon: ShoppingCart },
 ]

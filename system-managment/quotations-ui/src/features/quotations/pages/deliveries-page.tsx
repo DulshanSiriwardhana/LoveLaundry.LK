@@ -278,7 +278,7 @@ export default function DeliveriesPage() {
     const renderCard = (row: DeliveryRow) => {
         const delivery = row.delivery
         return (
-            <div className="rounded-xl border border-[var(--border)] bg-white p-4 shadow-[0_1px_2px_rgba(0, 0, 139, 0.05)] transition-shadow hover:shadow-md">
+            <div className="rounded-xl border border-[var(--border)] bg-white p-4 shadow-[0_1px_2px_rgba(0, 0, 0, 0.05)] transition-shadow hover:shadow-md">
                 <div className="flex items-start justify-between gap-2">
                     <div className="flex min-w-0 items-start gap-3">
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--success-border)] bg-[var(--surface-2)] text-[var(--success-text)]">
@@ -350,7 +350,7 @@ export default function DeliveriesPage() {
             <CompactMetrics items={kpis} />
 
             {/* Filters */}
-            <div className="rounded-xl border border-[var(--border)] bg-white p-3 shadow-[0_1px_2px_rgba(0, 0, 139, 0.05)]">
+            <div className="rounded-xl border border-[var(--border)] bg-white p-3 shadow-[0_1px_2px_rgba(0, 0, 0, 0.05)]">
                 <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center">
                     <div className="relative flex-1">
                         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-faint)]" />

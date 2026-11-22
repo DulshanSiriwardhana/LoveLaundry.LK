@@ -144,7 +144,7 @@ export function BalancesPopup({
                   aria-pressed={sortBy === s.key}
                   className={`rounded-[4px] px-2.5 py-1 text-[12px] font-medium transition-colors duration-100 ${
                     sortBy === s.key
-                      ? 'bg-[var(--surface)] text-[var(--text-primary)] shadow-[0_1px_2px_rgba(0, 0, 139, 0.06)]'
+                      ? 'bg-[var(--surface)] text-[var(--text-primary)] shadow-[0_1px_2px_rgba(0, 0, 0, 0.06)]'
                       : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                   }`}
                 >

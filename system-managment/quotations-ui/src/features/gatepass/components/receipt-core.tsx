@@ -91,7 +91,7 @@ export function ReceiptSheet({ children }: { children: ReactNode }) {
           margin: '0 auto',
           padding: '8mm 7mm',
           background: '#fff',
-          boxShadow: '0 2px 18px rgba(0, 0, 139, 0.18)',
+          boxShadow: '0 2px 18px rgba(0, 0, 0, 0.18)',
           boxSizing: 'border-box',
           color: 'var(--text-primary)',
         }}

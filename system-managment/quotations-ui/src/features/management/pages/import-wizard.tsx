@@ -108,7 +108,7 @@ export default function ImportWizard() {
             </button>
           </div>
 
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-sm">
+          <div className="bg-zinc-50 dark:bg-zinc-900/20 rounded-lg p-4 text-sm">
             <p className="font-medium mb-2">Required columns:</p>
             <p className="text-gray-600 dark:text-gray-300">
               Date, Customer Name, Invoice Number, Item Name, Qty Received, Qty Washed, Qty Delivered, Qty Rejected, Qty Damaged, Rate, Cost, Notes

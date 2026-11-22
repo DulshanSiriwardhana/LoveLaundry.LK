@@ -29,6 +29,8 @@ const ProfilePage = lazy(() => import('../features/quotations/pages/profile-page
 const BillsListPage = lazy(() => import('../features/quotations/pages/bills-list-page'))
 const CreateBillPage = lazy(() => import('../features/quotations/pages/create-bill-page'))
 const BillDetailPage = lazy(() => import('../features/quotations/pages/bill-detail-page'))
+const InvoicesListPage = lazy(() => import('../features/quotations/pages/invoices-list-page'))
+const InvoiceDetailPage = lazy(() => import('../features/quotations/pages/invoice-detail-page'))
 const InvoiceCreatePage = lazy(() => import('../features/quotations/pages/invoice-create-page'))
 const StatementPage = lazy(() => import('../features/quotations/pages/statement-page'))
 const GatePassesPage = lazy(() => import('../features/quotations/pages/gatepasses-page'))
@@ -144,7 +146,9 @@ export const router = createBrowserRouter([
           { path: 'bills/new', element: <CreateBillPage /> },
           { path: 'bills/:id', element: <BillDetailPage /> },
           { path: 'statements', element: <StatementPage /> },
+          { path: 'invoices', element: <InvoicesListPage /> },
           { path: 'invoices/new', element: <InvoiceCreatePage /> },
+          { path: 'invoices/:id', element: <InvoiceDetailPage /> },
 
           // Gate Passes (Receiving)
           { path: 'gate-passes', element: <GatePassesPage /> },

@@ -306,7 +306,7 @@ export default function StatementPage() {
                     const d = row.delivery
                     return (
                       <div key={`del-${d.id}-${i}`} className="flex items-center gap-3 px-4 py-2.5">
-                        <Truck className="h-4 w-4 shrink-0 text-blue-600" />
+                        <Truck className="h-4 w-4 shrink-0 text-zinc-600" />
                         <div className="min-w-0 flex-1">
                           <p className="text-[13px] font-medium">{d.client_name} — delivery</p>
                           <p className="text-[11px] text-[var(--text-faint)]">

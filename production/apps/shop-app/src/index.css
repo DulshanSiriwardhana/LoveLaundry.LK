@@ -155,7 +155,7 @@ h1, h2, h3, p { margin-top: 0; }
 
 /* Pages */
 .page { display: grid; gap: 1.25rem; }
-.hero-band { position: relative; overflow: hidden; border-radius: 1.1rem; background: linear-gradient(135deg, var(--ll-blue), var(--brand-dark)); padding: 1.5rem 1.6rem; color: var(--ll-white); box-shadow: var(--shadow-md); }
+.hero-band { position: relative; overflow: hidden; border-radius: 1.1rem; background: linear-gradient(135deg, var(--ll-black), var(--brand-dark)); padding: 1.5rem 1.6rem; color: var(--ll-white); box-shadow: var(--shadow-md); }
 .hero-band__grid { position: absolute; inset: 0; background-image: linear-gradient(color-mix(in srgb, var(--ll-white) 8%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--ll-white) 8%, transparent) 1px, transparent 1px); background-size: 26px 26px; mask-image: linear-gradient(to right, var(--ll-black), transparent 85%); }
 .hero-band__content { position: relative; display: flex; align-items: center; gap: 1rem; }
 .hero-band__icon { display: grid; height: 3rem; width: 3rem; flex: 0 0 auto; place-items: center; border: 1px solid color-mix(in srgb, var(--ll-white) 28%, transparent); border-radius: .9rem; background: color-mix(in srgb, var(--ll-white) 14%, transparent); }

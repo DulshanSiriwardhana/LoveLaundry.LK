@@ -10,10 +10,10 @@ export const LIGHT = '#E6E6E6'
 export const BORDER = '#BFBFBF'
 export const GREEN = '#008000'
 export const AMBER = '#FF0000'
-export const BLUE = '#00008B'
-export const INDIGO = '#00008B'
+export const BLUE = '#000000'
+export const INDIGO = '#000000'
 export const TEAL = '#008000'
-export const SKY = '#00008B'
+export const SKY = '#000000'
 export const FADED = '#BFBFBF'
 
 const TONES: Record<string, string> = {

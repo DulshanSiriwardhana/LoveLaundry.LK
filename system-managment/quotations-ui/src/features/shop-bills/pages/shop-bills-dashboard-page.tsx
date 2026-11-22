@@ -12,7 +12,7 @@ const fmt = (v: number) => `LKR ${v.toLocaleString('en-LK', { minimumFractionDig
 
 const STATUS_COLORS: Record<string, string> = {
   PENDING: 'bg-amber-50 text-amber-700 border border-amber-200',
-  PROCESSING: 'bg-blue-50 text-blue-700 border border-blue-200',
+  PROCESSING: 'bg-zinc-50 text-zinc-700 border border-zinc-200',
   DELIVERED: 'bg-purple-50 text-purple-700 border border-purple-200',
   COMPLETED: 'bg-green-50 text-green-700 border border-green-200',
   CANCELLED: 'bg-gray-100 text-gray-500 border border-gray-200',
@@ -152,7 +152,7 @@ export default function ShopBillsDashboardPage() {
                 <Link to="/shop-bills/new" className="flex items-center gap-2 p-3 rounded-lg border border-[var(--border)] hover:border-[var(--success-text)]/40 hover:bg-green-50 transition text-[13px] font-medium text-[var(--text-primary)]">
                   <CreditCard size={16} className="text-[var(--success-text)]" /> New Bill
                 </Link>
-                <Link to="/customers" className="flex items-center gap-2 p-3 rounded-lg border border-[var(--border)] hover:border-[var(--brand-deep)]/40 hover:bg-blue-50 transition text-[13px] font-medium text-[var(--text-primary)]">
+                <Link to="/customers" className="flex items-center gap-2 p-3 rounded-lg border border-[var(--border)] hover:border-[var(--brand-deep)]/40 hover:bg-zinc-50 transition text-[13px] font-medium text-[var(--text-primary)]">
                   <Users size={16} className="text-[var(--brand-deep)]" /> Client Statements
                 </Link>
                 <Link to="/reports" className="flex items-center gap-2 p-3 rounded-lg border border-[var(--border)] hover:border-[var(--danger-text)]/40 hover:bg-amber-50 transition text-[13px] font-medium text-[var(--text-primary)]">

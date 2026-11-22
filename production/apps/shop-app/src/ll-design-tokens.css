@@ -5,11 +5,14 @@
    five approved base colours or an alpha/tint of them. No other colour enters
    the system.
 
-     BLACK  #000000  typography, strong contrast, dark surfaces
+     BLACK  #000000  typography, strong contrast, dark surfaces, identity
      WHITE  #FFFFFF  surfaces, text on dark surfaces
      RED    #FF0000  controlled accents, destructive actions, errors
      GREEN  #008000  success, positive indicators
-     BLUE   #00008B  primary identity, navigation, selection
+
+   Local policy for this app: no blue. The legacy --ll-blue hook resolves to
+   black so every derived brand/info/sidebar shade stays inside the approved
+   black/white/red/green palette in both light and dark modes.
 
    This file is deliberately plain CSS so it can be consumed by Tailwind v4
    apps, plain-CSS apps, and legacy theme layers. Import it AFTER the app's own
@@ -26,9 +29,9 @@
   --ll-white: #FFFFFF;
   --ll-red: #FF0000;
   --ll-green: #008000;
-  --ll-blue: #00008B;
+  --ll-blue: var(--ll-black);
 
-  /* ── 2. Semantic surfaces (tints of black/white/blue only) ────────────── */
+  /* ── 2. Semantic surfaces (tints of black/white only) ──────────────────── */
   --bg: color-mix(in srgb, var(--ll-black) 4%, var(--ll-white));
   --canvas: var(--bg);
   --surface: var(--ll-white);
@@ -70,7 +73,7 @@
   --text-2xl: 20px;
   --text-3xl: 26px;
 
-  /* ── 4. Primary identity — dark blue ─────────────────────────────────── */
+  /* ── 4. Primary identity — black ─────────────────────────────────────── */
   --brand: var(--ll-blue);
   --brand-dark: color-mix(in srgb, var(--ll-blue) 72%, var(--ll-black));
   --brand-hover: var(--brand-dark);
@@ -80,7 +83,7 @@
   --brand-text: var(--ll-blue);
   --brand-ring: color-mix(in srgb, var(--ll-blue) 22%, transparent);
 
-  /* ── 5. Status — green / red / blue, never decorative ─────────────────── */
+  /* ── 5. Status — green / red / black, never decorative ────────────────── */
   --success: var(--ll-green);
   --success-text: var(--ll-green);
   --success-soft: color-mix(in srgb, var(--ll-green) 9%, var(--ll-white));

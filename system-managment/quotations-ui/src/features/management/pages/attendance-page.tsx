@@ -21,16 +21,16 @@ const STATUS_LABEL: Record<string, string> = {
 const STATUS_STYLE: Record<string, string> = {
   PRESENT: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
   HALF_DAY: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-  PAID_LEAVE: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-  ON_LEAVE: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  PAID_LEAVE: 'bg-zinc-100 text-zinc-700 dark:bg-zinc-900/30 dark:text-zinc-300',
+  ON_LEAVE: 'bg-zinc-100 text-zinc-700 dark:bg-zinc-900/30 dark:text-zinc-300',
   UNPAID_LEAVE: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
   ABSENT: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
 }
 const CELL_STYLE: Record<string, string> = {
   PRESENT: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
   HALF_DAY: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
-  PAID_LEAVE: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-  ON_LEAVE: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+  PAID_LEAVE: 'bg-zinc-100 text-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-300',
+  ON_LEAVE: 'bg-zinc-100 text-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-300',
   UNPAID_LEAVE: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
   ABSENT: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
 }
@@ -243,7 +243,7 @@ export default function AttendancePage() {
             {[
               { label: 'Worked', value: summary.worked_days, color: 'text-green-600' },
               { label: 'Half Days', value: summary.half_days, color: 'text-amber-600' },
-              { label: 'Paid Leave', value: summary.paid_leave_days, color: 'text-blue-600' },
+              { label: 'Paid Leave', value: summary.paid_leave_days, color: 'text-zinc-600' },
               { label: 'Unpaid', value: summary.unpaid_leave_days + summary.absent_days, color: 'text-red-600' },
               { label: 'OT (hrs)', value: summary.overtime_hours, color: 'text-indigo-600' },
               { label: 'Holidays', value: summary.holiday_count, color: 'text-purple-600' },
@@ -445,7 +445,7 @@ export default function AttendancePage() {
                           </td>
                           <td className="px-3 py-2 text-center font-semibold text-green-700 dark:text-green-400">{s.worked_days}</td>
                           <td className="px-3 py-2 text-center text-amber-700 dark:text-amber-400">{s.half_days}</td>
-                          <td className="px-3 py-2 text-center text-blue-700 dark:text-blue-400">{s.paid_leave_days}</td>
+                          <td className="px-3 py-2 text-center text-zinc-700 dark:text-zinc-400">{s.paid_leave_days}</td>
                           <td className="px-3 py-2 text-center text-red-700 dark:text-red-400">{s.unpaid_days}</td>
                           <td className="px-3 py-2 text-center text-indigo-700 dark:text-indigo-400">{s.overtime_hours || 0}</td>
                           <td className="px-3 py-2 text-center">

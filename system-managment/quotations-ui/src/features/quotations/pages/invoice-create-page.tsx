@@ -14,6 +14,7 @@ import { Skeleton } from '../../../components/ui/skeleton'
 import { Breadcrumb } from '../../../components/ui/breadcrumb'
 import { formatDate } from '../../../lib/utils'
 import { ConsolidatedInvoiceTemplate } from '../components/consolidated-invoice-template'
+import { listConsolidatedInvoices, recordFromBills, saveConsolidatedInvoice } from '../../../lib/consolidated-invoices'
 import type { Bill } from '../../../types/bill'
 import { startOfMonthISO, todayISO } from '../../../lib/time'
 
@@ -42,8 +43,10 @@ export default function InvoiceCreatePage() {
   })
 
   const unpaid = useMemo(() => (data?.items ?? []).filter(isUnpaid), [data])
+  // Stable per-browser sequence so saved invoices keep a distinct number.
+  const [savedCount] = useState(() => listConsolidatedInvoices().length)
   const nowStr = todayISO().replace(/-/g, '')
-  const invoiceNo = `INV-${nowStr}-${String(unpaid.length + 1).padStart(4, '0')}`
+  const invoiceNo = `INV-${nowStr}-${String(savedCount + 1).padStart(4, '0')}`
 
   // Default all unpaid bills as selected whenever the list changes
   useEffect(() => {
@@ -79,6 +82,17 @@ export default function InvoiceCreatePage() {
     documentTitle: `Consolidated-Invoice-${dateFrom}-${dateTo}`,
   })
 
+  const printAndRecord = () => {
+    if (chosen.length === 0) return
+    saveConsolidatedInvoice(recordFromBills({
+      dateFrom,
+      dateTo,
+      invoiceNo,
+      bills: chosen,
+    }))
+    handlePrint()
+  }
+
   return (
     <div className="space-y-5 pb-10">
       <div className="flex items-start justify-between gap-3 print:hidden">
@@ -86,8 +100,8 @@ export default function InvoiceCreatePage() {
           <Breadcrumb
             items={[
               { label: 'Dashboard', href: '/' },
-              { label: 'Bills', href: '/bills' },
-              { label: 'Consolidated Invoice' },
+              { label: 'Invoices', href: '/invoices' },
+              { label: 'New Consolidated Invoice' },
             ]}
           />
           <h1 className="text-dashboard-title mt-1">Consolidated Invoice</h1>
@@ -95,8 +109,8 @@ export default function InvoiceCreatePage() {
             {invoiceNo} · Select unpaid bills and generate one professional invoice document.
           </p>
         </div>
-        <Button onClick={handlePrint} disabled={chosen.length === 0}>
-          <Printer className="h-4 w-4 mr-2" /> Print Invoice
+        <Button onClick={printAndRecord} disabled={chosen.length === 0}>
+          <Printer className="h-4 w-4 mr-2" /> Print &amp; Save Invoice
         </Button>
       </div>
 

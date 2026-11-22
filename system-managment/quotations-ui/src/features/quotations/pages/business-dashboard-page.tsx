@@ -86,7 +86,7 @@ function KpiCard({ label, value, icon, accent, delta, to }: KpiProps) {
         }
       } : undefined}
       className={`rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm transition-all hover:shadow-md ${
-        clickable ? 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 hover:border-[var(--border)]' : ''
+        clickable ? 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40 hover:border-[var(--border)]' : ''
       }`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -287,7 +287,7 @@ export default function BusinessDashboardPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="inline-flex items-center gap-2 mb-1.5">
-            <div className="h-2 w-2 rounded-full bg-blue-500" />
+            <div className="h-2 w-2 rounded-full bg-zinc-500" />
             <p className="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
               Deep Analytics & Insights
             </p>

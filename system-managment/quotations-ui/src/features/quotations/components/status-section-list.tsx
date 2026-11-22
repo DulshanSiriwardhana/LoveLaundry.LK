@@ -36,7 +36,7 @@ export function StatusSectionList<T>({ sections }: { sections: StatusSection<T>[
                 const tone = toneMap[section.tone ?? 'gray']
                 const isCollapsed = collapsed[section.key] ?? false
                 return (
-                    <section key={section.key} className="rounded-xl border border-[var(--border)] bg-white shadow-[0_1px_2px_rgba(0, 0, 139, 0.04)] overflow-hidden">
+                    <section key={section.key} className="rounded-xl border border-[var(--border)] bg-white shadow-[0_1px_2px_rgba(0, 0, 0, 0.04)] overflow-hidden">
                         <button
                             type="button"
                             onClick={() => setCollapsed(prev => ({ ...prev, [section.key]: !isCollapsed }))}

@@ -1,12 +1,14 @@
 import React from 'react'
-import { type Bill } from '../../../types/bill'
 import { formatDate } from '../../../lib/utils'
 import { COMPANY } from '../../../config/company'
+import type { ConsolidatedInvoiceBill } from '../../../lib/consolidated-invoices'
 
 interface ConsolidatedInvoiceTemplateProps {
-  bills: Bill[]
+  bills: ConsolidatedInvoiceBill[]
   dateFrom?: string
   dateTo?: string
+  /** Saved invoices keep their original generation date on reprint. */
+  generatedAt?: string
 }
 
 const printStyles = `
@@ -103,7 +105,7 @@ const printStyles = `
 `
 
 export const ConsolidatedInvoiceTemplate = React.forwardRef<HTMLDivElement, ConsolidatedInvoiceTemplateProps>(
-  ({ bills, dateFrom, dateTo }, ref) => {
+  ({ bills, dateFrom, dateTo, generatedAt }, ref) => {
     const unpaid = bills.filter(b => b.payment_status !== 'PAID' && b.payment_status !== 'CANCELLED')
     const totalOutstanding = unpaid.reduce(
       (sum, b) => sum + (b.outstanding_amount ?? (b.grand_total ?? b.total_amount)),
@@ -175,7 +177,7 @@ export const ConsolidatedInvoiceTemplate = React.forwardRef<HTMLDivElement, Cons
             </div>
             <div>
               <span style={{ fontWeight: 700 }}>Generated: </span>
-              <span>{formatDate(new Date().toISOString())}</span>
+              <span>{formatDate(generatedAt ?? new Date().toISOString())}</span>
             </div>
           </div>
 

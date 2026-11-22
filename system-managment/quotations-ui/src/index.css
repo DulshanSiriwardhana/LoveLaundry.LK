@@ -110,11 +110,11 @@
   --radius-lg: 10px;
   --radius-xl: 12px;
 
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 139, 0.05);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 139, 0.08), 0 1px 2px -1px rgba(0, 0, 139, 0.06);
-  --shadow-md: 0 4px 8px -2px rgba(0, 0, 139, 0.08), 0 2px 4px -2px rgba(0, 0, 139, 0.05);
-  --shadow-lg: 0 14px 24px -8px rgba(0, 0, 139, 0.12), 0 4px 8px -4px rgba(0, 0, 139, 0.06);
-  --shadow-pop: 0 10px 32px -8px rgba(0, 0, 139, 0.18), 0 2px 6px -2px rgba(0, 0, 139, 0.08);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 14px 24px -8px rgba(0, 0, 0, 0.12), 0 4px 8px -4px rgba(0, 0, 0, 0.06);
+  --shadow-pop: 0 10px 32px -8px rgba(0, 0, 0, 0.18), 0 2px 6px -2px rgba(0, 0, 0, 0.08);
 
   --animate-fade-in: fade-in 120ms ease-out;
   --animate-slide-up: slide-up 160ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -261,7 +261,7 @@
    Exactly two appearance modes. Legacy preset names remain as aliases so the
    existing ThemeContext/settings API keeps working, but every alias resolves
    to either the light or the dark contract below. Every value derives from
-   black, white, red, green or dark blue (or an alpha/tint of those five).
+   black, white, red or green (or an alpha/tint of those four).
 ─────────────────────────────────────────────────────────────────────────── */
 :root,
 [data-theme='light'],
@@ -669,19 +669,19 @@
 
 /* ── Status · info ─────────────────────────────────────────────────────────── */
 :root .text-\[\#2563EB\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
-:root .text-blue-600:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+:root .text-zinc-600:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
   color: var(--info-text);
 }
 :root .text-\[\#1D4ED8\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
-:root .text-blue-700:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+:root .text-zinc-700:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
   color: var(--info-text);
 }
 :root .bg-\[\#EFF6FF\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
-:root .bg-blue-50:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+:root .bg-zinc-50:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
   background-color: var(--info-soft);
 }
 :root .border-\[\#BFDBFE\]:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)),
-:root .border-blue-200:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
+:root .border-zinc-200:not(:is(.quotation-print-page *, .bill-print-page *, .dls-page *, .gp-page-bg *, .gps-page *, .slip-container *, #printable-receipt *)) {
   border-color: var(--info-border);
 }
 
@@ -1050,7 +1050,7 @@ body:has(.overlay-backdrop),
 body:has(.fixed.inset-0) { overflow: hidden; }
 
 /* An overlay backdrop dims; it does not frosted-glass the page behind it. */
-.overlay-backdrop { background: rgba(0, 0, 139, 0.45); }
+.overlay-backdrop { background: rgba(0, 0, 0, 0.45); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    7 · PRINT

@@ -11,7 +11,7 @@ const STATUSES = ['PRESENT', 'HALF_DAY', 'PAID_LEAVE', 'UNPAID_LEAVE', 'ABSENT']
 const STATUS_COLORS: Record<string, string> = {
   PRESENT: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
   HALF_DAY: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
-  PAID_LEAVE: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  PAID_LEAVE: 'bg-zinc-100 text-zinc-700 dark:bg-zinc-900/30 dark:text-zinc-300',
   UNPAID_LEAVE: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
   ABSENT: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
 }

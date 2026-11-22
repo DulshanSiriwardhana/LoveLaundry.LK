@@ -29,7 +29,7 @@ import { useDataGrid } from '../../../hooks/use-data-grid'
 import { addDaysISO, todayISO } from '../../../lib/time'
 
 const taskTypes = [
-  { value: 'WASHING', label: 'Washing', icon: ArrowsClockwise, color: 'bg-blue-50 text-blue-600' },
+  { value: 'WASHING', label: 'Washing', icon: ArrowsClockwise, color: 'bg-zinc-50 text-zinc-600' },
   { value: 'PRESSING', label: 'Pressing', icon: HandPalm, color: 'bg-orange-50 text-orange-600' },
   { value: 'FOLDING', label: 'Folding', icon: Cube, color: 'bg-purple-50 text-purple-600' },
   { value: 'PACKING', label: 'Packing', icon: Package, color: 'bg-green-50 text-green-600' },

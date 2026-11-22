@@ -134,7 +134,7 @@ export function BillBuilder({ quotation }: BillBuilderProps) {
                 onChange={e => setSearch(e.target.value)}
                 onKeyDown={handleSearchKeyDown}
                 placeholder="Type to search items…"
-                className="h-9 w-full rounded-lg border border-[var(--border)] bg-white pl-9 pr-8 text-[13px] text-[var(--text-primary)] outline-none focus:border-[var(--danger-deep)] focus:ring-2 focus:ring-[var(--danger-deep)]/10 shadow-[0_1px_2px_rgba(0, 0, 139, 0.05)]"
+                className="h-9 w-full rounded-lg border border-[var(--border)] bg-white pl-9 pr-8 text-[13px] text-[var(--text-primary)] outline-none focus:border-[var(--danger-deep)] focus:ring-2 focus:ring-[var(--danger-deep)]/10 shadow-[0_1px_2px_rgba(0, 0, 0, 0.05)]"
               />
               {search && (
                 <button

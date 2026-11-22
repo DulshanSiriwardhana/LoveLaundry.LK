@@ -561,7 +561,7 @@ export default function SalaryHistoryPage() {
                     සිංහල
                   </button>
                 </div>
-                <button onClick={() => handlePrint()} className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm flex items-center gap-1">
+                <button onClick={() => handlePrint()} className="px-3 py-1.5 bg-zinc-600 text-white rounded-lg text-sm flex items-center gap-1">
                   <Printer size={14} /> Print
                 </button>
                 <button onClick={() => setViewSlip(null)} className="p-1.5 hover:bg-gray-100 rounded">

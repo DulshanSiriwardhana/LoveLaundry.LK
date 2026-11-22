@@ -52,7 +52,8 @@ const navGroups: { label: string; items: NavItem[] }[] = [
       { to: '/shop-bills', label: 'Shop Bills', icon: CurrencyCircleDollar, permission: 'view_bills' },
       { to: '/shop-bills/dashboard', label: 'Shop Analytics', icon: ChartLineUp, permission: 'view_bills' },
       { to: '/legacy-invoice', label: 'Legacy Invoice', icon: FileText, permission: 'view_bills' },
-      { to: '/invoices/new', label: 'Invoices', icon: FileText, permission: 'view_bills' },
+      { to: '/invoices', label: 'Invoices', icon: FileText, permission: 'view_bills' },
+      { to: '/invoices/new', label: 'New Consolidated Invoice', icon: FileText, permission: 'view_bills' },
     ],
   },
   {
