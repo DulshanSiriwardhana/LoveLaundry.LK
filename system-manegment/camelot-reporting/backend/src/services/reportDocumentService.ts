@@ -46,7 +46,7 @@ async function getData(monthKey: string) {
       itemCode: e.itemCode,
       itemName: e.itemName,
       sectionName: e.sectionName,
-      billingCategoryName: e.billingCategoryName,
+      billingCategoryName: e.billingCategoryName ?? undefined,
     })),
     items: items as never,
     daysInMonth: new Date(Number(monthKey.slice(0, 4)), Number(monthKey.slice(5, 7)), 0).getDate(),

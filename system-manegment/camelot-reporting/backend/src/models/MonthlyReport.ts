@@ -1,4 +1,4 @@
-import { Schema, model, InferSchemaType } from 'mongoose';
+import { Schema, model, HydratedDocumentFromSchema } from 'mongoose';
 import { baseOptions, timestampsDefinition } from './common';
 
 const monthlyTotalsSchema = new Schema(
@@ -68,5 +68,5 @@ monthlyReportSchema.index(
 );
 monthlyReportSchema.index({ organizationId: 1, status: 1, monthKey: -1 }, { name: 'ix_report_status_month' });
 
-export type MonthlyReportDoc = InferSchemaType<typeof monthlyReportSchema> & { _id: string };
+export type MonthlyReportDoc = HydratedDocumentFromSchema<typeof monthlyReportSchema>;
 export const MonthlyReport = model('MonthlyReport', monthlyReportSchema, 'monthly_reports');

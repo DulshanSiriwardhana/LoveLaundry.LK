@@ -463,7 +463,7 @@ export async function updateInvoiceDraft(
       if (!adjustment.description?.trim()) throw badRequest('Each adjustment needs a description.');
     }
     const preservedCredits = invoice.adjustments.filter((a) => a.type === 'credit');
-    invoice.adjustments = [
+    invoice.set('adjustments', [
       ...preservedCredits,
       ...input.adjustments.map((a) => ({
         type: a.type,
@@ -472,7 +472,7 @@ export async function updateInvoiceDraft(
         createdAt: new Date(),
         createdBy: actor?.id ?? '',
       })),
-    ];
+    ]);
     const adjustmentsTotal = addMoney(...invoice.adjustments.map((a) => a.amountLkr));
     const taxable = addMoney(invoice.totals.subtotalLkr, adjustmentsTotal);
     const tax = invoice.totals.taxRatePercent > 0 ? percentOf(Math.max(taxable, 0), invoice.totals.taxRatePercent) : 0;

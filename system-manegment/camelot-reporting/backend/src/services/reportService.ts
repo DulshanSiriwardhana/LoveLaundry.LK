@@ -21,7 +21,6 @@ import { writeAudit, AuditActor } from './auditService';
 
 export interface ReportContext {
   report: MonthlyReportDoc;
-  customer: CustomerDoc | null;
   entries: CalcEntry[];
   items: CalcItem[];
   sections: CalcSection[];
@@ -29,7 +28,16 @@ export interface ReportContext {
   calculation: MonthlyCalculation;
 }
 
-const DEFAULT_CUSTOMER = {
+const DEFAULT_CUSTOMER: {
+  name: string;
+  city: string;
+  country: string;
+  address?: string;
+  contactPerson?: string;
+  phone?: string;
+  email?: string;
+  taxNumber?: string;
+} = {
   name: 'Camelot Beach Hotel',
   city: 'Negombo',
   country: 'Sri Lanka',

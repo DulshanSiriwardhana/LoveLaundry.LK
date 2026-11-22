@@ -252,7 +252,10 @@ export async function parseImportBuffer(buffer: Buffer, filename: string): Promi
 
   if (lower.endsWith('.xlsx') || lower.endsWith('.xls')) {
     const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(buffer);
+    // ExcelJS declares a legacy `Buffer extends ArrayBuffer` interface that is
+    // incompatible with modern @types/node Buffer generics; the runtime value is
+    // the same Node Buffer expected by load().
+    await workbook.xlsx.load(buffer as unknown as Parameters<typeof workbook.xlsx.load>[0]);
     const collections: ParsedCollection[] = [];
     for (const sheet of workbook.worksheets) {
       const name = sheet.name.trim();
@@ -880,7 +883,7 @@ export async function executeImport(input: {
       history.status = 'failed';
       history.completedAt = new Date();
       history.durationMs = Date.now() - started;
-      history.errors = [{ collection: '', message: error.message ?? String(error) }];
+      history.set('errors', [{ collection: '', message: error.message ?? String(error) }]);
       history.summary = summary;
       await history.save();
     }

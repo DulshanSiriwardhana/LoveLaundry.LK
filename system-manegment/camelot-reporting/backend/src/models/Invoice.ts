@@ -29,6 +29,20 @@ const invoiceLineSchema = new Schema(
   { _id: false },
 );
 
+const invoiceTotalsSchema = new Schema(
+  {
+    subtotalLkr: { type: Number, default: 0 },
+    adjustmentsTotalLkr: { type: Number, default: 0 },
+    taxableAmountLkr: { type: Number, default: 0 },
+    taxRatePercent: { type: Number, default: 0 },
+    taxLabel: { type: String, default: '' },
+    taxAmountLkr: { type: Number, default: 0 },
+    totalLkr: { type: Number, default: 0 },
+    unpricedQuantity: { type: Number, default: 0 },
+  },
+  { _id: false },
+);
+
 const adjustmentSchema = new Schema(
   {
     type: { type: String, enum: ['discount', 'surcharge', 'credit', 'rounding'], default: 'discount' },
@@ -75,16 +89,7 @@ const invoiceSchema = new Schema(
       terms: { type: String, default: '' },
     },
     notes: { type: String, default: '' },
-    totals: {
-      subtotalLkr: { type: Number, default: 0 },
-      adjustmentsTotalLkr: { type: Number, default: 0 },
-      taxableAmountLkr: { type: Number, default: 0 },
-      taxRatePercent: { type: Number, default: 0 },
-      taxLabel: { type: String, default: '' },
-      taxAmountLkr: { type: Number, default: 0 },
-      totalLkr: { type: Number, default: 0 },
-      unpricedQuantity: { type: Number, default: 0 },
-    },
+    totals: { type: invoiceTotalsSchema, default: () => ({}) },
     snapshot: { type: Schema.Types.Mixed, default: {} },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
