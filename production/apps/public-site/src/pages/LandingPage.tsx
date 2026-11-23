@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
     RiHome5Line,
     RiServiceLine,
@@ -10,9 +10,11 @@ import {
 } from "react-icons/ri";
 
 import type { ActionType } from "../types/action";
+import type { QuoteService } from "./Landing/RequestQuote";
 import { useLanguage } from "../i18n";
 import Navbar from "./Landing/Navbar";
 import Hero from "./Landing/Hero";
+import Tracking from "./Landing/Tracking";
 import Services from "./Landing/Services";
 import Commercial from "./Landing/Commercial";
 import Partners from "./Landing/Partners";
@@ -23,12 +25,21 @@ import Testimonials from "./Landing/Testimonials";
 import LocationMap from "./Landing/LocationMap";
 import Contact from "./Landing/Contact";
 import Footer from "./Landing/Footer";
-import BookingBanner from "./Landing/BookingBanner";
+import RequestQuote from "./Landing/RequestQuote";
 import ChatWidget from "../components/ChatWidget";
 
 
 const LandingPage = () => {
     const { t } = useLanguage();
+    const [quoteService, setQuoteService] = useState<QuoteService>("counter");
+
+    const openQuote = useCallback((service: QuoteService = "counter") => {
+        setQuoteService(service);
+        document.getElementById("quote")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        });
+    }, []);
 
     const actions: ActionType[] = useMemo(
         () => [
@@ -74,20 +85,20 @@ const LandingPage = () => {
     return (
         <main className="site-page min-h-screen overflow-x-hidden bg-surface text-ink">
 
-            <Navbar actions={actions}/>
-            <Hero />
-            <BookingBanner />
-            <Services />
-            <Commercial />
+            <Navbar actions={actions} onQuote={openQuote}/>
+            <Hero onQuote={openQuote} />
+            <Tracking />
+            <Services onQuote={openQuote} />
+            <Commercial onQuote={openQuote} />
             <Partners />
-            <Process />
+            <Process onQuote={openQuote} />
             <WhyLoveLaundry />
-            <BookingBanner />
+            <RequestQuote service={quoteService} />
             <JoinWithUs />
             <Testimonials />
             <LocationMap />
             <Contact />
-            <Footer />
+            <Footer onQuote={openQuote} />
             <ChatWidget />
         </main>
     );

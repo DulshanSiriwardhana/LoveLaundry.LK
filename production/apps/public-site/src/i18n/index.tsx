@@ -31,7 +31,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         const root = document.documentElement;
-        root.lang = lang;
+        root.lang = lang === "sin" ? "si" : "en";
         root.classList.toggle("lang-sin", lang === "sin");
     }, [lang]);
 

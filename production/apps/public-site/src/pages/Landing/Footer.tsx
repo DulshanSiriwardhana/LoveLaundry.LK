@@ -8,8 +8,13 @@ import {
 import { useLanguage } from "../../i18n";
 import { COMPANY } from "../../data/constants";
 import { partnersSection } from "../../data/siteData";
+import type { QuoteService } from "./RequestQuote";
 
-const Footer = () => {
+interface FooterProps {
+    onQuote: (service?: QuoteService) => void;
+}
+
+const Footer = ({ onQuote }: FooterProps) => {
     const { t } = useLanguage();
     const scrollTo = (id: string) => {
         document.getElementById(id)?.scrollIntoView({
@@ -54,10 +59,9 @@ const Footer = () => {
                         </p>
                     </div>
 
-                    <a
-                        href={COMPANY.whatsappLink}
-                        target="_blank"
-                        rel="noreferrer"
+                    <button
+                        type="button"
+                        onClick={() => onQuote()}
                         className="
                             flex
                             shrink-0
@@ -78,10 +82,9 @@ const Footer = () => {
                             hover:shadow-[0_16px_38px_rgba(var(--brand-rgb),0.55)]
                         "
                     >
-                        <RiWhatsappLine className="h-5 w-5" />
-                        {t("contactWhatsapp")}
+                        {t("footerQuote")}
                         <RiArrowRightLine className="h-4 w-4" />
-                    </a>
+                    </button>
                 </div>
             </div>
 
@@ -191,6 +194,14 @@ const Footer = () => {
 
                         <button
                             type="button"
+                            onClick={() => scrollTo("track")}
+                            className="transition hover:text-brand hover:underline hover:underline-offset-4"
+                        >
+                            {t("footerTrack")}
+                        </button>
+
+                        <button
+                            type="button"
                             onClick={() => scrollTo("process")}
                             className="transition hover:text-brand hover:underline hover:underline-offset-4"
                         >
@@ -211,6 +222,14 @@ const Footer = () => {
                             className="transition hover:text-brand hover:underline hover:underline-offset-4"
                         >
                             {t("footerCareers")}
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => onQuote()}
+                            className="transition hover:text-brand hover:underline hover:underline-offset-4"
+                        >
+                            {t("footerQuote")}
                         </button>
 
                         <button

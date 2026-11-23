@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     RiHotelLine,
     RiMapPin2Line,
@@ -15,6 +15,57 @@ const Partners = () => {
     const gridRef = useReveal<HTMLDivElement>({ x: -40, y: 0, stagger: 0.06 });
     const moreRef = useReveal<HTMLDivElement>({ y: 20 });
     const [selected, setSelected] = useState<Partner | null>(null);
+    const dialogRef = useRef<HTMLDivElement>(null);
+    const closeButtonRef = useRef<HTMLButtonElement>(null);
+    const previousFocusRef = useRef<HTMLElement | null>(null);
+
+    useEffect(() => {
+        if (!selected) return;
+
+        previousFocusRef.current = document.activeElement as HTMLElement | null;
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        closeButtonRef.current?.focus();
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setSelected(null);
+                return;
+            }
+
+            if (event.key !== "Tab" || !dialogRef.current) return;
+
+            const focusable = Array.from(
+                dialogRef.current.querySelectorAll<HTMLElement>(
+                    'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+                ),
+            );
+            if (focusable.length === 0) return;
+
+            const first = focusable[0] as HTMLElement | undefined;
+            const last = focusable[focusable.length - 1] as
+                | HTMLElement
+                | undefined;
+            if (!first || !last) return;
+            const active = document.activeElement;
+
+            if (event.shiftKey && active === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && active === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+            document.body.style.overflow = previousOverflow;
+            previousFocusRef.current?.focus();
+        };
+    }, [selected]);
 
     return (
         <section
@@ -168,14 +219,22 @@ const Partners = () => {
             {/* Partner Detail Modal */}
             {selected && (
                 <div
+                    role="presentation"
                     className="fixed inset-0 z-[100] flex items-center justify-center p-4"
                     onClick={() => setSelected(null)}
                 >
                     {/* Backdrop */}
-                    <div className="absolute inset-0 bg-ink/50 backdrop-blur-sm" />
+                    <div
+                        aria-hidden="true"
+                        className="absolute inset-0 bg-ink/50 backdrop-blur-sm"
+                    />
 
                     {/* Modal */}
                     <div
+                        ref={dialogRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="partner-dialog-title"
                         className="
                             relative
                             z-10
@@ -192,8 +251,10 @@ const Partners = () => {
                     >
                         {/* Close button */}
                         <button
+                            ref={closeButtonRef}
                             type="button"
                             onClick={() => setSelected(null)}
+                            aria-label={t("partnersClose")}
                             className="
                                 absolute
                                 right-3
@@ -258,6 +319,7 @@ const Partners = () => {
                         {/* Content */}
                         <div className="px-6 py-6 sm:px-8">
                             <h3
+                                id="partner-dialog-title"
                                 className="
                                     font-display
                                     text-xl

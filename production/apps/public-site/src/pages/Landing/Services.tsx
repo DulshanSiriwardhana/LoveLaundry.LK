@@ -1,10 +1,15 @@
-import { RiArrowRightLine, RiPhoneLine } from "react-icons/ri";
+import { RiArrowRightLine } from "react-icons/ri";
 import { useReveal } from "../../hooks/useReveal";
-import { services, companyInfo } from "../../data/siteData";
+import { services } from "../../data/siteData";
+import type { QuoteService } from "./RequestQuote";
 import { useLanguage } from "../../i18n";
 import SectionHeader from "./SectionHeader";
 
-const Services = () => {
+interface ServicesProps {
+    onQuote: (service?: QuoteService) => void;
+}
+
+const Services = ({ onQuote }: ServicesProps) => {
     const { t } = useLanguage();
     const cardsRef = useReveal<HTMLDivElement>({ x: 40, y: 0, stagger: 0.1 });
 
@@ -13,6 +18,13 @@ const Services = () => {
         { titleKey: "serviceDryTitle", subtitleKey: "serviceDrySubtitle", descKey: "serviceDryDesc" },
         { titleKey: "serviceIronTitle", subtitleKey: "serviceIronSubtitle", descKey: "serviceIronDesc" },
         { titleKey: "servicePickupTitle", subtitleKey: "servicePickupSubtitle", descKey: "servicePickupDesc" },
+    ];
+
+    const serviceValues: QuoteService[] = [
+        "counter",
+        "dry-cleaning",
+        "counter",
+        "shop-dropoff",
     ];
 
     return (
@@ -177,13 +189,9 @@ const Services = () => {
 
                                 <button
                                     type="button"
-                                    onClick={() => {
-                                        document
-                                            .getElementById("contact")
-                                            ?.scrollIntoView({
-                                                behavior: "smooth",
-                                            });
-                                    }}
+                                    onClick={() =>
+                                        onQuote(serviceValues[index])
+                                    }
                                     className="
                                         mt-5
                                         flex
@@ -236,8 +244,9 @@ const Services = () => {
                         </p>
                     </div>
 
-                    <a
-                        href={`tel:${companyInfo.phone}`}
+                    <button
+                        type="button"
+                        onClick={() => onQuote("counter")}
                         className="
                             flex
                             shrink-0
@@ -258,9 +267,9 @@ const Services = () => {
                             hover:shadow-[0_12px_32px_rgba(var(--brand-rgb),0.4)]
                         "
                     >
-                        <RiPhoneLine className="h-4 w-4" />
                         {t("servicesCtaBtn")}
-                    </a>
+                        <RiArrowRightLine className="h-4 w-4" />
+                    </button>
                 </div>
             </div>
         </section>

@@ -7,6 +7,7 @@ interface SectionHeaderProps {
     description?: string;
     centered?: boolean;
     dark?: boolean;
+    titleId?: string;
 }
 
 const SectionHeader = ({
@@ -16,6 +17,7 @@ const SectionHeader = ({
     description,
     centered = false,
     dark = false,
+    titleId,
 }: SectionHeaderProps) => {
     const headerRef = useReveal<HTMLDivElement>({ y: 25 });
 
@@ -53,6 +55,7 @@ const SectionHeader = ({
                 </span>
 
                 <h2
+                    id={titleId}
                     className={`
                         font-display
                         mt-5
@@ -114,6 +117,7 @@ const SectionHeader = ({
             </span>
 
             <h2
+                id={titleId}
                 className={`
                     font-display
                     mt-5

@@ -358,7 +358,10 @@ body {
   text-rendering: optimizeLegibility;
 }
 *, *::before, *::after { box-sizing: border-box; border-color: var(--border); }
-a { color: inherit; }
+/* Keep link inheritance in the base layer so text-colour utilities win. */
+@layer base {
+  a { color: inherit; }
+}
 button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: not-allowed; opacity: 0.55; }

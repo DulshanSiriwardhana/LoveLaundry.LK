@@ -1,10 +1,15 @@
 import { RiArrowRightLine } from "react-icons/ri";
 import { useReveal } from "../../hooks/useReveal";
 import { commercialServices } from "../../data/siteData";
+import type { QuoteService } from "./RequestQuote";
 import { useLanguage } from "../../i18n";
 import SectionHeader from "./SectionHeader";
 
-const Commercial = () => {
+interface CommercialProps {
+    onQuote: (service?: QuoteService) => void;
+}
+
+const Commercial = ({ onQuote }: CommercialProps) => {
     const { t } = useLanguage();
     const cardsRef = useReveal<HTMLDivElement>({ x: 40, y: 0, stagger: 0.12 });
 
@@ -12,6 +17,12 @@ const Commercial = () => {
         { titleKey: "commercialHotelTitle", subtitleKey: "commercialHotelSubtitle", descKey: "commercialHotelDesc" },
         { titleKey: "commercialCompTitle", subtitleKey: "commercialCompSubtitle", descKey: "commercialCompDesc" },
         { titleKey: "commercialBulkTitle", subtitleKey: "commercialBulkSubtitle", descKey: "commercialBulkDesc" },
+    ];
+
+    const serviceValues: QuoteService[] = [
+        "hotel-linen",
+        "commercial",
+        "hotel-linen",
     ];
 
     return (
@@ -175,13 +186,9 @@ const Commercial = () => {
 
                                 <button
                                     type="button"
-                                    onClick={() => {
-                                        document
-                                            .getElementById("contact")
-                                            ?.scrollIntoView({
-                                                behavior: "smooth",
-                                            });
-                                    }}
+                                    onClick={() =>
+                                        onQuote(serviceValues[index])
+                                    }
                                     className="
                                         mt-7
                                         inline-flex

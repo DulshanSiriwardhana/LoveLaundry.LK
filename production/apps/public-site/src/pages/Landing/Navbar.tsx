@@ -7,13 +7,15 @@ import {
     RiArrowRightLine,
 } from "react-icons/ri";
 import type { ActionType } from "../../types/action";
+import type { QuoteService } from "./RequestQuote";
 import { useLanguage } from "../../i18n";
 
 interface NavbarProps {
     actions: ActionType[];
+    onQuote: (service?: QuoteService) => void;
 }
 
-const Navbar = ({ actions }: NavbarProps) => {
+const Navbar = ({ actions, onQuote }: NavbarProps) => {
     const [open, setOpen] = useState(false);
     const { t, lang, setLang } = useLanguage();
     const [activeSection, setActiveSection] = useState(
@@ -157,7 +159,31 @@ const Navbar = ({ actions }: NavbarProps) => {
 
                         <button
                             type="button"
-                            onClick={() => scrollTo("contact")}
+                            onClick={() => scrollTo("track")}
+                            className="
+                                ml-2
+                                flex
+                                items-center
+                                gap-1.5
+                                rounded-full
+                                px-2.5
+                                py-2
+                                text-[12px]
+                                font-bold
+                                text-muted
+                                transition
+                                hover:bg-brand-soft
+                                hover:text-brand
+                                lg:ml-3
+                                lg:text-[13px]
+                            "
+                        >
+                            {t("navTrack")}
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => onQuote()}
                             className="
                                 ml-2
                                 flex
@@ -181,7 +207,7 @@ const Navbar = ({ actions }: NavbarProps) => {
                                 lg:text-[13px]
                             "
                         >
-                            {t("navBookNow")}
+                            {t("navQuote")}
 
                             <RiArrowRightLine className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
                         </button>
@@ -209,7 +235,7 @@ const Navbar = ({ actions }: NavbarProps) => {
                         type="button"
                         onClick={() => setOpen((value) => !value)}
                         aria-label={
-                            open ? "Close menu" : "Open menu"
+                            open ? t("navCloseMenu") : t("navOpenMenu")
                         }
                         aria-expanded={open}
                         className="
@@ -354,14 +380,43 @@ const Navbar = ({ actions }: NavbarProps) => {
                                         })}
                                     </div>
 
+                                    <div className="p-1">
+                                        <button
+                                            type="button"
+                                            onClick={() => scrollTo("track")}
+                                            className="
+                                                flex
+                                                w-full
+                                                items-center
+                                                justify-center
+                                                gap-2
+                                                rounded-lg
+                                                border
+                                                border-line
+                                                bg-surface
+                                                px-4
+                                                py-3
+                                                text-sm
+                                                font-bold
+                                                text-ink
+                                                transition
+                                                hover:border-brand/40
+                                                hover:bg-brand-soft
+                                                hover:text-brand
+                                                sm:py-3.5
+                                            "
+                                        >
+                                            {t("navTrack")}
+                                            <RiArrowRightLine className="h-4 w-4" />
+                                        </button>
+                                    </div>
+
                                     <div className="my-1 h-px bg-surface-muted" />
 
                                     <div className="p-1">
                                         <button
                                             type="button"
-                                            onClick={() =>
-                                                scrollTo("contact")
-                                            }
+                                            onClick={() => onQuote()}
                                             className="
                                                 flex
                                                 w-full
@@ -381,13 +436,17 @@ const Navbar = ({ actions }: NavbarProps) => {
                                                 sm:py-3.5
                                             "
                                         >
-                                            {t("heroPrimary")}
+                                            {t("navQuote")}
 
                                             <RiArrowRightLine className="h-4 w-4" />
                                         </button>
                                     </div>
 
                                     <div className="my-1 h-px bg-surface-muted" />
+
+                                    <div className="flex items-center justify-center p-2">
+                                        <ThemeSwitcher compact />
+                                    </div>
 
                                     <div className="p-1">
                                         <div className="flex items-center justify-center rounded-lg bg-surface-muted p-1">

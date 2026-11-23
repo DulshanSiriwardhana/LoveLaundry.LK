@@ -1,10 +1,15 @@
 import { RiArrowRightLine } from "react-icons/ri";
 import { useReveal } from "../../hooks/useReveal";
 import { processSteps } from "../../data/siteData";
+import type { QuoteService } from "./RequestQuote";
 import { useLanguage } from "../../i18n";
 import SectionHeader from "./SectionHeader";
 
-const Process = () => {
+interface ProcessProps {
+    onQuote: (service?: QuoteService) => void;
+}
+
+const Process = ({ onQuote }: ProcessProps) => {
     const { t } = useLanguage();
     const stepsRef = useReveal<HTMLDivElement>({ x: -40, y: 0, stagger: 0.1 });
 
@@ -207,11 +212,7 @@ const Process = () => {
 
                     <button
                         type="button"
-                        onClick={() => {
-                            document
-                                .getElementById("contact")
-                                ?.scrollIntoView({ behavior: "smooth" });
-                        }}
+                        onClick={() => onQuote()}
                         className="
                             flex
                             shrink-0
