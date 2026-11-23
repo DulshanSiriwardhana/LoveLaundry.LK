@@ -761,7 +761,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #FFFFFF;
     --sidebar-label: #FFFFFF;
     --sidebar-active: #FFFFFF;
-    --sidebar-active-bg: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
     --sidebar-active-border: #FFFFFF;
     --sidebar-hover-bg: #242427;
     --sidebar-hover-text: #FFFFFF;
@@ -919,7 +919,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #000000;
     --sidebar-label: #000000;
     --sidebar-active: #000000;
-    --sidebar-active-bg: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
     --sidebar-active-border: #000000;
     --sidebar-hover-bg: #CCCCCF;
     --sidebar-hover-text: #000000;
@@ -1077,7 +1077,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #FFFFFF;
     --sidebar-label: #FFFFFF;
     --sidebar-active: #FFFFFF;
-    --sidebar-active-bg: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
     --sidebar-active-border: #FFFFFF;
     --sidebar-hover-bg: #A91237;
     --sidebar-hover-text: #FFFFFF;
@@ -1235,7 +1235,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #000000;
     --sidebar-label: #000000;
     --sidebar-active: #000000;
-    --sidebar-active-bg: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
     --sidebar-active-border: #000000;
     --sidebar-hover-bg: #E06678;
     --sidebar-hover-text: #000000;
@@ -1393,7 +1393,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #FFFFFF;
     --sidebar-label: #FFFFFF;
     --sidebar-active: #FFFFFF;
-    --sidebar-active-bg: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
     --sidebar-active-border: #FFFFFF;
     --sidebar-hover-bg: #AD3B0D;
     --sidebar-hover-text: #FFFFFF;
@@ -1551,7 +1551,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #000000;
     --sidebar-label: #000000;
     --sidebar-active: #000000;
-    --sidebar-active-bg: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
     --sidebar-active-border: #000000;
     --sidebar-hover-bg: #E08338;
     --sidebar-hover-text: #000000;
@@ -1709,7 +1709,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #FFFFFF;
     --sidebar-label: #FFFFFF;
     --sidebar-active: #FFFFFF;
-    --sidebar-active-bg: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
     --sidebar-active-border: #FFFFFF;
     --sidebar-hover-bg: #905808;
     --sidebar-hover-text: #FFFFFF;
@@ -1867,7 +1867,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #000000;
     --sidebar-label: #000000;
     --sidebar-active: #000000;
-    --sidebar-active-bg: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
     --sidebar-active-border: #000000;
     --sidebar-hover-bg: #E0AB23;
     --sidebar-hover-text: #000000;
@@ -2025,7 +2025,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #FFFFFF;
     --sidebar-label: #FFFFFF;
     --sidebar-active: #FFFFFF;
-    --sidebar-active-bg: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
     --sidebar-active-border: #FFFFFF;
     --sidebar-hover-bg: #77460E;
     --sidebar-hover-text: #FFFFFF;
@@ -2183,7 +2183,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #000000;
     --sidebar-label: #000000;
     --sidebar-active: #000000;
-    --sidebar-active-bg: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
     --sidebar-active-border: #000000;
     --sidebar-hover-bg: #E1BD47;
     --sidebar-hover-text: #000000;
@@ -2341,7 +2341,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #FFFFFF;
     --sidebar-label: #FFFFFF;
     --sidebar-active: #FFFFFF;
-    --sidebar-active-bg: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
     --sidebar-active-border: #FFFFFF;
     --sidebar-hover-bg: #466F0F;
     --sidebar-hover-text: #FFFFFF;
@@ -2499,7 +2499,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #000000;
     --sidebar-label: #000000;
     --sidebar-active: #000000;
-    --sidebar-active-bg: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
     --sidebar-active-border: #000000;
     --sidebar-hover-bg: #92CD32;
     --sidebar-hover-text: #000000;
@@ -2657,7 +2657,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #FFFFFF;
     --sidebar-label: #FFFFFF;
     --sidebar-active: #FFFFFF;
-    --sidebar-active-bg: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
     --sidebar-active-border: #FFFFFF;
     --sidebar-hover-bg: #066C4F;
     --sidebar-hover-text: #FFFFFF;
@@ -2815,7 +2815,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #000000;
     --sidebar-label: #000000;
     --sidebar-active: #000000;
-    --sidebar-active-bg: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
     --sidebar-active-border: #000000;
     --sidebar-hover-bg: #31BD8A;
     --sidebar-hover-text: #000000;
@@ -2973,7 +2973,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #FFFFFF;
     --sidebar-label: #FFFFFF;
     --sidebar-active: #FFFFFF;
-    --sidebar-active-bg: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
     --sidebar-active-border: #FFFFFF;
     --sidebar-hover-bg: #155B30;
     --sidebar-hover-text: #FFFFFF;
@@ -3131,7 +3131,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #000000;
     --sidebar-label: #000000;
     --sidebar-active: #000000;
-    --sidebar-active-bg: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
     --sidebar-active-border: #000000;
     --sidebar-hover-bg: #44C674;
     --sidebar-hover-text: #000000;
@@ -3289,7 +3289,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #FFFFFF;
     --sidebar-label: #FFFFFF;
     --sidebar-active: #FFFFFF;
-    --sidebar-active-bg: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
     --sidebar-active-border: #FFFFFF;
     --sidebar-hover-bg: #0F6A63;
     --sidebar-hover-text: #FFFFFF;
@@ -3447,7 +3447,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #000000;
     --sidebar-label: #000000;
     --sidebar-active: #000000;
-    --sidebar-active-bg: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
     --sidebar-active-border: #000000;
     --sidebar-hover-bg: #2ABDAB;
     --sidebar-hover-text: #000000;
@@ -3605,7 +3605,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #FFFFFF;
     --sidebar-label: #FFFFFF;
     --sidebar-active: #FFFFFF;
-    --sidebar-active-bg: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
     --sidebar-active-border: #FFFFFF;
     --sidebar-hover-bg: #A91754;
     --sidebar-hover-text: #FFFFFF;
@@ -3763,7 +3763,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     --sidebar-text: #000000;
     --sidebar-label: #000000;
     --sidebar-active: #000000;
-    --sidebar-active-bg: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
     --sidebar-active-border: #000000;
     --sidebar-hover-bg: #DA67A3;
     --sidebar-hover-text: #000000;
