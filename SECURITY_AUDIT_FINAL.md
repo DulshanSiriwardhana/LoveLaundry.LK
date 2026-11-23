@@ -182,6 +182,32 @@ No dependency was installed, upgraded, or removed during this audit.
 7. Run DAST, a backup/restore drill, and live multi-tenant isolation verification against production-like data.
 8. Verify `/ws/linen` server authorization once the server implementation is available in the deployment environment.
 
+### 8.1 Deployment propagation (performed after this report was drafted)
+
+Git-integrated Vercel deployments were triggered by pushing the hardened configuration. The following commits were pushed by this audit:
+
+| Repository / branch | Commit | Contents |
+| --- | --- | --- |
+| `DulshanSiriwardhana/LoveLaundry.LK` `production` | `25bdf4d` | Parent tree hardening plus gitlinks repointed to the pushed submodule commits |
+| `public.lovelaundry.lk` `main` | `686da42` | Hardened Vercel headers incl. HSTS |
+| `LoveLaundry/bill-service` `main` | `4dc8b72` | Service hardening |
+| `LoveLaundry/quotations-ui` `main` | `2de54db` | Header/CSP hardening |
+| `LoveLaundry/release` `main` | `117d6eb` | Credential removal, mobile key removal, config hardening |
+| `LoveLaundry/skaner` `main` | `d52dbb1` | Mobile AI key removal |
+| `LoveLaundry/user-service` `main` | `50a55aa` | Service hardening |
+| `LoveLaundry/hotel-app` `main` | `c6a05ef` | Hardened Vercel headers only (no application-code change) |
+| `LoveLaundry/shop-app` `main` | `faf49db` | Hardened Vercel headers only (no application-code change) |
+
+Live URL observations at the time of verification:
+
+* `system-lovelaundry-lk.vercel.app` and `lovelaundry-manager.vercel.app` **picked up** the new headers: `X-Frame-Options: DENY`, hash-based CSP (`2 × sha256-`), HSTS `max-age=31536000`, and the `lovelaundry-theme` bootstrap.
+* `hotels-manager-amber.vercel.app` and `lovelaundry-shop-app.vercel.app` **picked up** the new headers on re-check: `X-Frame-Options: DENY`, `script-src 'self'` CSP (no `unsafe-inline` in `script-src`), HSTS `max-age=31536000`. `style-src` still permits `'unsafe-inline'`, as required by the existing Vite styling.
+* `shops-manager.vercel.app` returns `DEPLOYMENT_NOT_FOUND` — the Vercel deployment itself is missing; source repository fixes cannot restore it. Operator must redeploy the Vercel project.
+* `hotels-manager.vercel.app` serves an unrelated `HotelManager Pro` application with **no matching source in this checkout**; it could not be updated or verified.
+* The hotel/shop live sites deploy from independent `hotel-app`/`shop-app` repositories whose source trees differ substantially from the recreated `production/apps/*` copies. Only response-header hardening was pushed to them; the theme/UI work in the recreated apps was deliberately **not** ported.
+
+The concurrent parent commit `c0ece3e` had already included seven security-fix files from the excluded nested checkout `system-managment/quotations-ui` (a non-deployment duplicate). These were left in place; rewriting published history was out of scope. The dirty duplicate `system-managment/skaner` was intentionally left uncommitted and unpushed.
+
 ---
 
 ## 9. Checklists
@@ -210,6 +236,8 @@ No dependency was installed, upgraded, or removed during this audit.
 - [ ] `/ws/linen` server-side authorization.
 - [ ] Multi-instance rate limiting behaviour.
 - [ ] Release v2 hotel-scanner / release v1 quotations build and test suites.
+- [ ] `hotels-manager.vercel.app` (`HotelManager Pro`) source and security posture — no matching source in this checkout.
+- [ ] `shops-manager.vercel.app` deployment restoration (`DEPLOYMENT_NOT_FOUND`).
 
 ---
 
