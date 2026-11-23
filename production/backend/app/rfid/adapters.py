@@ -14,6 +14,7 @@ import time
 from abc import ABC, abstractmethod
 from typing import Any
 
+from .endpoints import validate_reader_endpoint
 from .models import RfidRead, ReaderStatus
 
 _HEX_LINE = re.compile(r"^[0-9A-Fa-f:\- ]{8,}$")
@@ -301,6 +302,7 @@ def build_adapter(reader: dict, settings) -> RfidReaderAdapter:
     if not endpoint:
         raise ValueError("A registered RFID reader requires an endpoint")
     if transport_name == "tcp":
+        validate_reader_endpoint(endpoint, settings)
         transport: ReaderTransport = TcpTransport(endpoint)
     elif transport_name == "serial":
         transport = SerialTransport(endpoint)

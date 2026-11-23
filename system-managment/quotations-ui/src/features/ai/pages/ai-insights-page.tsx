@@ -132,7 +132,7 @@ export default function AiInsightsPage() {
       {error && !loading && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-red-700 dark:text-red-300">
           <h3 className="font-semibold mb-1">Could not reach the AI service</h3>
-          <p className="text-sm">Check that <code className="font-mono text-xs">VITE_AI_API_URL</code> and <code className="font-mono text-xs">VITE_AI_API_KEY</code> are configured correctly. {(error as any)?.message}</p>
+          <p className="text-sm">Check that <code className="font-mono text-xs">VITE_AI_API_URL</code> is configured and that you are signed in with an active laundry account. {(error as any)?.message}</p>
         </div>
       )}
 

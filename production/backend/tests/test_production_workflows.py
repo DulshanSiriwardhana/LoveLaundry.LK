@@ -19,9 +19,11 @@ from app.notifications.service import (
     NotificationHub,
 )
 from app.runtime import get_runtime
+from tests.live_lookup import clear as clear_users, lookup as user_lookup, register
 
 
 def _auth(claims: dict) -> dict:
+    register(claims)
     return {"Authorization": f"Bearer {create_access_token(claims)}"}
 
 
@@ -52,7 +54,8 @@ def _platform_claims() -> dict:
 def authenticated_client(monkeypatch):
     monkeypatch.setenv("AUTH_REQUIRED", "true")
     get_settings.cache_clear()
-    set_user_lookup(None)
+    clear_users()
+    set_user_lookup(user_lookup)
     set_user_finder(None)
     try:
         with TestClient(create_app()) as client:
@@ -60,6 +63,7 @@ def authenticated_client(monkeypatch):
     finally:
         get_settings.cache_clear()
         set_user_lookup(None)
+        clear_users()
         set_user_finder(None)
 
 

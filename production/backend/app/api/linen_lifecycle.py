@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, Field
 
+from ..core.principal import assert_organization_access
 from ..core.security import get_current_user
 from ..permissions.service import organization_dependency, require_capability
 from ..runtime import get_runtime
@@ -112,13 +113,16 @@ async def linen_history(linen_id: str, principal=Depends(get_current_user)) -> d
 
 @router.post(
     "/missing/scan",
-    dependencies=[Depends(require_capability("edit_linen"))],
+    dependencies=[Depends(organization_dependency("edit_linen"))],
 )
 async def scan_for_missing(
     organization_id: str | None = Query(default=None),
     principal=Depends(get_current_user),
 ) -> dict:
     scoped = organization_id or principal.get("organization_id")
+    # The dependency validates a caller-supplied organization_id; keep an
+    # explicit check here so this endpoint stays safe if it is ever refactored.
+    assert_organization_access(principal, scoped)
     return await get_runtime().missing_monitor.scan(scoped)
 
 
@@ -146,5 +150,5 @@ async def resolve_missing_alert(
     alert_id: str, principal=Depends(get_current_user)
 ) -> dict:
     return await get_runtime().missing_monitor.resolve(
-        alert_id, str(principal.get("actor_id") or "")
+        alert_id, str(principal.get("actor_id") or ""), principal
     )

@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 from ..core.clock import current_period
 from ..core.config import get_settings
-from ..core.principal import repository_scope
+from ..core.principal import actor_identity, repository_scope
 from ..core.security import get_current_user
 from ..permissions.service import require_capability
 from ..services.linen import LinenService
@@ -56,6 +56,7 @@ async def record_movement(payload: MovementRequest, principal=Depends(get_curren
     from .bills import single_organization_scope
 
     service = _service()
+    actor = actor_identity(principal, payload.actor_id)
     movement = {
         "movement_id": payload.movement_id,
         "linen_id": payload.linen_id,
@@ -66,7 +67,7 @@ async def record_movement(payload: MovementRequest, principal=Depends(get_curren
         "organization_id": payload.organization_id,
         "period": payload.period,
         "reason": payload.reason,
-        "actor_id": payload.actor_id,
+        "actor_id": actor["actor_id"],
     }
     return await service.record_movement(
         movement, single_organization_scope(principal, payload.organization_id)

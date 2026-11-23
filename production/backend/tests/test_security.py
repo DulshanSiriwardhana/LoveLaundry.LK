@@ -12,12 +12,12 @@ def test_login_response_does_not_expose_password_hash(client, user_finder) -> No
     assert "password_hash" not in response.json()["user"]
 
 
-def test_validation_error_includes_field_details(client) -> None:
-    response = client.get("/operations/monthly", params={"period": "not-a-period"})
+def test_validation_error_does_not_reflect_input(client) -> None:
+    sentinel = "not-a-period-SENSITIVE"
+    response = client.get("/operations/monthly", params={"period": sentinel})
     assert response.status_code == 422
-    detail = response.json()["detail"]
-    assert isinstance(detail, list)
-    assert detail[0]["loc"] == ["query", "period"]
+    assert response.json() == {"detail": "Invalid request"}
+    assert sentinel not in response.text
 
 
 def test_movement_rejects_unknown_direction(client) -> None:

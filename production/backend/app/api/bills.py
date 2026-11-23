@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 from ..core.clock import current_period
 from ..core.config import get_settings
-from ..core.principal import repository_scope
+from ..core.principal import actor_identity, repository_scope
 from ..core.security import get_current_user
 from ..permissions.service import require_capability
 from ..services.bills import BillsService
@@ -90,11 +90,12 @@ async def list_invoices(
 async def edit_bill(
     bill_id: str, payload: EditBillRequest, principal=Depends(get_current_user)
 ) -> dict:
+    actor = actor_identity(principal, payload.actor_id)
     return await _service().edit_bill(
         bill_id,
         payload.amount,
         payload.reason,
-        payload.actor_id,
+        actor["actor_id"],
         repository_scope(principal),
     )
 
@@ -105,11 +106,12 @@ async def edit_bill(
 async def edit_invoice(
     invoice_id: str, payload: EditInvoiceRequest, principal=Depends(get_current_user)
 ) -> dict:
+    actor = actor_identity(principal, payload.actor_id)
     return await _service().edit_invoice(
         invoice_id,
         payload.total,
         payload.reason,
-        payload.actor_id,
+        actor["actor_id"],
         repository_scope(principal),
     )
 

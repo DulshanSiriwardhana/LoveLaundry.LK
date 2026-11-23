@@ -1,15 +1,11 @@
 import axios, { type AxiosInstance } from 'axios'
-import { AI_SERVICE, canonicalJson, hmacSha256Hex, sha256Hex } from '../../../config/ai'
+import { AI_SERVICE, assertAiConfiguration, canonicalJson, sha256Hex } from '../../../config/ai'
 import { extractResponseMessage } from '../../../api/interceptors'
+import { getActiveToken } from '../../../lib/auth-token'
 
 /**
- * Secured Love AI client.
- *
- * Every request is signed with:
- *   X-API-Key     — hashed API key verified server-side in constant time
- *   X-Timestamp   — unix seconds (freshness / replay protection)
- *   X-Body-Hash   — SHA-256 of the raw body (integrity of what you ask)
- *   X-Signature   — HMAC-SHA256(api_key, "METHOD\nPATH\nTS\nBODY_HASH")
+ * Love AI scopes insight requests from the authenticated user's JWT claims.
+ * The service key must never be embedded in this browser client.
  *
  * Every response carries a `data_hash` (SHA-256 of the payload) which is
  * verified locally before the data is returned to the UI — so tampered or
@@ -24,17 +20,17 @@ export interface AiEnvelope<T> {
 }
 
 async function verifyEnvelope<T>(envelope: AiEnvelope<T>): Promise<AiEnvelope<T>> {
-  try {
-    const serialized = canonicalJson(envelope.data)
-    const hash = await sha256Hex(serialized)
-    if (hash !== envelope.data_hash) {
-      throw new Error('AI response integrity check failed — data hash mismatch')
-    }
-    return { ...envelope, verified: true }
-  } catch (err) {
-    if (err instanceof Error && err.message.includes('integrity')) throw err
-    return envelope
+  if (!envelope || typeof envelope !== 'object' ||
+      typeof envelope.data_hash !== 'string' ||
+      !Object.prototype.hasOwnProperty.call(envelope, 'data')) {
+    throw new Error('AI response integrity check failed — invalid response envelope')
   }
+  const serialized = canonicalJson(envelope.data)
+  const hash = await sha256Hex(serialized)
+  if (hash !== envelope.data_hash) {
+    throw new Error('AI response integrity check failed — data hash mismatch')
+  }
+  return { ...envelope, verified: true }
 }
 
 class LoveAiClient {
@@ -44,39 +40,29 @@ class LoveAiClient {
     this.http = axios.create({ baseURL: AI_SERVICE.baseUrl, timeout: AI_SERVICE.timeoutMs })
   }
 
-  private async signHeaders(method: string, path: string, body: string): Promise<Record<string, string>> {
-    const timestamp = String(Math.floor(Date.now() / 1000))
-    const bodyHash = await sha256Hex(body)
-    const canonical = [method.toUpperCase(), path, timestamp, bodyHash].join('\n')
-    const signature = await hmacSha256Hex(AI_SERVICE.apiKey, canonical)
-    return {
-      'X-API-Key': AI_SERVICE.apiKey,
-      'X-Timestamp': timestamp,
-      'X-Body-Hash': bodyHash,
-      'X-Signature': signature,
-    }
+  private async authHeaders(): Promise<Record<string, string>> {
+    assertAiConfiguration()
+    const token = getActiveToken()
+    if (!token) throw new Error('Sign in to access AI insights.')
+    return { Authorization: `Bearer ${token}` }
   }
 
   private async get<T>(path: string): Promise<AiEnvelope<T>> {
-    const headers = await this.signHeaders('GET', path, '')
+    const headers = await this.authHeaders()
     const { data } = await this.http.get<AiEnvelope<T>>(path, { headers })
     return verifyEnvelope(data)
   }
 
   private async post<T>(path: string, payload: unknown): Promise<AiEnvelope<T>> {
-    const body = JSON.stringify(payload)
-    const headers = await this.signHeaders('POST', path, body)
+    const headers = await this.authHeaders()
     const { data } = await this.http.post<AiEnvelope<T>>(path, payload, { headers })
     return verifyEnvelope(data)
   }
 
   /**
-   * The shared response interceptor is deliberately not attached here: this
-   * service authenticates with a request signature, so a 401 means a bad
-   * signature rather than an expired session, and clearing the session would
-   * sign the operator out for an AI-side problem. What it *does* need is the
-   * message normalisation, or a FastAPI `detail` array reaches the UI as
-   * "[object Object]".
+   * The shared response interceptor is deliberately not attached here so an
+   * AI service error cannot trigger the main API's session-expiry redirect.
+   * Normalize FastAPI detail arrays so the UI never displays "[object Object]".
    */
   private async request<T>(run: () => Promise<{ data: T }>): Promise<T> {
     try {
@@ -87,7 +73,11 @@ class LoveAiClient {
   }
 
   health() {
-    return this.request(() => this.http.get('/api/ai/health'))
+    return this.request(async () => {
+      const path = '/api/ai/health'
+      const headers = await this.authHeaders()
+      return this.http.get(path, { headers })
+    })
   }
 
   dashboard(months = 12) {

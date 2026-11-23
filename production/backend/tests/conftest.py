@@ -14,6 +14,7 @@ import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 
 from app.authentication import hash_password, set_user_finder
+from app.authentication.router import reset_login_throttle
 from app.core.config import get_settings  # noqa: E402
 from app.main import create_app  # noqa: E402
 
@@ -22,6 +23,7 @@ from app.main import create_app  # noqa: E402
 def reset_security_settings():
     os.environ["AUTH_REQUIRED"] = "false"
     get_settings.cache_clear()
+    reset_login_throttle()
     yield
     get_settings.cache_clear()
 

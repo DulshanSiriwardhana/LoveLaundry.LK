@@ -2,8 +2,20 @@ import asyncio
 
 from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket, WebSocketDisconnect, status
 
-from ..core.principal import assert_organization_access, normalize_principal
-from ..core.security import get_current_user, get_user_lookup, verify_token
+from ..core.config import get_settings
+from ..core.principal import (
+    assert_organization_access,
+    granted_capabilities,
+    is_platform_admin,
+    normalize_principal,
+)
+from ..core.security import (
+    DISABLED_STATUSES,
+    get_current_user,
+    get_user_lookup,
+    token_is_revoked,
+    verify_token,
+)
 from ..permissions.service import organization_dependency
 from ..runtime import get_runtime
 
@@ -24,12 +36,17 @@ async def list_notifications(
 
 @router.post("/{notification_id}/read", dependencies=[Depends(get_current_user)])
 async def mark_read(notification_id: str, principal=Depends(get_current_user)) -> dict:
+    # Scope the update itself rather than mutating first and checking after.
+    scopes = (
+        None
+        if is_platform_admin(principal)
+        else sorted(set(principal.get("organization_ids") or []))
+    )
     notification = await get_runtime().notification_store.mark_read(
-        notification_id, str(principal.get("actor_id") or "")
+        notification_id, str(principal.get("actor_id") or ""), scopes
     )
     if notification is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Notification not found")
-    assert_organization_access(principal, str(notification.get("organization_id") or ""))
     return notification
 
 
@@ -42,12 +59,25 @@ async def notification_stream(websocket: WebSocket) -> None:
     authoritative record if a client disconnects.
     """
 
+    origin = (
+        websocket.headers.get("origin")
+        or websocket.headers.get("sec-websocket-origin")
+        or ""
+    )
+    allowed_origins = {value.rstrip("/") for value in get_settings().cors_origins}
+    if origin and origin.rstrip("/") not in allowed_origins:
+        await websocket.close(code=1008, reason="Origin not allowed")
+        return
+
     await websocket.accept()
     runtime = get_runtime()
     queue = None
     organization_id = ""
     try:
         handshake = await websocket.receive_json()
+        if not isinstance(handshake, dict):
+            await websocket.close(code=1008, reason="Invalid handshake")
+            return
         token = str(handshake.get("token") or "")
         if not token:
             await websocket.close(code=1008, reason="Authentication required")
@@ -56,8 +86,21 @@ async def notification_stream(websocket: WebSocket) -> None:
         auth_id = str(
             payload.get("auth_id") or payload.get("sub") or payload.get("user_id") or ""
         )
-        user = await get_user_lookup(auth_id)
-        principal = normalize_principal(user or dict(payload), payload)
+        try:
+            user = await get_user_lookup(auth_id, required=True)
+        except HTTPException as exc:
+            await websocket.close(code=1008, reason="Account is unavailable")
+            return
+        if token_is_revoked(user, payload):
+            await websocket.close(code=1008, reason="Token has been revoked")
+            return
+        principal = normalize_principal(user, payload)
+        if str(principal.get("status") or "").strip().lower() in DISABLED_STATUSES:
+            await websocket.close(code=1008, reason="Account is disabled")
+            return
+        if "view_notifications" not in granted_capabilities(principal):
+            await websocket.close(code=1008, reason="Insufficient permissions")
+            return
         requested = str(handshake.get("organization_id") or "")
         organization_id = requested or str(principal.get("organization_id") or "")
         assert_organization_access(principal, organization_id)

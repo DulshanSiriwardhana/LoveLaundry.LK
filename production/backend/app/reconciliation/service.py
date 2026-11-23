@@ -7,7 +7,7 @@ import uuid
 from fastapi import HTTPException, status
 
 from ..billing.repository import BillingRepository
-from ..core.principal import assert_organization_access
+from ..core.principal import assert_organization_access, is_platform_admin, repository_scope
 from ..events.models import utc_now
 from ..events.outbox import OutboxStore
 from ..linen.lifecycle import DISPATCHED_FROM_CLIENT, DISPATCHED_FROM_LAUNDRY
@@ -20,7 +20,9 @@ class ReconciliationStore:
     async def save(self, run: dict) -> dict:
         raise NotImplementedError
 
-    async def list(self, organization_id: str | None = None, limit: int = 100) -> list[dict]:
+    async def list(
+        self, organization_id: str | list[str] | None = None, limit: int = 100
+    ) -> list[dict]:
         raise NotImplementedError
 
 
@@ -36,8 +38,10 @@ class InMemoryReconciliationStore(ReconciliationStore):
         rows = sorted(
             self.runs.values(), key=lambda row: str(row.get("started_at")), reverse=True
         )
-        if organization_id:
+        if isinstance(organization_id, str):
             rows = [row for row in rows if row.get("organization_id") == organization_id]
+        elif organization_id is not None:
+            rows = [row for row in rows if row.get("organization_id") in organization_id]
         return [dict(row) for row in rows[:limit]]
 
 
@@ -59,8 +63,10 @@ class MongoReconciliationStore(ReconciliationStore):
 
     async def list(self, organization_id=None, limit=100):
         query: dict = {}
-        if organization_id:
+        if isinstance(organization_id, str):
             query["organization_id"] = organization_id
+        elif organization_id is not None:
+            query["organization_id"] = {"$in": organization_id}
         cursor = self.collection.find(query).sort("started_at", -1).limit(limit)
         return [self._clean(row) or {} for row in await cursor.to_list(length=limit)]
 
@@ -85,10 +91,18 @@ class ReconciliationService:
     async def run(self, organization_id: str | None, principal: dict) -> dict:
         if organization_id:
             assert_organization_access(principal, organization_id)
-        elif not principal.get("platform_admin") and not principal.get("organization_ids"):
-            raise HTTPException(
-                status.HTTP_403_FORBIDDEN, "Organization scope is required"
-            )
+        elif not is_platform_admin(principal):
+            scopes = sorted(set(principal.get("organization_ids") or []))
+            if not scopes:
+                raise HTTPException(
+                    status.HTTP_403_FORBIDDEN, "Organization scope is required"
+                )
+            if len(scopes) > 1:
+                raise HTTPException(
+                    status.HTTP_400_BAD_REQUEST,
+                    "organization_id is required when multiple organizations are in scope",
+                )
+            organization_id = scopes[0]
 
         started_at = utc_now()
         profiles = await self.linen_repository.list(
@@ -237,10 +251,6 @@ class ReconciliationService:
     async def list_runs(
         self, organization_id: str | None, principal: dict, limit: int = 100
     ) -> list[dict]:
-        if organization_id:
-            assert_organization_access(principal, organization_id)
-        elif not principal.get("platform_admin") and not principal.get("organization_ids"):
-            raise HTTPException(
-                status.HTTP_403_FORBIDDEN, "Organization scope is required"
-            )
-        return await self.store.list(organization_id, min(limit, 200))
+        return await self.store.list(
+            repository_scope(principal, organization_id), min(limit, 200)
+        )

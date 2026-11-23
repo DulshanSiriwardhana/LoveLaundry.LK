@@ -39,7 +39,12 @@ class NotificationStore:
     async def list(self, organization_id: str | None = None, limit: int = 200) -> list[dict]:
         raise NotImplementedError
 
-    async def mark_read(self, notification_id: str, actor_id: str) -> dict | None:
+    async def mark_read(
+        self,
+        notification_id: str,
+        actor_id: str,
+        organization_ids: list[str] | None = None,
+    ) -> dict | None:
         raise NotImplementedError
 
 
@@ -62,9 +67,11 @@ class InMemoryNotificationStore(NotificationStore):
             rows = [row for row in rows if row.get("organization_id") == organization_id]
         return [dict(row) for row in rows[:limit]]
 
-    async def mark_read(self, notification_id, actor_id):
+    async def mark_read(self, notification_id, actor_id, organization_ids=None):
         row = self.rows.get(notification_id)
         if row is None:
+            return None
+        if organization_ids is not None and row.get("organization_id") not in organization_ids:
             return None
         row["read"] = True
         row["read_at"] = utc_now()
@@ -98,10 +105,13 @@ class MongoNotificationStore(NotificationStore):
         cursor = self.collection.find(query).sort("created_at", -1).limit(limit)
         return [self._clean(row) or {} for row in await cursor.to_list(length=limit)]
 
-    async def mark_read(self, notification_id, actor_id):
+    async def mark_read(self, notification_id, actor_id, organization_ids=None):
+        query: dict = {"notification_id": notification_id}
+        if organization_ids is not None:
+            query["organization_id"] = {"$in": organization_ids}
         return self._clean(
             await self.collection.find_one_and_update(
-                {"notification_id": notification_id},
+                query,
                 {
                     "$set": {
                         "read": True,

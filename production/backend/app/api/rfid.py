@@ -81,7 +81,10 @@ async def reader_heartbeat(
 async def probe_reader(reader_id: str, reader=Depends(authenticated_reader)) -> dict:
     if str(reader.get("reader_id") or "") != reader_id:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Reader credentials do not match path")
-    adapter = build_adapter(reader, get_runtime().settings)
+    try:
+        adapter = build_adapter(reader, get_runtime().settings)
+    except (ValueError, RuntimeError) as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
     result = await adapter.status()
     return result.to_dict()
 

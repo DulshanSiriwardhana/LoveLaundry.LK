@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
+from ..core.principal import assert_organization_access
 from ..events.models import new_event, utc_now
 from ..events.outbox import OutboxStore
 from .lifecycle import (
@@ -148,7 +149,7 @@ class MissingLinenMonitor:
             )
         return {"evaluated": len(profiles), "flagged": flagged, "alerts_created": created}
 
-    async def resolve(self, alert_id: str, actor: str) -> dict:
+    async def resolve(self, alert_id: str, actor: str, principal: dict) -> dict:
         alert = next(
             (
                 row
@@ -161,6 +162,9 @@ class MissingLinenMonitor:
             from fastapi import HTTPException
 
             raise HTTPException(status_code=404, detail="Open missing-linen alert not found")
+        # The alert is looked up globally by ID; authorize on the record's own
+        # organization before mutating it or publishing an event for that org.
+        assert_organization_access(principal, str(alert.get("organization_id") or ""))
         resolved = dict(alert)
         resolved.update(
             {

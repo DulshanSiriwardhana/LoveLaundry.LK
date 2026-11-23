@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
 from ..core.config import get_settings
+from ..core.principal import actor_identity
 from ..core.security import get_current_user
 from ..permissions.service import require_capability
 from ..repositories.adjustments import AdjustmentRepository, InMemoryAdjustmentRepository
@@ -76,6 +77,7 @@ async def create_adjustment(
     from .bills import single_organization_scope
 
     service = _service()
+    actor = actor_identity(principal, payload.actor_id)
     adjustment = await service.create_adjustment(
         {
             "adjustment_id": payload.adjustment_id,
@@ -86,7 +88,7 @@ async def create_adjustment(
             "original_qty": payload.original_qty,
             "corrected_qty": payload.corrected_qty,
             "reason": payload.reason,
-            "actor_id": payload.actor_id,
+            "actor_id": actor["actor_id"],
         },
         single_organization_scope(principal, payload.organization_id),
     )
@@ -124,8 +126,9 @@ async def approve_adjustment(
     from .bills import single_organization_scope
 
     service = _service()
+    actor = actor_identity(principal, approver.model_dump())
     adjustment = await service.approve_adjustment(
-        adjustment_id, approver.model_dump(), single_organization_scope(principal)
+        adjustment_id, actor, single_organization_scope(principal)
     )
     return {
         "id": adjustment["id"],
@@ -145,7 +148,8 @@ async def reject_adjustment(
     from .bills import single_organization_scope
 
     service = _service()
+    approver = actor_identity(principal, actor.model_dump())
     adjustment = await service.reject_adjustment(
-        adjustment_id, actor.model_dump(), single_organization_scope(principal)
+        adjustment_id, approver, single_organization_scope(principal)
     )
     return {"id": adjustment["id"], "status": adjustment["status"]}

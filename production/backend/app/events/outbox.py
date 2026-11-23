@@ -40,7 +40,9 @@ class OutboxStore:
         """Return True when the event was moved to the dead-letter store."""
         raise NotImplementedError
 
-    async def dead_letters(self, limit: int = 100) -> list[dict]:
+    async def dead_letters(
+        self, limit: int = 100, organization_ids: list[str] | None = None
+    ) -> list[dict]:
         raise NotImplementedError
 
     async def list_events(
@@ -48,10 +50,12 @@ class OutboxStore:
     ) -> list[dict]:
         raise NotImplementedError
 
-    async def retry_dead_letter(self, event_id: str) -> bool:
+    async def retry_dead_letter(
+        self, event_id: str, organization_ids: list[str] | None = None
+    ) -> bool:
         raise NotImplementedError
 
-    async def stats(self) -> dict:
+    async def stats(self, organization_ids: list[str] | None = None) -> dict:
         raise NotImplementedError
 
 
@@ -128,8 +132,11 @@ class InMemoryOutbox(OutboxStore):
             },
         )
 
-    async def dead_letters(self, limit: int = 100) -> list[dict]:
-        return list(self.dead.values())[:limit]
+    async def dead_letters(self, limit: int = 100, organization_ids=None) -> list[dict]:
+        rows = list(self.dead.values())
+        if organization_ids is not None:
+            rows = [row for row in rows if row.get("organization_id") in organization_ids]
+        return rows[:limit]
 
     async def list_events(self, organization_id=None, limit=5000) -> list[dict]:
         rows = sorted(
@@ -139,10 +146,12 @@ class InMemoryOutbox(OutboxStore):
             rows = [row for row in rows if row.get("organization_id") == organization_id]
         return [dict(row) for row in rows[:limit]]
 
-    async def retry_dead_letter(self, event_id: str) -> bool:
+    async def retry_dead_letter(self, event_id: str, organization_ids=None) -> bool:
         letter = self.dead.get(event_id)
         document = self.events.get(event_id)
         if letter is None or document is None:
+            return False
+        if organization_ids is not None and letter.get("organization_id") not in organization_ids:
             return False
         document.update(
             {
@@ -155,9 +164,11 @@ class InMemoryOutbox(OutboxStore):
         self.dead.pop(event_id, None)
         return True
 
-    async def stats(self) -> dict:
+    async def stats(self, organization_ids=None) -> dict:
         statuses: dict[str, int] = {}
         for document in self.events.values():
+            if organization_ids is not None and document.get("organization_id") not in organization_ids:
+                continue
             status = str(document.get("status") or "unknown")
             statuses[status] = statuses.get(status, 0) + 1
         return {
@@ -166,7 +177,12 @@ class InMemoryOutbox(OutboxStore):
             "processing": statuses.get("processing", 0),
             "published": statuses.get("published", 0),
             "dead": statuses.get("dead", 0),
-            "dead_letters": len(self.dead),
+            "dead_letters": sum(
+                1
+                for row in self.dead.values()
+                if organization_ids is None
+                or row.get("organization_id") in organization_ids
+            ),
         }
 
 
@@ -251,8 +267,11 @@ class MongoOutbox(OutboxStore):
             )
         return dead
 
-    async def dead_letters(self, limit: int = 100) -> list[dict]:
-        cursor = self.dead.find({}).sort("failed_at", -1).limit(limit)
+    async def dead_letters(self, limit: int = 100, organization_ids=None) -> list[dict]:
+        query: dict = {}
+        if organization_ids is not None:
+            query["organization_id"] = {"$in": organization_ids}
+        cursor = self.dead.find(query).sort("failed_at", -1).limit(limit)
         return [
             {key: value for key, value in row.items() if key != "_id"}
             for row in await cursor.to_list(length=limit)
@@ -268,8 +287,11 @@ class MongoOutbox(OutboxStore):
             for row in await cursor.to_list(length=limit)
         ]
 
-    async def retry_dead_letter(self, event_id: str) -> bool:
-        letter = await self.dead.find_one({"event_id": event_id})
+    async def retry_dead_letter(self, event_id: str, organization_ids=None) -> bool:
+        query: dict = {"event_id": event_id}
+        if organization_ids is not None:
+            query["organization_id"] = {"$in": organization_ids}
+        letter = await self.dead.find_one(query)
         if letter is None:
             return False
         result = await self.events.update_one(
@@ -288,8 +310,11 @@ class MongoOutbox(OutboxStore):
             return True
         return False
 
-    async def stats(self) -> dict:
-        pipeline = [{"$group": {"_id": "$status", "count": {"$sum": 1}}}]
+    async def stats(self, organization_ids=None) -> dict:
+        pipeline = []
+        if organization_ids is not None:
+            pipeline.append({"$match": {"organization_id": {"$in": organization_ids}}})
+        pipeline.append({"$group": {"_id": "$status", "count": {"$sum": 1}}})
         rows = await self.events.aggregate(pipeline).to_list(length=None)
         statuses = {str(row["_id"]): int(row["count"]) for row in rows}
         return {
@@ -298,5 +323,9 @@ class MongoOutbox(OutboxStore):
             "processing": statuses.get("processing", 0),
             "published": statuses.get("published", 0),
             "dead": statuses.get("dead", 0),
-            "dead_letters": await self.dead.count_documents({}),
+            "dead_letters": await self.dead.count_documents(
+                {"organization_id": {"$in": organization_ids}}
+                if organization_ids is not None
+                else {}
+            ),
         }

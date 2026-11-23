@@ -24,7 +24,9 @@ from .api import (
 from .authentication.router import router as auth_router
 from .core.config import get_settings
 from .core.errors import install_error_handlers
+from .core.http_limits import BodySizeLimitMiddleware
 from .core.metrics import record_request
+from .core.security_headers import SecurityHeadersMiddleware
 from .runtime import get_runtime
 
 
@@ -87,6 +89,9 @@ def create_app(user_lookup=None) -> FastAPI:
         version=__version__,
         lifespan=lifespan,
     )
+    # Body limiting is added before CORS so CORS remains outermost and still
+    # decorates 413 responses for browser callers.
+    app.add_middleware(BodySizeLimitMiddleware, max_bytes=settings.max_request_body_bytes)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
@@ -94,6 +99,7 @@ def create_app(user_lookup=None) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    app.add_middleware(SecurityHeadersMiddleware)
 
     @app.middleware("http")
     async def metrics_middleware(request, call_next):

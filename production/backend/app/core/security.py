@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from typing import Any
 
 import jwt
 from fastapi import HTTPException, Security, status
@@ -32,15 +33,78 @@ async def _database_user_lookup(auth_id: str) -> dict | None:
     return user
 
 
-async def get_user_lookup(auth_id: str) -> dict | None:
+async def get_user_lookup(auth_id: str, *, required: bool = False) -> dict | None:
+    """Resolve a live user record.
+
+    ``required=True`` is used for authenticated requests: a signed token is not
+    sufficient if the account was deleted, disabled or the identity store is
+    unavailable. Callers that merely want an optional projection (for example
+    the login finder) keep the old non-raising behaviour.
+    """
+
     if not auth_id:
+        if required:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Account no longer exists")
         return None
-    if _user_lookup is not None:
-        return await _user_lookup(auth_id)
     try:
-        return await _database_user_lookup(auth_id)
-    except Exception:
+        if _user_lookup is not None:
+            user = await _user_lookup(auth_id)
+        else:
+            user = await _database_user_lookup(auth_id)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        if required:
+            # Never include driver errors or connection strings in a response.
+            raise HTTPException(
+                status.HTTP_503_SERVICE_UNAVAILABLE, "Account lookup is unavailable"
+            ) from exc
         return None
+    if required and user is None:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Account no longer exists")
+    return user
+
+
+def _token_issued_at(payload: dict) -> datetime | None:
+    value = payload.get("iat")
+    if isinstance(value, (int, float)):
+        try:
+            return datetime.fromtimestamp(value, tz=timezone.utc)
+        except (OverflowError, OSError, ValueError):
+            return None
+    return None
+
+
+def _parse_timestamp(value: Any) -> datetime | None:
+    if isinstance(value, datetime):
+        return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+    if not isinstance(value, str) or not value.strip():
+        return None
+    text = value.strip().replace("Z", "+00:00")
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError:
+        return None
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+
+
+def token_is_revoked(user: dict, payload: dict) -> bool:
+    """Honour operator-set revocation markers on the live user record."""
+
+    if bool(user.get("token_revoked")):
+        return True
+    revoked_at = _parse_timestamp(user.get("token_revoked_at"))
+    issued_at = _token_issued_at(payload)
+    if revoked_at is not None:
+        if issued_at is None:
+            return True
+        if issued_at <= revoked_at:
+            return True
+    expected_version = user.get("token_version")
+    actual_version = payload.get("token_version")
+    if expected_version is not None and actual_version is not None:
+        return str(expected_version) != str(actual_version)
+    return False
 
 
 def create_access_token(data: dict, expires_in_hours: int | None = None) -> str:
@@ -96,15 +160,15 @@ async def get_current_user(
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Authentication required")
     payload = verify_token(credentials.credentials)
     auth_id = _token_identity(payload)
-    user = await get_user_lookup(auth_id)
-    if user is None:
-        # The token is signed with the platform secret, so its claims are a
-        # valid fallback when the local user projection has not been seeded.
-        user = dict(payload)
-    status_value = str(user.get("status") or payload.get("status") or "unset").strip().lower()
+    user = await get_user_lookup(auth_id, required=True)
+    status_value = str(user.get("status") or "unset").strip().lower()
     if status_value in DISABLED_STATUSES:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Account is disabled.")
+    if token_is_revoked(user, payload):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Token has been revoked")
     try:
+        # Claims still supply role/tenant snapshots; the live record wins on
+        # status and explicit revocation markers.
         return normalize_principal(user, payload)
     except ValueError as exc:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, str(exc)) from exc

@@ -79,6 +79,25 @@ class IdentityService:
         assert_organization_access(principal, requested)
         return requested
 
+    @staticmethod
+    def _assert_mapping_organization(
+        rows: list[dict], organization_id: str, principal: dict
+    ) -> None:
+        """Reject import rows addressed to an organization other than the batch owner.
+
+        Row-level ``organization_id`` values originate in an uploaded file. They
+        must never be able to override the batch scope when items are created.
+        """
+
+        for row in rows:
+            row_org = str(row.get("organization_id") or "").strip()
+            if row_org and row_org != organization_id:
+                raise HTTPException(
+                    status.HTTP_403_FORBIDDEN,
+                    "Tag mapping row belongs to another organization",
+                )
+            assert_organization_access(principal, row_org or organization_id)
+
     async def _unique_epc(self, epc: str) -> None:
         if await self.repository.find_by_epc(epc) is not None:
             raise HTTPException(status.HTTP_409_CONFLICT, f"EPC {epc} is already assigned")
@@ -286,6 +305,7 @@ class IdentityService:
         )
         if not is_platform_admin(principal):
             assert_organization_access(principal, organization_id)
+        self._assert_mapping_organization(report["rows"], organization_id, principal)
         sequence = await self.repository.next_sequence("tag_import")
         import_id = f"IMP-{sequence:06d}"
         document = {
@@ -318,10 +338,22 @@ class IdentityService:
             raise HTTPException(
                 status.HTTP_409_CONFLICT, "Tag batch must be verified before activation"
             )
+        batch_organization_id = str(batch.get("organization_id") or "")
+        document_organization_id = str(document.get("organization_id") or "")
+        organization_id = (
+            batch_organization_id
+            or document_organization_id
+            or str(next((row.get("organization_id") for row in document["rows"] if row.get("organization_id")), ""))
+        )
         if not is_platform_admin(principal):
-            assert_organization_access(
-                principal, str(batch.get("organization_id") or "")
-            )
+            assert_organization_access(principal, batch_organization_id)
+            assert_organization_access(principal, document_organization_id)
+            if document_organization_id and document_organization_id != batch_organization_id:
+                raise HTTPException(
+                    status.HTTP_403_FORBIDDEN,
+                    "Tag import belongs to another organization",
+                )
+        self._assert_mapping_organization(document["rows"], organization_id, principal)
         prefix, length = self._epc_config()
         activated = 0
         for row in document["rows"]:
@@ -336,8 +368,7 @@ class IdentityService:
                 epc=epc,
                 serial=row.get("tag_serial") or new_tag_serial(sequence),
                 tid=row.get("tid", ""),
-                organization_id=row.get("organization_id")
-                or str(batch.get("organization_id") or ""),
+                organization_id=organization_id,
                 payload=row,
             )
             item["batch_id"] = batch["batch_id"]

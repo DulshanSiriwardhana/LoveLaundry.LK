@@ -288,3 +288,40 @@ def assert_organization_access(principal: dict, organization_id: str | None) -> 
         raise HTTPException(
             status.HTTP_403_FORBIDDEN, "Resource belongs to another organization"
         )
+
+
+def actor_identity(principal: dict, supplied=None) -> dict:
+    """Return the identity used for audit fields and self-approval checks.
+
+    When authentication is enabled the verified principal is the *only*
+    trusted source of identity: client-supplied ``actor_id``/``auth_id``/
+    ``user_name`` values are ignored. This prevents audit log forgery and
+    defeats attempts to bypass the "cannot approve your own request" rule by
+    claiming somebody else's identity in the request body.
+
+    With ``AUTH_REQUIRED=false`` (local development only) the supplied value
+    is retained for compatibility with existing dev tooling. It carries no
+    security meaning there because every caller is the same local principal
+    with full capabilities.
+    """
+
+    from .config import get_settings
+
+    actor_id = _first(principal.get("actor_id")) or _first(principal.get("auth_id"))
+    user_name = _first(principal.get("user_name")) or actor_id
+
+    if get_settings().auth_required or supplied is None:
+        return {"actor_id": actor_id, "auth_id": actor_id, "user_name": user_name}
+
+    if isinstance(supplied, str):
+        value = _first(supplied) or actor_id
+        return {"actor_id": value, "auth_id": value, "user_name": value}
+
+    supplied_auth = _first(supplied.get("auth_id") or supplied.get("user_name"))
+    if not supplied_auth:
+        return {"actor_id": actor_id, "auth_id": actor_id, "user_name": user_name}
+    return {
+        "actor_id": supplied_auth,
+        "auth_id": supplied_auth,
+        "user_name": _first(supplied.get("user_name")) or supplied_auth,
+    }

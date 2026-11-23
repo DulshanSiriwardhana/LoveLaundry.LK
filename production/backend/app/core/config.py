@@ -1,4 +1,5 @@
 from functools import lru_cache
+from urllib.parse import urlsplit
 
 from pydantic import AliasChoices, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -26,6 +27,14 @@ KNOWN_ORIGINS = (
 )
 
 
+def _is_local_origin(origin: str) -> bool:
+    try:
+        host = (urlsplit(origin).hostname or "").lower()
+    except ValueError:
+        return False
+    return host in {"localhost", "127.0.0.1", "::1"} or host.endswith(".localhost")
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
@@ -37,6 +46,16 @@ class Settings(BaseSettings):
     persistence: str = Field(default="mongo", validation_alias="PERSISTENCE")
     jwt_expires_hours: int = Field(default=24, validation_alias="JWT_EXPIRES_HOURS")
     jwt_algorithm: str = Field(default="HS256", validation_alias="JWT_ALGORITHM")
+
+    # In-process login throttling. A distributed deployment should replace this
+    # with a shared limiter, but it must never trust client-supplied IP headers.
+    login_attempt_limit: int = Field(default=10, ge=1, validation_alias="LOGIN_ATTEMPT_LIMIT")
+    login_window_seconds: int = Field(default=60, ge=1, validation_alias="LOGIN_WINDOW_SECONDS")
+    login_lockout_seconds: int = Field(default=300, ge=1, validation_alias="LOGIN_LOCKOUT_SECONDS")
+    max_request_body_bytes: int = Field(
+        default=10 * 1024 * 1024, ge=1024, validation_alias="MAX_REQUEST_BODY_BYTES"
+    )
+
     event_worker_enabled: bool = Field(default=False, validation_alias="EVENT_WORKER_ENABLED")
     event_worker_interval_seconds: int = Field(
         default=5, ge=1, validation_alias="EVENT_WORKER_INTERVAL_SECONDS"
@@ -84,6 +103,17 @@ class Settings(BaseSettings):
     rfid_allow_simulated_reads: bool = Field(
         default=False, validation_alias="RFID_ALLOW_SIMULATED_READS"
     )
+    # Reader endpoints are network addresses. Default to RFC1918 hardware
+    # networks; loopback, link-local (including cloud metadata), multicast and
+    # public addresses are rejected. Hostnames require an explicit opt-in and
+    # every resolved address must still be allowed.
+    rfid_allowed_endpoint_cidrs: str = Field(
+        default="10.0.0.0/8,172.16.0.0/12,192.168.0.0/16",
+        validation_alias="RFID_ALLOWED_ENDPOINT_CIDRS",
+    )
+    rfid_allow_endpoint_hostnames: bool = Field(
+        default=False, validation_alias="RFID_ALLOW_ENDPOINT_HOSTNAMES"
+    )
     tag_inspection_threshold_cycles: int = Field(
         default=250, ge=1, validation_alias="TAG_INSPECTION_THRESHOLD_CYCLES"
     )
@@ -110,7 +140,36 @@ class Settings(BaseSettings):
         configured = [origin.strip().rstrip("/") for origin in self.cors_origins if origin.strip()]
         configured = [origin for origin in configured if origin != "*"]
         self.cors_origins = list(dict.fromkeys((*KNOWN_ORIGINS, *configured)))
+        if environment == "production":
+            self.cors_origins = [
+                origin for origin in self.cors_origins if not _is_local_origin(origin)
+            ]
         return self
+
+    @property
+    def rfid_allowed_endpoint_networks(self):
+        import ipaddress
+        import json
+
+        raw = (self.rfid_allowed_endpoint_cidrs or "").strip()
+        values: list[str] = []
+        try:
+            parsed = json.loads(raw)
+            if isinstance(parsed, list):
+                values = [str(value).strip() for value in parsed]
+        except (TypeError, ValueError):
+            pass
+        if not values and raw:
+            values = [value.strip() for value in raw.split(",")]
+        networks = []
+        for value in values:
+            if not value:
+                continue
+            try:
+                networks.append(ipaddress.ip_network(value, strict=False))
+            except ValueError:
+                continue
+        return tuple(networks)
 
     @property
     def central_system(self) -> str:
