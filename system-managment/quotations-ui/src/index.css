@@ -1125,3 +1125,381 @@ body:has(.fixed.inset-0) { overflow: hidden; }
     z-index: 9999;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   11 · LINEN SCANNER — centred, colourful handoff cards
+   ───────────────────────────────────────────────────────────────────────────
+   The select screen is the start of every scan session, so it gets a small
+   amount of deliberate delight: soft colour fields behind the hero, a lit
+   icon per custody group, and cards that answer the pointer with a glow and a
+   sheen. All colour comes from CSS custom properties so the nine presets keep
+   working; the global reduced-motion rules above freeze every loop here.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media screen {
+  /* Colour identity is shared by a group panel and its cards. */
+  .scan-group[data-custody='hotel'],
+  .scan-card[data-custody='hotel'] {
+    --scan-accent: var(--text-primary);
+    --scan-accent-2: var(--text-secondary);
+  }
+  .scan-group[data-custody='laundry'],
+  .scan-card[data-custody='laundry'] {
+    --scan-accent: var(--ll-green);
+    --scan-accent-2: var(--success-text);
+  }
+  .scan-group[data-custody='exception'],
+  .scan-card[data-custody='exception'] {
+    --scan-accent: var(--ll-red);
+    --scan-accent-2: var(--danger-text);
+  }
+
+  /* ── Select hero ─────────────────────────────────────────────────────── */
+  .scan-hero {
+    border: 1px solid var(--ui-hairline, var(--border));
+    background:
+      radial-gradient(120% 150% at 50% -30%, color-mix(in srgb, var(--text-secondary) 16%, transparent), transparent 62%),
+      linear-gradient(155deg, color-mix(in srgb, var(--surface-2) 78%, var(--surface)), var(--surface));
+    box-shadow: var(--shadow-sm), inset 0 1px 0 color-mix(in srgb, #FFFFFF 40%, transparent);
+  }
+  .scan-hero-grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.55;
+    background-image: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--text-muted) 24%, transparent) 1px, transparent 0);
+    background-size: 22px 22px;
+    -webkit-mask-image: radial-gradient(ellipse 72% 82% at 50% 38%, #000000, transparent 82%);
+    mask-image: radial-gradient(ellipse 72% 82% at 50% 38%, #000000, transparent 82%);
+  }
+  .scan-hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(52px);
+    pointer-events: none;
+    opacity: 0.5;
+    will-change: transform;
+  }
+  .scan-hero-orb--one {
+    top: -140px;
+    left: -60px;
+    width: 260px;
+    height: 260px;
+    background: color-mix(in srgb, var(--text-secondary) 55%, transparent);
+    animation: scan-orb-one 17s ease-in-out infinite;
+  }
+  .scan-hero-orb--two {
+    top: -100px;
+    right: -40px;
+    width: 230px;
+    height: 230px;
+    background: rgba(0, 0, 0, 0.42);
+    animation: scan-orb-two 14s ease-in-out infinite;
+  }
+  .scan-hero-orb--three {
+    bottom: -160px;
+    left: 36%;
+    width: 290px;
+    height: 210px;
+    background: rgba(255, 0, 0, 0.34);
+    animation: scan-orb-three 19s ease-in-out infinite;
+  }
+  @keyframes scan-orb-one {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(48px, 30px, 0) scale(1.16); }
+  }
+  @keyframes scan-orb-two {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1.08); }
+    50% { transform: translate3d(-38px, 42px, 0) scale(0.92); }
+  }
+  @keyframes scan-orb-three {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(30px, -22px, 0) scale(1.14); }
+  }
+
+  .scan-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 11px;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, var(--text-secondary) 24%, transparent);
+    background: color-mix(in srgb, var(--text-secondary) 10%, var(--surface));
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .scan-hero-flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .scan-flow-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    border: 1px solid var(--ui-hairline, var(--border));
+    background: color-mix(in srgb, var(--surface) 76%, transparent);
+    box-shadow: var(--shadow-xs);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .scan-flow-chip[data-flow='hotel'] svg { color: var(--text-secondary); }
+  .scan-flow-chip[data-flow='laundry'] svg { color: var(--success-text); }
+  .scan-flow-chip[data-flow='return'] svg { color: var(--text-secondary); }
+  .scan-hero-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, var(--success-text) 22%, transparent);
+    background: color-mix(in srgb, var(--success-text) 9%, var(--surface));
+    color: var(--text-secondary);
+    font-size: 11px;
+  }
+  .scan-note-dot {
+    width: 7px;
+    height: 7px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--success-text);
+    animation: scan-pulse 2.4s ease-out infinite;
+  }
+  @keyframes scan-pulse {
+    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--success-text) 55%, transparent); }
+    70% { box-shadow: 0 0 0 8px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
+
+  /* ── Custody group panels ───────────────────────────────────────────── */
+  .scan-group {
+    border-color: color-mix(in srgb, var(--scan-accent) 20%, var(--border));
+    background: linear-gradient(160deg, color-mix(in srgb, var(--scan-accent) 8%, var(--surface)), var(--surface) 62%);
+    box-shadow: var(--shadow-sm);
+    transition: border-color 240ms var(--ease-travel, cubic-bezier(0.16, 1, 0.3, 1)), box-shadow 240ms var(--ease-travel, cubic-bezier(0.16, 1, 0.3, 1));
+  }
+  .scan-group:hover {
+    border-color: color-mix(in srgb, var(--scan-accent) 34%, var(--border));
+    box-shadow: var(--shadow-md);
+  }
+  .scan-group::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, var(--scan-accent), var(--scan-accent-2), transparent 88%);
+  }
+  .scan-group-orb {
+    position: absolute;
+    top: -110px;
+    right: -70px;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    filter: blur(50px);
+    opacity: 0.55;
+    pointer-events: none;
+    background: color-mix(in srgb, var(--scan-accent) 32%, transparent);
+    animation: scan-orb-three 18s ease-in-out infinite;
+  }
+  .scan-group-icon {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    border-radius: 13px;
+    color: #FFFFFF;
+    background: linear-gradient(135deg, var(--scan-accent), var(--scan-accent-2));
+    box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--scan-accent) 90%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.32);
+  }
+  .scan-group-count {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, var(--scan-accent) 30%, transparent);
+    background: color-mix(in srgb, var(--scan-accent) 12%, transparent);
+    color: color-mix(in srgb, var(--scan-accent) 72%, var(--text-primary));
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .scan-group-arrow {
+    color: color-mix(in srgb, var(--scan-accent) 78%, var(--text-primary));
+    opacity: 0.75;
+  }
+
+  /* ── The action cards ───────────────────────────────────────────────── */
+  .scan-card {
+    border-color: color-mix(in srgb, var(--scan-accent) 24%, var(--border));
+    background: linear-gradient(155deg, color-mix(in srgb, var(--scan-accent) 13%, var(--surface)), color-mix(in srgb, var(--scan-accent-2) 8%, var(--surface-2)));
+    box-shadow: var(--shadow-xs);
+    transition: border-color 220ms var(--ease-travel, cubic-bezier(0.16, 1, 0.3, 1)), box-shadow 220ms var(--ease-travel, cubic-bezier(0.16, 1, 0.3, 1));
+  }
+  .scan-card:hover {
+    border-color: color-mix(in srgb, var(--scan-accent) 60%, var(--border));
+    box-shadow: 0 16px 34px -14px color-mix(in srgb, var(--scan-accent) 68%, transparent);
+  }
+  .scan-card-orb {
+    position: absolute;
+    top: 4%;
+    left: calc(50% - 65px);
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--scan-accent) 55%, transparent), transparent 70%);
+    filter: blur(18px);
+    opacity: 0.55;
+    pointer-events: none;
+    animation: scan-breathe 6s ease-in-out infinite;
+    transition: opacity 260ms var(--ease-travel, cubic-bezier(0.16, 1, 0.3, 1));
+  }
+  .scan-card:hover .scan-card-orb { opacity: 0.82; }
+  @keyframes scan-breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.16); }
+  }
+  .scan-card-sheen {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(115deg, transparent 32%, color-mix(in srgb, #FFFFFF 50%, transparent) 48%, transparent 64%);
+    transform: translateX(-130%);
+    transition: transform 750ms var(--ease-travel, cubic-bezier(0.16, 1, 0.3, 1));
+  }
+  .scan-card:hover .scan-card-sheen { transform: translateX(130%); }
+  .scan-card-icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 15px;
+    color: #FFFFFF;
+    background: linear-gradient(140deg, var(--scan-accent), var(--scan-accent-2));
+    box-shadow: 0 10px 22px -8px color-mix(in srgb, var(--scan-accent) 85%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    transition: box-shadow 260ms var(--ease-travel, cubic-bezier(0.16, 1, 0.3, 1)), filter 260ms var(--ease-travel, cubic-bezier(0.16, 1, 0.3, 1));
+  }
+  .scan-card-icon::after {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border-radius: 19px;
+    border: 1px solid color-mix(in srgb, var(--scan-accent) 45%, transparent);
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 240ms var(--ease-travel, cubic-bezier(0.16, 1, 0.3, 1)), transform 240ms var(--ease-travel, cubic-bezier(0.16, 1, 0.3, 1));
+  }
+  .scan-card:hover .scan-card-icon {
+    filter: saturate(1.12);
+    box-shadow: 0 14px 30px -6px color-mix(in srgb, var(--scan-accent) 92%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+  .scan-card:hover .scan-card-icon::after { opacity: 1; transform: scale(1); }
+  .scan-card-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 9px;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, var(--scan-accent) 28%, transparent);
+    background: color-mix(in srgb, var(--scan-accent) 13%, transparent);
+    color: color-mix(in srgb, var(--scan-accent) 72%, var(--text-primary));
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .scan-card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--text-muted);
+  }
+  .scan-card-arrow {
+    color: color-mix(in srgb, var(--scan-accent) 80%, var(--text-primary));
+    transition: transform 220ms var(--ease-travel, cubic-bezier(0.16, 1, 0.3, 1));
+  }
+  .scan-card:hover .scan-card-arrow { transform: translateX(4px); }
+  .scan-terminal {
+    padding: 1px 7px;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--warning-text) 14%, transparent);
+    color: var(--warning-text);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* ── Colour-coded stat tiles, shared by scan + summary ─────────────── */
+  .scan-stat[data-tone='brand'] { --stat-accent: var(--text-primary); --stat-accent-2: var(--text-secondary); }
+  .scan-stat[data-tone='slate'] { --stat-accent: var(--text-secondary); --stat-accent-2: var(--text-tertiary); }
+  .scan-stat[data-tone='accent'] { --stat-accent: var(--accent-text); --stat-accent-2: var(--danger-text); }
+  .scan-stat[data-tone='green'] { --stat-accent: var(--success-text); --stat-accent-2: var(--success-deep); }
+  .scan-stat[data-tone='amber'] { --stat-accent: var(--danger-text); --stat-accent-2: var(--danger-text); }
+  .scan-stat[data-tone='rose'] { --stat-accent: var(--danger-text); --stat-accent-2: var(--danger-text); }
+  .scan-stat {
+    background: linear-gradient(145deg, color-mix(in srgb, var(--stat-accent) 11%, var(--surface)), var(--surface));
+    transition: transform 200ms var(--ease-travel, cubic-bezier(0.16, 1, 0.3, 1)), border-color 200ms var(--ease-travel, cubic-bezier(0.16, 1, 0.3, 1)), box-shadow 200ms var(--ease-travel, cubic-bezier(0.16, 1, 0.3, 1));
+  }
+  .scan-stat:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--stat-accent) 45%, var(--border));
+    box-shadow: var(--shadow-sm);
+  }
+  .scan-stat-glow {
+    position: absolute;
+    top: -32px;
+    right: -28px;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--stat-accent) 38%, transparent), transparent 70%);
+    filter: blur(12px);
+    pointer-events: none;
+  }
+  .scan-stat-icon { display: inline-grid; place-items: center; color: var(--stat-accent); }
+
+  /* ── Active scan tab: guide, input, live rows ───────────────────────── */
+  .scan-guide {
+    position: relative;
+    overflow: hidden;
+    border-color: color-mix(in srgb, var(--text-secondary) 30%, var(--border)) !important;
+    background: linear-gradient(120deg, color-mix(in srgb, var(--text-secondary) 10%, var(--surface)), var(--surface) 70%) !important;
+  }
+  .scan-guide::after {
+    content: '';
+    position: absolute;
+    top: -70px;
+    right: -40px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--text-secondary) 30%, transparent), transparent 70%);
+    filter: blur(28px);
+    pointer-events: none;
+  }
+  .scan-guide-pill { box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--text-secondary) 70%, transparent); }
+  .scan-input-card {
+    border-color: color-mix(in srgb, var(--text-secondary) 24%, var(--border)) !important;
+    background: linear-gradient(140deg, color-mix(in srgb, var(--text-secondary) 9%, var(--surface)), var(--surface) 60%) !important;
+  }
+  .scan-soft-row {
+    transition: background-color 180ms var(--ease-travel, cubic-bezier(0.16, 1, 0.3, 1)), border-color 180ms var(--ease-travel, cubic-bezier(0.16, 1, 0.3, 1)), transform 180ms var(--ease-travel, cubic-bezier(0.16, 1, 0.3, 1));
+  }
+  .scan-soft-row:hover {
+    transform: translateX(2px);
+    border-color: color-mix(in srgb, var(--text-secondary) 35%, var(--border));
+    background: var(--surface-hover, var(--surface-2));
+  }
+}

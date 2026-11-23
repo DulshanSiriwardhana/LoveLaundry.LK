@@ -4,6 +4,7 @@ import JsBarcode from 'jsbarcode'
 import { useRef, useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { useLinen, useLinenEvents, useScanLinen } from '../hooks/useLinen'
+import { LinenLiveBadge } from '../components/linen-live-badge'
 import { LINEN_STATUS_CONFIG, SCAN_ACTIONS, type LinenStatus } from '../../../types/linen'
 import { Card, CardContent } from '../../../components/ui/card'
 import { Button } from '../../../components/ui/button'
@@ -68,6 +69,7 @@ export default function LinenProfile() {
         { label: 'Inventory', href: '/linen/inventory' },
         { label: linen.linen_id },
       ]} />
+      <div className="flex justify-end"><LinenLiveBadge /></div>
 
       <div className="flex flex-col lg:flex-row gap-5">
         {/* Left column — QR, Barcode, Status, Actions */}

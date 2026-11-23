@@ -62,6 +62,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
       { to: '/linen', label: 'Dashboard', icon: House },
       { to: '/linen/inventory', label: 'Inventory', icon: ClipboardText },
       { to: '/linen/scanner', label: 'Scan Linen', icon: Scan },
+      { to: '/linen/session', label: 'Scan Session', icon: Scan },
       { to: '/linen/bulk-scan', label: 'Bulk Scan', icon: Scan },
       { to: '/linen/tags', label: 'Tag Generator', icon: FileText },
       { to: '/linen/gate-pass', label: 'Gate Pass (Camelot)', icon: FileText },
@@ -311,7 +312,7 @@ function SidebarNavItem({
               collapsed && 'justify-center px-0',
               // Active = filled brand surface. Inactive = transparent until hover.
               isActive
-                ? 'bg-[var(--brand)] text-white'
+                ? 'bg-[var(--brand)] text-[var(--sidebar-active)]'
                 : 'text-[var(--sidebar-text)] hover:bg-[var(--sidebar-hover-bg)] hover:text-[var(--sidebar-hover-text)]',
             )
           }
@@ -325,7 +326,7 @@ function SidebarNavItem({
                 className={cn(
                   'shrink-0',
                   isActive
-                    ? 'text-white'
+                    ? 'text-[var(--sidebar-active)]'
                     : 'text-[var(--sidebar-label)] group-hover:text-[var(--sidebar-hover-text)]',
                 )}
               />

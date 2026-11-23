@@ -313,8 +313,90 @@ tbody tr:last-child td { border-bottom: 0; }
 .list__meta { color: var(--ink-muted); font-size: 0.78rem; }
 .form-grid { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
 
+/* Dedicated QR scanning tabs */
+.routes__qr:not(.active) {
+  border: 1px solid color-mix(in srgb, var(--brand) 28%, var(--line));
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+.qr-tabs {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 0.85rem;
+  background: var(--surface);
+  padding: 0.35rem;
+  box-shadow: var(--shadow-sm);
+}
+.qr-tabs button {
+  flex: 0 0 auto;
+  border-color: transparent;
+  background: transparent;
+  color: var(--ink-soft);
+  padding: 0.45rem 0.85rem;
+  font-size: 0.8rem;
+}
+.qr-tabs button:hover:not(:disabled) {
+  background: var(--brand-soft);
+  color: var(--brand);
+  transform: none;
+}
+.qr-tabs button.active {
+  background: var(--brand);
+  color: var(--ll-white);
+  box-shadow: 0 8px 18px -10px var(--brand);
+}
+.qr-panel {
+  max-width: none;
+}
+.qr-panel textarea {
+  min-height: 8rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.82rem;
+}
+.qr-panel select:disabled {
+  color: var(--ink-muted);
+  opacity: 1;
+}
+.verify-result {
+  display: grid;
+  gap: 0.8rem;
+  border: 1px solid var(--success-border);
+  border-radius: 0.85rem;
+  background: var(--success-soft);
+  padding: 0.9rem;
+}
+.verify-result__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.verify-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+.verify-grid dt {
+  color: var(--ink-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.verify-grid dd {
+  margin: 0.25rem 0 0;
+  font-size: 0.86rem;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 640px) {
   .session { width: 100%; justify-content: space-between; }
   .login-card { padding: 1.5rem; }
   .page-header__actions { width: 100%; }
+  .qr-tabs button { flex: 1 1 auto; }
 }

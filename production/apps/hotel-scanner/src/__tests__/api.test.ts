@@ -118,6 +118,20 @@ describe("api request helpers", () => {
       expect.anything(),
     );
   });
+
+  it("reports a dev-server HTML fallback instead of a raw JSON parser error", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: { get: () => "text/html; charset=utf-8" },
+      json: async () => {
+        throw new SyntaxError("Unexpected token '<'");
+      },
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(fetchHotelDashboard()).rejects.toThrow(/non-JSON response.*text\/html/);
+  });
 });
 
 describe("401 handling", () => {

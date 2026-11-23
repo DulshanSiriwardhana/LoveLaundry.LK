@@ -3,13 +3,15 @@
 /* All colour comes from ll-design-tokens.css, imported after this stylesheet
    in main.tsx. This file keeps layout and component structure only. */
 
-* { box-sizing: border-box; }
-html, body, #root { min-height: 100%; }
-body { margin: 0; background: var(--bg); color: var(--text-primary); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
-button, input, select, textarea { font: inherit; }
-button { cursor: pointer; }
-a { color: inherit; text-decoration: none; }
-h1, h2, h3, p { margin-top: 0; }
+@layer base {
+  * { box-sizing: border-box; }
+  html, body, #root { min-height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text-primary); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  button, input, select, textarea { font: inherit; }
+  button { cursor: pointer; }
+  a { color: inherit; text-decoration: none; }
+  h1, h2, h3, p { margin-top: 0; }
+}
 
 .eyebrow {
   margin: 0 0 .35rem;
@@ -184,9 +186,134 @@ h1, h2, h3, p { margin-top: 0; }
 .route-card__blurb { color: var(--text-secondary); font-size: .78rem; line-height: 1.45; }
 .route-card__endpoint { color: var(--text-muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .68rem; word-break: break-all; }
 
+/* Accessibility and workspace polish */
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+.skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 50;
+  border: 1px solid var(--brand);
+  border-radius: .6rem;
+  background: var(--surface);
+  padding: .55rem .85rem;
+  color: var(--brand-text);
+  font-size: .8rem;
+  font-weight: 700;
+  transform: translateY(-160%);
+  transition: transform .15s ease;
+}
+.skip-link:focus { transform: translateY(0); }
+
+.app-header__inner { flex-wrap: wrap; }
+.app-nav__inner { scrollbar-width: none; }
+.app-nav__inner::-webkit-scrollbar { display: none; }
+.app-nav__link { border: 1px solid transparent; }
+.app-nav__link--active { box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--surface) 70%, transparent); }
+
+.hero-band { padding: 1.6rem clamp(1.25rem, 3vw, 2rem); }
+.hero-band__stamp {
+  position: absolute;
+  top: 1rem;
+  right: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--ll-white) 32%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ll-white) 14%, transparent);
+  padding: .25rem .7rem;
+  color: var(--ll-white);
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.hero-band__content { padding-right: 5rem; }
+
+.workspace-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+  align-items: start;
+}
+.workspace-preview { display: grid; gap: 0; }
+.preview-list {
+  display: grid;
+  gap: .65rem;
+  margin: 0;
+  padding: 1.15rem 1.15rem .35rem;
+  list-style: none;
+}
+.preview-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: .6rem;
+  color: var(--text-secondary);
+  font-size: .85rem;
+  line-height: 1.45;
+}
+.preview-list__dot {
+  width: .45rem;
+  height: .45rem;
+  flex: 0 0 auto;
+  margin-top: .45rem;
+  border-radius: 999px;
+  background: var(--brand);
+}
+.empty-panel {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  margin: .75rem 1.15rem 1.15rem;
+  border: 1px dashed var(--border);
+  border-radius: .85rem;
+  background: var(--surface-2);
+  padding: .9rem;
+}
+.empty-panel__icon {
+  display: grid;
+  height: 1.75rem;
+  width: 1.75rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: .6rem;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-weight: 700;
+}
+.empty-panel strong { display: block; font-size: .82rem; }
+.empty-panel p { margin: .3rem 0 0; color: var(--text-muted); font-size: .76rem; line-height: 1.5; }
+.empty-panel code { color: var(--brand-text); overflow-wrap: anywhere; }
+
+.route-grid--compact { padding: 1rem; }
+.route-grid--compact .route-card { gap: .25rem; padding: .8rem; }
+.route-card__title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  font-size: .9rem;
+  font-weight: 700;
+}
+.route-card__arrow { display: inline-flex; color: var(--brand-text); opacity: 0; transition: transform .15s ease, opacity .15s ease; }
+.route-card:hover .route-card__arrow, .route-card:focus-visible .route-card__arrow { opacity: 1; transform: translateX(2px); }
+
+@media (max-width: 900px) {
+  .workspace-grid { grid-template-columns: 1fr; }
+}
 @media (max-width: 640px) {
   .app-header__inner { align-items: flex-start; }
   .app-brand__tagline { display: none; }
   .user-chip__copy { display: none; }
   .login-card { padding: 1.5rem; }
+  .hero-band__stamp { position: static; display: inline-block; margin-bottom: .75rem; }
+  .hero-band__content { padding-right: 0; }
+  .page-header__actions { width: 100%; }
+  .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .empty-panel { margin: .75rem 1rem 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }

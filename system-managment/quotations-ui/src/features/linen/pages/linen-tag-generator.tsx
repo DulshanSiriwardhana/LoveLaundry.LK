@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import JsBarcode from 'jsbarcode'
 import { useGenerateTags } from '../hooks/useLinen'
+import { LinenLiveBadge } from '../components/linen-live-badge'
 import { LINEN_CATEGORIES } from '../../../types/linen'
 import { Card, CardContent } from '../../../components/ui/card'
 import { Button } from '../../../components/ui/button'
@@ -152,6 +153,7 @@ export default function LinenTagGenerator() {
   return (
     <div className="space-y-5">
       <Breadcrumb items={[{ label: 'Linen' }, { label: 'Tag Generator' }]} />
+      <div className="flex justify-end"><LinenLiveBadge /></div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>

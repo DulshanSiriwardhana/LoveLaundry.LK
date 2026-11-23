@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import jsQR from 'jsqr'
 import { useLinenByCode, useScanLinen } from '../hooks/useLinen'
+import { LinenLiveBadge } from '../components/linen-live-badge'
 import { LINEN_STATUS_CONFIG, SCAN_ACTIONS, type LinenStatus } from '../../../types/linen'
 import { Card, CardContent } from '../../../components/ui/card'
 import { Button } from '../../../components/ui/button'
@@ -176,6 +177,7 @@ export default function LinenScanner() {
   return (
     <div className="space-y-5">
       <Breadcrumb items={[{ label: 'Linen' }, { label: 'Scanner' }]} />
+      <div className="flex justify-end"><LinenLiveBadge /></div>
 
       <div>
         <h1 className="text-2xl font-bold text-[var(--text-primary)]" style={{ fontFamily: '"Spectral", Georgia, serif' }}>

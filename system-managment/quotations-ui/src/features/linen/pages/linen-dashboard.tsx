@@ -1,4 +1,5 @@
 import { useLinenStats } from '../hooks/useLinen'
+import { LinenLiveBadge } from '../components/linen-live-badge'
 import { LINEN_STATUS_CONFIG, type LinenStatus } from '../../../types/linen'
 import { Card, CardContent } from '../../../components/ui/card'
 import { StatCard } from '../../../components/ui/stat-card'
@@ -33,6 +34,7 @@ export default function LinenDashboard() {
   return (
     <div className="space-y-6">
       <Breadcrumb items={[{ label: 'Linen' }, { label: 'Dashboard' }]} />
+      <div className="flex justify-end"><LinenLiveBadge /></div>
 
       <div>
         <h1 className="text-2xl font-bold text-[var(--text-primary)]" style={{ fontFamily: '"Spectral", Georgia, serif' }}>

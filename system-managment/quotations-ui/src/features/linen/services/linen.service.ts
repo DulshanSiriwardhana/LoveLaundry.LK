@@ -8,6 +8,9 @@ import type {
   LinenBulkCreate,
   LinenScanAction,
   LinenTagGenerate,
+  LinenTransitionList,
+  LinenBulkScanResult,
+  LinenMissingInCycleResponse,
 } from '../../../types/linen'
 
 async function listLinens(params: LinenListParams = {}): Promise<LinenListResponse> {
@@ -22,6 +25,19 @@ async function getLinen(docId: string): Promise<Linen> {
 
 async function getLinenByCode(code: string): Promise<Linen> {
   const response = await billsApi.get<Linen>(`/linens/by-code/${code}`)
+  return response.data
+}
+
+/** Non-mutating proof that a QR belongs to the signed-in laundry. */
+async function verifyLinenCode(code: string): Promise<Linen> {
+  const response = await billsApi.get<Linen>(`/linens/verify/${encodeURIComponent(code)}`)
+  return response.data
+}
+
+async function getMissingInCycle(days: number, limit = 200): Promise<LinenMissingInCycleResponse> {
+  const response = await billsApi.get<LinenMissingInCycleResponse>('/linens/missing-in-cycle', {
+    params: { days, limit },
+  })
   return response.data
 }
 
@@ -40,8 +56,13 @@ async function scanLinen(docId: string, payload: LinenScanAction): Promise<Linen
   return response.data
 }
 
-async function bulkScan(codes: string[], action: string, location?: string): Promise<{ processed: any[]; errors: any[]; total_processed: number; total_errors: number }> {
-  const response = await billsApi.post('/linens/bulk-scan', codes, { params: { action, location } })
+async function bulkScan(codes: string[], action: string, location?: string): Promise<LinenBulkScanResult> {
+  const response = await billsApi.post<LinenBulkScanResult>('/linens/bulk-scan', codes, { params: { action, location } })
+  return response.data
+}
+
+async function getTransitions(): Promise<LinenTransitionList> {
+  const response = await billsApi.get<LinenTransitionList>('/linens/transitions')
   return response.data
 }
 
@@ -63,10 +84,13 @@ export const linenService = {
   listLinens,
   getLinen,
   getLinenByCode,
+  verifyLinenCode,
+  getMissingInCycle,
   createLinenBulk,
   generateTags,
   scanLinen,
   bulkScan,
+  getTransitions,
   getLinenEvents,
   getLinenStats,
   deleteLinen,

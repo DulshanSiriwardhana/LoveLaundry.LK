@@ -74,6 +74,7 @@ const LinenProfile = lazy(() => import('../features/linen/pages/linen-profile'))
 const LinenScanner = lazy(() => import('../features/linen/pages/linen-scanner'))
 const LinenBulkScan = lazy(() => import('../features/linen/pages/linen-bulk-scan'))
 const LinenTagGenerator = lazy(() => import('../features/linen/pages/linen-tag-generator'))
+const LinenSession = lazy(() => import('../features/linen/pages/linen-session'))
 
 // Gate Pass (Camelot) receipt templates
 const GatePassHub = lazy(() => import('../features/gatepass/pages/gate-pass-hub'))
@@ -189,6 +190,7 @@ export const router = createBrowserRouter([
           { path: 'linen/:id', element: <LinenProfile /> },
           { path: 'linen/scanner', element: <LinenScanner /> },
           { path: 'linen/bulk-scan', element: <LinenBulkScan /> },
+          { path: 'linen/session', element: <LinenSession /> },
           { path: 'linen/tags', element: <LinenTagGenerator /> },
 
           // Public chatbot (ADMIN / MANAGER)

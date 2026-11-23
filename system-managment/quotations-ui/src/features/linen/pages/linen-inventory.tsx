@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLinens } from '../hooks/useLinen'
+import { LinenLiveBadge } from '../components/linen-live-badge'
 import { LINEN_STATUS_CONFIG, LINEN_CATEGORIES, LINEN_CONDITIONS, type LinenStatus } from '../../../types/linen'
 import { Card, CardContent } from '../../../components/ui/card'
 import { Button } from '../../../components/ui/button'
@@ -64,6 +65,7 @@ export default function LinenInventory() {
   return (
     <div className="space-y-5">
       <Breadcrumb items={[{ label: 'Linen' }, { label: 'Inventory' }]} />
+      <div className="flex justify-end"><LinenLiveBadge /></div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>

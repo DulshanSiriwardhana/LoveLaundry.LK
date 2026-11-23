@@ -115,6 +115,72 @@ export interface LinenTagGenerate {
   department?: string
 }
 
+/** One action exactly as `GET /linens/transitions` describes it. The server
+ * owns the vocabulary, so the session state picker is built from these rows
+ * instead of a list duplicated in the frontend. */
+export interface LinenTransition {
+  action: string
+  label: string
+  to_status: string
+  to_status_label: string
+  custody: LinenCustody
+  terminal: boolean
+}
+
+export type LinenCustody = 'hotel' | 'laundry' | 'exception'
+
+export interface LinenTransitionGroup {
+  custody: LinenCustody
+  label: string
+  description: string
+  transitions: LinenTransition[]
+}
+
+/** Admin-defined allowed target states from one previous state. */
+export interface LinenTransitionRule {
+  from_status: string
+  to_statuses: string[]
+}
+
+export interface LinenTransitionList {
+  groups: LinenTransitionGroup[]
+  statuses: LinenStatus[]
+  /** Empty when the admin has not configured a matrix (all transitions legal). */
+  transition_rules: LinenTransitionRule[]
+  /** 'block' rejects illegal scans; 'warn' records them with a warning. */
+  violation_mode: 'block' | 'warn'
+}
+
+/** Response rows from `POST /linens/bulk-scan`. */
+export interface LinenBulkScanRow {
+  linen_id: string
+  from_status?: string
+  to_status?: string
+  /** Present in 'warn' mode when the scan broke an admin-defined rule. */
+  warning?: string
+}
+
+export interface LinenBulkScanError {
+  linen_id: string
+  error: string
+}
+
+export interface LinenBulkScanResult {
+  processed: LinenBulkScanRow[]
+  errors: LinenBulkScanError[]
+  total_processed: number
+  total_errors: number
+  warnings?: { linen_id: string; warning: string }[]
+}
+
+/** Tenant-scoped result of `GET /linens/missing-in-cycle`. */
+export interface LinenMissingInCycleResponse {
+  items: Linen[]
+  total: number
+  days: number
+  cutoff: string
+}
+
 export const LINEN_STATUS_CONFIG: Record<LinenStatus, { label: string; color: string; bg: string }> = {
   IN_STOCK:    { label: 'In Stock',    color: 'var(--success-text)', bg: 'var(--success-soft)' },
   AT_CLIENT:   { label: 'At Client',   color: 'var(--brand-text)', bg: 'var(--brand-border)' },

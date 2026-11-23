@@ -90,6 +90,41 @@ function handleUnauthorized(): void {
   window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
 }
 
+function contentTypeOf(response: Response): string {
+  return response.headers?.get?.("content-type") ?? "";
+}
+
+function nonJsonMessage(response: Response, label: string): string {
+  const contentType = contentTypeOf(response) || "unknown content type";
+  return `${label} returned a non-JSON response (${contentType}, status ${response.status}). Check VITE_API_BASE_URL and the API proxy.`;
+}
+
+async function responseDetail(response: Response, label: string): Promise<string> {
+  if (contentTypeOf(response) && !contentTypeOf(response).includes("json")) {
+    return nonJsonMessage(response, label);
+  }
+  try {
+    const detail = (await response.json()) as { detail?: unknown } | null;
+    if (detail && typeof detail.detail === "string" && detail.detail) {
+      return detail.detail;
+    }
+  } catch {
+    // Fall through to the generic status-only message.
+  }
+  return `${label} failed with status ${response.status}`;
+}
+
+async function parseJsonResponse<T>(response: Response, label: string): Promise<T> {
+  if (contentTypeOf(response) && !contentTypeOf(response).includes("json")) {
+    throw new Error(nonJsonMessage(response, label));
+  }
+  try {
+    return (await response.json()) as T;
+  } catch {
+    throw new Error(`${label} returned malformed JSON (status ${response.status}).`);
+  }
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,
@@ -102,11 +137,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   if (!response.ok) {
-    const detail = await response.json().catch(() => null);
-    throw new Error(detail?.detail ?? `Request failed with status ${response.status}`);
+    throw new Error(await responseDetail(response, "Hotel Scanner API"));
   }
 
-  return (await response.json()) as T;
+  return parseJsonResponse<T>(response, "Hotel Scanner API");
 }
 
 export function fetchLinenOperations(period: string): Promise<LinenOperations> {
@@ -291,10 +325,9 @@ async function readerRequest<T>(
     },
   });
   if (!response.ok) {
-    const detail = await response.json().catch(() => null);
-    throw new Error(detail?.detail ?? `Reader request failed with status ${response.status}`);
+    throw new Error(await responseDetail(response, "Reader API"));
   }
-  return (await response.json()) as T;
+  return parseJsonResponse<T>(response, "Reader API");
 }
 
 export function submitReaderReads(

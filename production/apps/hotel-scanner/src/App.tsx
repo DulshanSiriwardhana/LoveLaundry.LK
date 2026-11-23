@@ -32,17 +32,45 @@ import {
 } from "./scan-session";
 import { useLinenLiveFeed, type LinenLiveEvent } from "./useLinenLiveFeed";
 
-type Route = "operations" | "scan" | "bulk" | "exceptions" | "dashboard";
+type QrRoute = "qr-single" | "qr-batch" | "qr-verify";
+type Route = "operations" | QrRoute | "scan" | "bulk" | "exceptions" | "dashboard";
 
-const ROUTES: Route[] = ["operations", "scan", "bulk", "exceptions", "dashboard"];
+const QR_ROUTES: QrRoute[] = ["qr-single", "qr-batch", "qr-verify"];
+const QR_LABELS: Record<QrRoute, string> = {
+  "qr-single": "QR scan",
+  "qr-batch": "QR batch",
+  "qr-verify": "QR verify",
+};
+
+const ROUTES: Route[] = [
+  "operations",
+  ...QR_ROUTES,
+  "scan",
+  "bulk",
+  "exceptions",
+  "dashboard",
+];
 
 const LABELS: Record<Route, string> = {
   operations: "Operations",
+  ...QR_LABELS,
   scan: "QR / RFID scan",
   bulk: "RFID bulk session",
   exceptions: "Missing & damaged",
   dashboard: "Dashboard",
 };
+
+function isQrRoute(route: Route): route is QrRoute {
+  return (QR_ROUTES as Route[]).includes(route);
+}
+
+interface QrVerification {
+  code: string;
+  category: string;
+  itemType: string;
+  status: string;
+  clientName: string;
+}
 
 const SCAN_ACTIONS = [
   "assign",
@@ -140,6 +168,8 @@ export function App() {
   }, []);
 
   const [route, setRoute] = useState<Route>("operations");
+  const qrRoute = isQrRoute(route) ? route : null;
+  const scanActive = route === "scan" || qrRoute !== null;
   const [period, setPeriod] = useState(CURRENT_PERIOD);
   const [operations, setOperations] = useState<LinenOperations | null>(null);
   const [data, setData] = useState<unknown>(null);
@@ -166,6 +196,10 @@ export function App() {
     identifier: "",
     action: "dispatch_from_client",
   });
+  const [qrBatchDraft, setQrBatchDraft] = useState("");
+  const [qrVerifyDraft, setQrVerifyDraft] = useState("");
+  const [qrVerification, setQrVerification] = useState<QrVerification | null>(null);
+  const [verifyingQr, setVerifyingQr] = useState(false);
   // Enhanced batch session: queue distinct reads, verify tags, then submit.
   const [sessionRows, setSessionRows] = useState<ScanRow[]>([]);
   const [catalogue, setCatalogue] = useState<TransitionCatalogue | null>(null);
@@ -241,7 +275,7 @@ export function App() {
       );
     }
   }, []);
-  const feedStatus = useLinenLiveFeed(onLiveEvent, Boolean(session) && route === "scan");
+  const feedStatus = useLinenLiveFeed(onLiveEvent, Boolean(session) && scanActive);
 
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -294,7 +328,7 @@ export function App() {
   };
 
   /** Queue one tag read and verify it without mutating linen state. */
-  const recordTag = useCallback(async (raw: string) => {
+  const queueCode = useCallback(async (raw: string, action: string) => {
     const code = normaliseCode(raw);
     if (!code) return;
     setSessionRows((rows) => {
@@ -304,8 +338,6 @@ export function App() {
       }
       return [{ code, outcome: "queued", at: Date.now() }, ...rows];
     });
-    setScanDraft((draft) => ({ ...draft, identifier: "" }));
-    requestAnimationFrame(() => scanInputRef.current?.focus());
 
     try {
       const profile = await verifyLinen(code);
@@ -313,7 +345,7 @@ export function App() {
       const violation = transitionViolation(
         catalogue,
         profile.status || profile.current_stage,
-        scanDraft.action,
+        action,
       );
       setSessionRows((rows) =>
         rows.map((row) =>
@@ -340,7 +372,64 @@ export function App() {
         ),
       );
     }
-  }, [catalogue, scanDraft.action]);
+  }, [catalogue]);
+
+  /** Keyboard-wedge path: clear the input and keep focus on the scanner. */
+  const recordTag = useCallback(async (raw: string) => {
+    const code = normaliseCode(raw);
+    if (!code) return;
+    setScanDraft((draft) => ({ ...draft, identifier: "" }));
+    requestAnimationFrame(() => scanInputRef.current?.focus());
+    await queueCode(raw, scanDraft.action);
+  }, [queueCode, scanDraft.action]);
+
+  /** Paste many QR payloads (one per line) into the same scan session. */
+  const queueQrBatch = async () => {
+    const codes = Array.from(
+      new Set(
+        qrBatchDraft
+          .split(/[\n,;\s]+/)
+          .map((value) => normaliseCode(value))
+          .filter(Boolean),
+      ),
+    );
+    if (!codes.length) {
+      setError("Paste at least one QR code to queue.");
+      return;
+    }
+    setError(null);
+    setNotice(`${codes.length} QR tag(s) queued for verification.`);
+    setQrBatchDraft("");
+    await Promise.all(codes.map((code) => queueCode(code, scanDraft.action)));
+  };
+
+  /** Non-mutating lookup so staff can inspect a tag before scanning it. */
+  const verifyQrCode = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const code = normaliseCode(qrVerifyDraft);
+    if (!code) {
+      setError("Enter or scan a QR code to verify.");
+      return;
+    }
+    setError(null);
+    setNotice(null);
+    setVerifyingQr(true);
+    try {
+      const profile = await verifyLinen(code);
+      setQrVerification({
+        code,
+        category: classifyLinen(profile).replace(/_/g, " "),
+        itemType: profile.item_type ?? "—",
+        status: profile.status || profile.current_stage || "unknown",
+        clientName: profile.client_name ?? "—",
+      });
+    } catch (err) {
+      setQrVerification(null);
+      setError(err instanceof Error ? err.message : "This QR is not registered in the hotel.");
+    } finally {
+      setVerifyingQr(false);
+    }
+  };
 
   /** Submit all queued, verified tags as one batch of transaction scans. */
   const commitSession = async () => {
@@ -563,9 +652,14 @@ export function App() {
           <button
             key={item}
             type="button"
-            className={item === route ? "active" : ""}
+            className={`${item === route ? "active" : ""} ${isQrRoute(item) ? "routes__qr" : ""}`.trim()}
             aria-current={item === route ? "page" : undefined}
-            onClick={() => setRoute(item)}
+            onClick={() => {
+              if (isQrRoute(item)) {
+                setScanDraft((draft) => ({ ...draft, method: "qr" }));
+              }
+              setRoute(item);
+            }}
           >
             {LABELS[item]}
           </button>
@@ -643,14 +737,40 @@ export function App() {
           </>
         ) : null}
 
-        {route === "scan" ? (
+        {scanActive ? (
           <div className="scan-session">
+            {qrRoute ? (
+              <div className="qr-tabs" role="tablist" aria-label="QR scanning modes">
+                {QR_ROUTES.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    role="tab"
+                    className={item === qrRoute ? "active" : ""}
+                    aria-selected={item === qrRoute}
+                    onClick={() => {
+                      setScanDraft((draft) => ({ ...draft, method: "qr" }));
+                      setRoute(item);
+                    }}
+                  >
+                    {QR_LABELS[item]}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
             <div className="page-header">
               <div>
-                <p className="page-header__eyebrow">Linen scanning</p>
-                <h2>Scan session</h2>
+                <p className="page-header__eyebrow">
+                  {qrRoute ? "QR scanning" : "Linen scanning"}
+                </p>
+                <h2>{qrRoute ? QR_LABELS[qrRoute] : "Scan session"}</h2>
                 <p className="muted">
-                  Choose a lifecycle step, keep passing tags, then submit them together.
+                  {qrRoute === "qr-batch"
+                    ? "Paste a list of QR payloads to queue and verify them in one pass."
+                    : qrRoute === "qr-verify"
+                      ? "Inspect a tag before it enters the session — this lookup never moves linen."
+                      : "Choose a lifecycle step, keep passing tags, then submit them together."}
                 </p>
               </div>
               <div className="actions">
@@ -673,6 +793,7 @@ export function App() {
                   Identifier source
                   <select
                     value={scanDraft.method}
+                    disabled={Boolean(qrRoute)}
                     onChange={(event) =>
                       setScanDraft({ ...scanDraft, method: event.target.value as ScanMethod })
                     }
@@ -707,7 +828,11 @@ export function App() {
                   onChange={(event) =>
                     setScanDraft({ ...scanDraft, identifier: event.target.value })
                   }
-                  placeholder="Scan or type a linen ID — Enter to queue"
+                  placeholder={
+                    qrRoute
+                      ? "Scan or paste a QR payload — Enter to queue"
+                      : "Scan or type a linen ID — Enter to queue"
+                  }
                   aria-label="Linen identifier"
                 />
                 <button type="submit" disabled={saving || !scanDraft.identifier.trim()}>
@@ -718,6 +843,107 @@ export function App() {
                 Focus stays here after every read so a keyboard-wedge scanner can keep going.
               </p>
             </section>
+
+            {qrRoute === "qr-batch" ? (
+              <section className="panel qr-panel">
+                <div className="panel__header">
+                  <div>
+                    <p className="page-header__eyebrow">Batch intake</p>
+                    <h3>Paste QR payloads</h3>
+                  </div>
+                  <span className="badge badge--brand">QR only</span>
+                </div>
+                <label className="field">
+                  One code, deep link or scanned payload per line
+                  <textarea
+                    value={qrBatchDraft}
+                    onChange={(event) => setQrBatchDraft(event.target.value)}
+                    placeholder={"LL-4F2K9\nhttps://lovelaundry.lk/linen/LL-7K4P92"}
+                    aria-label="QR payloads, one per line"
+                  />
+                </label>
+                <div className="actions">
+                  <button type="button" onClick={() => void queueQrBatch()} disabled={saving}>
+                    Queue QR batch
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn--ghost"
+                    onClick={() => setQrBatchDraft("")}
+                    disabled={!qrBatchDraft.trim()}
+                  >
+                    Clear input
+                  </button>
+                </div>
+                <p className="muted scan-hint">
+                  Duplicates in the pasted list are removed. Every code is checked against the
+                  linen directory before it can be submitted.
+                </p>
+              </section>
+            ) : null}
+
+            {qrRoute === "qr-verify" ? (
+              <section className="panel qr-panel">
+                <div className="panel__header">
+                  <div>
+                    <p className="page-header__eyebrow">Read-only lookup</p>
+                    <h3>Verify a QR tag</h3>
+                  </div>
+                  <span className="badge badge--brand">No state change</span>
+                </div>
+                <form className="scan-input" onSubmit={(event) => void verifyQrCode(event)}>
+                  <input
+                    value={qrVerifyDraft}
+                    onChange={(event) => setQrVerifyDraft(event.target.value)}
+                    placeholder="Scan or paste a QR payload"
+                    aria-label="QR code to verify"
+                  />
+                  <button type="submit" disabled={verifyingQr || !qrVerifyDraft.trim()}>
+                    {verifyingQr ? "Checking…" : "Check QR"}
+                  </button>
+                </form>
+                {qrVerification ? (
+                  <div className="verify-result" aria-live="polite">
+                    <div className="verify-result__head">
+                      <code className="code-chip">{qrVerification.code}</code>
+                      <span className="badge badge--success">Registered</span>
+                    </div>
+                    <dl className="verify-grid">
+                      <div>
+                        <dt>Category</dt>
+                        <dd>{qrVerification.category}</dd>
+                      </div>
+                      <div>
+                        <dt>Item type</dt>
+                        <dd>{qrVerification.itemType}</dd>
+                      </div>
+                      <div>
+                        <dt>Current status</dt>
+                        <dd>{qrVerification.status}</dd>
+                      </div>
+                      <div>
+                        <dt>Client</dt>
+                        <dd>{qrVerification.clientName}</dd>
+                      </div>
+                    </dl>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void queueCode(qrVerification.code, scanDraft.action);
+                        setNotice(`${qrVerification.code} added to the scan session.`);
+                      }}
+                    >
+                      Add to session
+                    </button>
+                  </div>
+                ) : (
+                  <p className="muted scan-hint">
+                    A verified result shows the category, status and client without recording a
+                    scan. Add it to the session when you are ready to submit.
+                  </p>
+                )}
+              </section>
+            ) : null}
 
             <section className="scan-summary" aria-label="Session summary">
               {[

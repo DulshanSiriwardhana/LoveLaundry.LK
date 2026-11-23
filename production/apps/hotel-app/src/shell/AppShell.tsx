@@ -10,6 +10,7 @@ export function AppShell() {
 
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#main-content">Skip to content</a>
       <header className="app-header">
         <div className="app-header__inner">
           <div className="app-brand">
@@ -48,7 +49,7 @@ export function AppShell() {
           </div>
         </div>
 
-        <nav className="app-nav" aria-label="Primary">
+        <nav className="app-nav" aria-label="Workspace sections">
           <div className="app-nav__inner">
             {appConfig.nav.map((item) => (
               <NavLink
@@ -66,7 +67,7 @@ export function AppShell() {
         </nav>
       </header>
 
-      <main className="app-main">
+      <main className="app-main" id="main-content">
         <Outlet />
       </main>
       <footer className="app-footer">Love Laundry · {appConfig.title}</footer>

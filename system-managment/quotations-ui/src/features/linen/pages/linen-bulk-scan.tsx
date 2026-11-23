@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { useBulkScan } from '../hooks/useLinen'
+import { LinenLiveBadge } from '../components/linen-live-badge'
 import { SCAN_ACTIONS } from '../../../types/linen'
 import { Card, CardContent } from '../../../components/ui/card'
 import { Button } from '../../../components/ui/button'
@@ -43,6 +44,7 @@ export default function LinenBulkScan() {
   return (
     <div className="space-y-5">
       <Breadcrumb items={[{ label: 'Linen' }, { label: 'Bulk Scan' }]} />
+      <div className="flex justify-end"><LinenLiveBadge /></div>
 
       <div>
         <h1 className="text-2xl font-bold text-[var(--text-primary)]" style={{ fontFamily: '"Spectral", Georgia, serif' }}>
