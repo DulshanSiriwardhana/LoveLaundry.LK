@@ -3,6 +3,7 @@ import {
   API_BASE,
   createTagItem,
   fetchHotelDashboard,
+  fetchHotels,
   fetchLaundryDashboard,
   fetchPlatformAnnouncements,
   fetchPlatformAudit,
@@ -212,6 +213,7 @@ export function App() {
   const [dashboardScope, setDashboardScope] = useState<DashboardScope>("platform");
   const [dashboardOrganization, setDashboardOrganization] = useState("");
   const [tagOrganizations, setTagOrganizations] = useState<OrganizationRow[]>([]);
+  const [tagHotelsError, setTagHotelsError] = useState("");
   const [tagDraft, setTagDraft] = useState({
     organization_id: "",
     item_type: "bedsheet",
@@ -248,14 +250,32 @@ export function App() {
           setData(await fetchPlatformOrganizations());
           break;
         case "tags": {
-          const [items, alerts, organizations] = await Promise.all([
+          const [items, alerts] = await Promise.all([
             listTagItems(500),
             fetchTagAlerts(),
-            fetchPlatformOrganizations(),
           ]);
           setData(items);
           setAux(alerts);
-          setTagOrganizations(organizations.filter((row) => row.type === "hotel"));
+          // The owning hotel must come from the hotels list. Loading it on its
+          // own keeps the dropdown usable even if another tag API fails.
+          try {
+            const hotels = await fetchHotels();
+            setTagHotelsError("");
+            setTagOrganizations(
+              hotels
+                .map((hotel) => ({
+                  organization_id: hotel.hotel_id ?? String(hotel.id ?? ""),
+                  name: hotel.name,
+                  type: "hotel",
+                  status: hotel.status ?? "",
+                  hotel_code: hotel.hotel_code ?? "",
+                }))
+                .filter((hotel) => hotel.organization_id),
+            );
+          } catch {
+            setTagOrganizations([]);
+            setTagHotelsError("Could not load hotels from the hotels list.");
+          }
           break;
         }
         case "readers": {
@@ -623,6 +643,7 @@ export function App() {
                   ))}
                 </select>
               </label>
+              {tagHotelsError ? <p className="empty" role="alert">{tagHotelsError}</p> : null}
               <label>
                 Item type
                 <select

@@ -130,6 +130,17 @@ export interface RegisterReaderPayload {
 export const PLATFORM_TOKEN_KEY = "lovelaundry_platform_token";
 export const PLATFORM_USER_KEY = "lovelaundry_platform_user";
 export const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "/api";
+/** The hotels registry lives in user-service, not in the platform API. */
+export const USER_API_BASE = import.meta.env.VITE_USER_API_URL ?? "/api/user";
+
+export interface HotelRow {
+  hotel_id?: string;
+  id?: string;
+  hotel_code?: string;
+  name: string;
+  status?: string;
+  associated_laundry_id?: string;
+}
 
 function browserStorage(): Storage | null {
   if (typeof window === "undefined") {
@@ -187,8 +198,8 @@ export function buildPlatformHeaders(headers?: HeadersInit): Record<string, stri
   return merged;
 }
 
-export async function platformRequest<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
+async function requestAt<T>(base: string, path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${base}${path}`, {
     ...init,
     headers: buildPlatformHeaders(init?.headers),
   });
@@ -209,6 +220,37 @@ export async function platformRequest<T>(path: string, init?: RequestInit): Prom
     );
   }
   return (await response.json()) as T;
+}
+
+export function platformRequest<T>(path: string, init?: RequestInit): Promise<T> {
+  return requestAt<T>(API_BASE, path, init);
+}
+
+/**
+ * Hotels for the tag generator come from the hotels list, not from the
+ * platform organization summary. The registry caps `limit` at 200, so page
+ * through it with a valid size instead of asking for everything at once.
+ */
+export async function fetchHotels(): Promise<HotelRow[]> {
+  const PAGE_SIZE = 200;
+  const MAX_HOTELS = 1000;
+  const hotels: HotelRow[] = [];
+  let offset = 0;
+  let total = Number.POSITIVE_INFINITY;
+
+  while (offset < total && offset < MAX_HOTELS && hotels.length < MAX_HOTELS) {
+    const page = await requestAt<{ items: HotelRow[]; total: number }>(
+      USER_API_BASE,
+      `/hotels?limit=${PAGE_SIZE}&offset=${offset}`,
+    );
+    const batch = page?.items ?? [];
+    total = Math.max(offset + batch.length, Number(page?.total) || 0);
+    if (batch.length === 0) break;
+    hotels.push(...batch);
+    offset += batch.length;
+  }
+
+  return hotels.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export function fetchPlatformSummary(): Promise<PlatformSummary> {

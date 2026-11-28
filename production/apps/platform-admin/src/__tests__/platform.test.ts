@@ -3,10 +3,11 @@ import {
   API_BASE,
   PLATFORM_TOKEN_KEY,
   PLATFORM_USER_KEY,
+  USER_API_BASE,
   buildPlatformHeaders,
   createTagItem,
+  fetchHotels,
   fetchPlatformDashboard,
-  fetchPlatformOrganizations,
   fetchPlatformSummary,
   listTagItems,
   registerReader,
@@ -121,22 +122,24 @@ describe("platform API access", () => {
     );
   });
 
-  it("reads hotel codes from organization records and posts the start number", async () => {
+  it("reads hotel codes from the hotels list and posts the start number", async () => {
     localStorageMock.getItem.mockReturnValue("platform-token");
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce({
         ok: true,
         status: 200,
-        json: async () => [
-          {
-            organization_id: "hotel-a",
-            name: "Goldi Sands",
-            type: "hotel",
-            status: "ACTIVE",
-            hotel_code: "G",
-          },
-        ],
+        json: async () => ({
+          items: [
+            {
+              hotel_id: "hotel-a",
+              name: "Goldi Sands",
+              status: "ACTIVE",
+              hotel_code: "G",
+            },
+          ],
+          total: 1,
+        }),
       })
       .mockResolvedValueOnce({
         ok: true,
@@ -145,8 +148,9 @@ describe("platform API access", () => {
       });
     vi.stubGlobal("fetch", fetchMock);
 
-    const hotels = await fetchPlatformOrganizations();
+    const hotels = await fetchHotels();
     expect(hotels[0].hotel_code).toBe("G");
+    expect(fetchMock.mock.calls[0][0]).toBe(`${USER_API_BASE}/hotels?limit=200&offset=0`);
 
     const created = await createTagItem({
       organization_id: "hotel-a",
@@ -158,6 +162,29 @@ describe("platform API access", () => {
     const [url, init] = fetchMock.mock.calls[1];
     expect(url).toBe(`${API_BASE}/tags/items`);
     expect(JSON.parse(init.body)).toMatchObject({ start_number: 41 });
+  });
+
+  it("pages the hotels list with the API's maximum page size", async () => {
+    localStorageMock.getItem.mockReturnValue("platform-token");
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ items: [{ hotel_id: "a", name: "Alpha" }], total: 2 }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ items: [{ hotel_id: "b", name: "Beta" }], total: 2 }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const hotels = await fetchHotels();
+
+    expect(hotels.map((hotel) => hotel.hotel_id)).toEqual(["a", "b"]);
+    expect(fetchMock.mock.calls[0][0]).toBe(`${USER_API_BASE}/hotels?limit=200&offset=0`);
+    expect(fetchMock.mock.calls[1][0]).toBe(`${USER_API_BASE}/hotels?limit=200&offset=1`);
   });
 
   it("registers readers through the hardware endpoint", async () => {
