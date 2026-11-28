@@ -131,7 +131,7 @@ export const PLATFORM_TOKEN_KEY = "lovelaundry_platform_token";
 export const PLATFORM_USER_KEY = "lovelaundry_platform_user";
 export const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "/api";
 /** The hotels registry lives in user-service, not in the platform API. */
-export const USER_API_BASE = import.meta.env.VITE_USER_API_URL ?? "/api/user";
+export const USER_API_BASE = (import.meta.env.VITE_USER_API_URL ?? "/api/user").replace(/\/$/, "");
 
 export interface HotelRow {
   hotel_id?: string;
@@ -228,11 +228,11 @@ export function platformRequest<T>(path: string, init?: RequestInit): Promise<T>
 
 /**
  * Hotels for the tag generator come from the hotels list, not from the
- * platform organization summary. The registry caps `limit` at 200, so page
- * through it with a valid size instead of asking for everything at once.
+ * platform organization summary. Use the registry's own page size
+ * (`limit=20&offset=0`) and follow its `total` until every hotel is loaded.
  */
 export async function fetchHotels(): Promise<HotelRow[]> {
-  const PAGE_SIZE = 200;
+  const PAGE_SIZE = 20;
   const MAX_HOTELS = 1000;
   const hotels: HotelRow[] = [];
   let offset = 0;

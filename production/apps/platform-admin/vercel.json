@@ -2,10 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
-      "source": "/api/user/:path*",
-      "destination": "https://love-laundry-user-service.vercel.app/:path*"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

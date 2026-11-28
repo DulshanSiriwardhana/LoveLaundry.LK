@@ -150,7 +150,7 @@ describe("platform API access", () => {
 
     const hotels = await fetchHotels();
     expect(hotels[0].hotel_code).toBe("G");
-    expect(fetchMock.mock.calls[0][0]).toBe(`${USER_API_BASE}/hotels?limit=200&offset=0`);
+    expect(fetchMock.mock.calls[0][0]).toBe(`${USER_API_BASE}/hotels?limit=20&offset=0`);
 
     const created = await createTagItem({
       organization_id: "hotel-a",
@@ -183,8 +183,8 @@ describe("platform API access", () => {
     const hotels = await fetchHotels();
 
     expect(hotels.map((hotel) => hotel.hotel_id)).toEqual(["a", "b"]);
-    expect(fetchMock.mock.calls[0][0]).toBe(`${USER_API_BASE}/hotels?limit=200&offset=0`);
-    expect(fetchMock.mock.calls[1][0]).toBe(`${USER_API_BASE}/hotels?limit=200&offset=1`);
+    expect(fetchMock.mock.calls[0][0]).toBe(`${USER_API_BASE}/hotels?limit=20&offset=0`);
+    expect(fetchMock.mock.calls[1][0]).toBe(`${USER_API_BASE}/hotels?limit=20&offset=1`);
   });
 
   it("registers readers through the hardware endpoint", async () => {
