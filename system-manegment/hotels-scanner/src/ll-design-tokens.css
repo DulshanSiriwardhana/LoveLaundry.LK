@@ -1,0 +1,3846 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LOVE LAUNDRY — ENTERPRISE DESIGN SYSTEM / CANONICAL TOKENS
+   ───────────────────────────────────────────────────────────────────────────
+   Strict five-colour system. Every visual value below derives from one of the
+   five approved base colours or an alpha/tint of them. No other colour enters
+   the system.
+
+     BLACK  #000000  typography, strong contrast, dark surfaces
+     WHITE  #FFFFFF  surfaces, text on dark surfaces
+     RED    #FF0000  controlled accents, destructive actions, errors
+     GREEN  #008000  success, positive indicators
+     BLUE   #000000  primary identity, navigation, selection
+
+   This file is deliberately plain CSS so it can be consumed by Tailwind v4
+   apps, plain-CSS apps, and legacy theme layers. Import it AFTER the app's own
+   stylesheet so its :root declarations win source-order specificity.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root,
+:host,
+[data-theme='light'] {
+  color-scheme: light;
+
+  /* ── 1. The five base colours — the only literals in this system ──────── */
+  --ll-black: #000000;
+  --ll-white: #FFFFFF;
+  --ll-red: #FF0000;
+  --ll-green: #008000;
+  --ll-blue: var(--ll-black);
+
+  /* ── 2. Semantic surfaces (tints of black/white only) ────────────── */
+  --bg: color-mix(in srgb, var(--ll-black) 4%, var(--ll-white));
+  --canvas: var(--bg);
+  --surface: var(--ll-white);
+  --surface-2: color-mix(in srgb, var(--ll-black) 6%, var(--ll-white));
+  --surface-3: color-mix(in srgb, var(--ll-black) 11%, var(--ll-white));
+  --surface-hover: color-mix(in srgb, var(--ll-blue) 6%, var(--ll-white));
+  --surface-sunken: color-mix(in srgb, var(--ll-black) 2%, var(--ll-white));
+
+  --border: color-mix(in srgb, var(--ll-black) 14%, var(--ll-white));
+  --border-2: color-mix(in srgb, var(--ll-black) 24%, var(--ll-white));
+  --border-strong: color-mix(in srgb, var(--ll-black) 42%, var(--ll-white));
+  --line: var(--border);
+  --line-strong: var(--border-strong);
+
+  /* ── 3. Typography ────────────────────────────────────────────────────── */
+  --text-primary: var(--ll-black);
+  --text-secondary: color-mix(in srgb, var(--ll-black) 78%, var(--ll-white));
+  --text-tertiary: color-mix(in srgb, var(--ll-black) 62%, var(--ll-white));
+  --text-muted: color-mix(in srgb, var(--ll-black) 55%, var(--ll-white));
+  --text-faint: color-mix(in srgb, var(--ll-black) 40%, var(--ll-white));
+  --text-placeholder: color-mix(in srgb, var(--ll-black) 38%, var(--ll-white));
+  --ink: var(--text-primary);
+  --ink-soft: var(--text-secondary);
+  --ink-muted: var(--text-muted);
+
+  --font-sans: 'Inter', 'Inter var', ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', ui-monospace,
+    SFMono-Regular, Menlo, Consolas, monospace;
+
+  --text-micro: 10px;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-md: 14px;
+  --text-lg: 15px;
+  --text-xl: 16px;
+  --text-2xl: 20px;
+  --text-3xl: 26px;
+
+  /* ── 4. Primary identity — black ─────────────────────────────────── */
+  --brand: var(--ll-blue);
+  --brand-dark: color-mix(in srgb, var(--ll-blue) 72%, var(--ll-black));
+  --brand-hover: var(--brand-dark);
+  --brand-active: color-mix(in srgb, var(--ll-blue) 55%, var(--ll-black));
+  --brand-soft: color-mix(in srgb, var(--ll-blue) 8%, var(--ll-white));
+  --brand-border: color-mix(in srgb, var(--ll-blue) 24%, var(--ll-white));
+  --brand-text: var(--ll-blue);
+  --brand-ring: color-mix(in srgb, var(--ll-blue) 22%, transparent);
+
+  /* ── 5. Status — green / red / black, never decorative ─────────────────── */
+  --success: var(--ll-green);
+  --success-text: var(--ll-green);
+  --success-soft: color-mix(in srgb, var(--ll-green) 9%, var(--ll-white));
+  --success-border: color-mix(in srgb, var(--ll-green) 26%, var(--ll-white));
+
+  --danger: var(--ll-red);
+  --danger-text: var(--ll-red);
+  --danger-soft: color-mix(in srgb, var(--ll-red) 8%, var(--ll-white));
+  --danger-border: color-mix(in srgb, var(--ll-red) 26%, var(--ll-white));
+
+  --warning: var(--ll-red);
+  --warning-text: var(--ll-red);
+  --warning-soft: var(--danger-soft);
+  --warning-border: var(--danger-border);
+
+  --info: var(--ll-blue);
+  --info-text: var(--ll-blue);
+  --info-soft: var(--brand-soft);
+  --info-border: var(--brand-border);
+
+  --accent: var(--ll-red);
+  --accent-text: var(--ll-red);
+  --accent-soft: var(--danger-soft);
+  --accent-border: var(--danger-border);
+
+  /* ── 6. Navigation ────────────────────────────────────────────────────── */
+  --sidebar-bg: var(--ll-blue);
+  --sidebar-border: var(--ll-blue);
+  --sidebar-text: color-mix(in srgb, var(--ll-white) 78%, transparent);
+  --sidebar-label: color-mix(in srgb, var(--ll-white) 58%, transparent);
+  --sidebar-active: var(--ll-white);
+  --sidebar-active-bg: color-mix(in srgb, var(--ll-white) 14%, var(--ll-blue));
+  --sidebar-active-border: var(--ll-white);
+  --sidebar-hover-bg: color-mix(in srgb, var(--ll-white) 9%, var(--ll-blue));
+  --sidebar-hover-text: var(--ll-white);
+  --sidebar-indicator: var(--ll-red);
+
+  --ring: var(--ll-blue);
+  --ring-offset: var(--ll-white);
+  --focus-ring: color-mix(in srgb, var(--ll-blue) 45%, transparent);
+
+  /* ── 7. Depth — black alpha only ──────────────────────────────────────── */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.07), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 6px 16px -6px rgba(0, 0, 0, 0.12), 0 2px 6px -2px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 18px 34px -12px rgba(0, 0, 0, 0.18), 0 6px 12px -6px rgba(0, 0, 0, 0.08);
+  --shadow-pop: 0 16px 42px -10px rgba(0, 0, 0, 0.24), 0 4px 10px -3px rgba(0, 0, 0, 0.10);
+
+  /* ── 8. Spacing scale ─────────────────────────────────────────────────── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --sidebar-width: 248px;
+  --topbar-height: 60px;
+  --control-height: 38px;
+
+  /* ── 9. Radius / motion — restrained ─────────────────────────────────── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-pill: 999px;
+
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 260ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --skeleton-from: color-mix(in srgb, var(--ll-black) 6%, var(--ll-white));
+  --skeleton-via: color-mix(in srgb, var(--ll-black) 12%, var(--ll-white));
+  --skeleton-to: color-mix(in srgb, var(--ll-black) 6%, var(--ll-white));
+
+  /* ── 10. Legacy aliases — pre-token code keeps resolving ─────────────── */
+  --red-50: var(--danger-soft);
+  --red-100: var(--danger-soft);
+  --red-500: var(--ll-red);
+  --red-600: var(--ll-red);
+  --red-700: color-mix(in srgb, var(--ll-red) 72%, var(--ll-black));
+  --body-font-size: 14px;
+  --body-font-zoom: 1;
+}
+
+/* ── Dark mode — designed independently, not inverted ───────────────────── */
+[data-theme='dark'],
+:root.dark,
+.dark {
+  color-scheme: dark;
+
+  --bg: var(--ll-black);
+  --canvas: var(--ll-black);
+  --surface: color-mix(in srgb, var(--ll-white) 5%, var(--ll-black));
+  --surface-2: color-mix(in srgb, var(--ll-blue) 12%, var(--ll-black));
+  --surface-3: color-mix(in srgb, var(--ll-blue) 20%, var(--ll-black));
+  --surface-hover: color-mix(in srgb, var(--ll-blue) 18%, var(--ll-black));
+  --surface-sunken: var(--ll-black);
+
+  --border: color-mix(in srgb, var(--ll-white) 16%, transparent);
+  --border-2: color-mix(in srgb, var(--ll-white) 28%, transparent);
+  --border-strong: color-mix(in srgb, var(--ll-white) 45%, transparent);
+  --line: var(--border);
+  --line-strong: var(--border-strong);
+
+  --text-primary: var(--ll-white);
+  --text-secondary: color-mix(in srgb, var(--ll-white) 84%, transparent);
+  --text-tertiary: color-mix(in srgb, var(--ll-white) 68%, transparent);
+  --text-muted: color-mix(in srgb, var(--ll-white) 62%, transparent);
+  --text-faint: color-mix(in srgb, var(--ll-white) 46%, transparent);
+  --text-placeholder: color-mix(in srgb, var(--ll-white) 42%, transparent);
+  --ink: var(--text-primary);
+  --ink-soft: var(--text-secondary);
+  --ink-muted: var(--text-muted);
+
+  --brand: color-mix(in srgb, var(--ll-blue) 58%, var(--ll-white));
+  --brand-dark: var(--ll-blue);
+  --brand-hover: var(--ll-blue);
+  --brand-active: color-mix(in srgb, var(--ll-blue) 42%, var(--ll-white));
+  --brand-soft: color-mix(in srgb, var(--ll-blue) 26%, var(--ll-black));
+  --brand-border: color-mix(in srgb, var(--ll-blue) 52%, var(--ll-white));
+  --brand-text: color-mix(in srgb, var(--ll-blue) 62%, var(--ll-white));
+  --brand-ring: color-mix(in srgb, var(--ll-blue) 55%, transparent);
+
+  --success: color-mix(in srgb, var(--ll-green) 72%, var(--ll-white));
+  --success-text: var(--success);
+  --success-soft: color-mix(in srgb, var(--ll-green) 16%, var(--ll-black));
+  --success-border: color-mix(in srgb, var(--ll-green) 46%, var(--ll-white));
+
+  --danger: color-mix(in srgb, var(--ll-red) 72%, var(--ll-white));
+  --danger-text: var(--danger);
+  --danger-soft: color-mix(in srgb, var(--ll-red) 16%, var(--ll-black));
+  --danger-border: color-mix(in srgb, var(--ll-red) 46%, var(--ll-white));
+
+  --warning: var(--danger);
+  --warning-text: var(--danger-text);
+  --warning-soft: var(--danger-soft);
+  --warning-border: var(--danger-border);
+
+  --info: var(--brand);
+  --info-text: var(--brand-text);
+  --info-soft: var(--brand-soft);
+  --info-border: var(--brand-border);
+
+  --accent: var(--danger);
+  --accent-text: var(--danger-text);
+  --accent-soft: var(--danger-soft);
+  --accent-border: var(--danger-border);
+
+  --sidebar-bg: var(--ll-blue);
+  --sidebar-border: color-mix(in srgb, var(--ll-white) 12%, var(--ll-blue));
+  --sidebar-text: color-mix(in srgb, var(--ll-white) 82%, transparent);
+  --sidebar-label: color-mix(in srgb, var(--ll-white) 55%, transparent);
+  --sidebar-active: var(--ll-white);
+  --sidebar-active-bg: color-mix(in srgb, var(--ll-white) 18%, var(--ll-blue));
+  --sidebar-active-border: var(--ll-white);
+  --sidebar-hover-bg: color-mix(in srgb, var(--ll-white) 11%, var(--ll-blue));
+  --sidebar-hover-text: var(--ll-white);
+  --sidebar-indicator: var(--ll-red);
+
+  --ring: var(--brand);
+  --ring-offset: var(--ll-black);
+  --focus-ring: color-mix(in srgb, var(--ll-blue) 70%, transparent);
+
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.40);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.50);
+  --shadow-md: 0 6px 18px -6px rgba(0, 0, 0, 0.65);
+  --shadow-lg: 0 18px 36px -12px rgba(0, 0, 0, 0.72);
+  --shadow-pop: 0 16px 44px -10px rgba(0, 0, 0, 0.78);
+
+  --skeleton-from: color-mix(in srgb, var(--ll-white) 6%, var(--ll-black));
+  --skeleton-via: color-mix(in srgb, var(--ll-white) 13%, var(--ll-black));
+  --skeleton-to: color-mix(in srgb, var(--ll-white) 6%, var(--ll-black));
+
+  --red-50: var(--danger-soft);
+  --red-100: var(--danger-soft);
+  --red-500: var(--danger);
+  --red-600: var(--danger);
+  --red-700: var(--danger-text);
+}
+
+/* ── Tailwind default utility variables: collapse to the five colours ──── */
+/* Loaded after Tailwind's @theme, so these win. Arbitrary hex utilities are
+   handled by each app's legacy remap where present. */
+:root {
+  --color-black: var(--ll-black);
+  --color-white: var(--ll-white);
+  --color-red-50: var(--danger-soft);
+  --color-red-100: var(--danger-soft);
+  --color-red-200: var(--danger-soft);
+  --color-red-300: var(--danger-border);
+  --color-red-400: var(--danger);
+  --color-red-500: var(--ll-red);
+  --color-red-600: var(--ll-red);
+  --color-red-700: var(--danger);
+  --color-red-800: var(--danger);
+  --color-red-900: var(--danger);
+  --color-green-50: var(--success-soft);
+  --color-green-100: var(--success-soft);
+  --color-green-200: var(--success-soft);
+  --color-green-300: var(--success-border);
+  --color-green-400: var(--success);
+  --color-green-500: var(--ll-green);
+  --color-green-600: var(--ll-green);
+  --color-green-700: var(--success);
+  --color-green-800: var(--success);
+  --color-green-900: var(--success);
+  --color-blue-50: var(--brand-soft);
+  --color-blue-100: var(--brand-soft);
+  --color-blue-200: var(--brand-soft);
+  --color-blue-300: var(--brand-border);
+  --color-blue-400: var(--brand);
+  --color-blue-500: var(--ll-blue);
+  --color-blue-600: var(--ll-blue);
+  --color-blue-700: var(--ll-blue);
+  --color-blue-800: var(--brand-dark);
+  --color-blue-900: var(--brand-dark);
+  --color-gray-50: var(--surface-2);
+  --color-gray-100: var(--surface-2);
+  --color-gray-200: var(--border);
+  --color-gray-300: var(--border-2);
+  --color-gray-400: var(--text-faint);
+  --color-gray-500: var(--text-muted);
+  --color-gray-600: var(--text-secondary);
+  --color-gray-700: var(--text-secondary);
+  --color-gray-800: var(--text-primary);
+  --color-gray-900: var(--text-primary);
+  --color-zinc-50: var(--surface-2);
+  --color-zinc-100: var(--surface-2);
+  --color-zinc-200: var(--border);
+  --color-zinc-300: var(--border-2);
+  --color-zinc-400: var(--text-faint);
+  --color-zinc-500: var(--text-muted);
+  --color-zinc-600: var(--text-secondary);
+  --color-zinc-700: var(--text-secondary);
+  --color-zinc-800: var(--text-primary);
+  --color-zinc-900: var(--text-primary);
+  --color-slate-50: var(--surface-2);
+  --color-slate-100: var(--surface-2);
+  --color-slate-200: var(--border);
+  --color-slate-300: var(--border-2);
+  --color-slate-400: var(--text-faint);
+  --color-slate-500: var(--text-muted);
+  --color-slate-600: var(--text-secondary);
+  --color-slate-700: var(--text-secondary);
+  --color-slate-800: var(--text-primary);
+  --color-slate-900: var(--text-primary);
+  --color-neutral-50: var(--surface-2);
+  --color-neutral-100: var(--surface-2);
+  --color-neutral-200: var(--border);
+  --color-neutral-300: var(--border-2);
+  --color-neutral-400: var(--text-faint);
+  --color-neutral-500: var(--text-muted);
+  --color-neutral-600: var(--text-secondary);
+  --color-neutral-700: var(--text-secondary);
+  --color-neutral-800: var(--text-primary);
+  --color-neutral-900: var(--text-primary);
+}
+
+/* ── Foundation rules shared by every frontend ─────────────────────────── */
+html { background: var(--bg); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+*, *::before, *::after { box-sizing: border-box; border-color: var(--border); }
+/* Keep link inheritance in the base layer so text-colour utilities win. */
+@layer base {
+  a { color: inherit; }
+}
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: 0.55; }
+:where(a, button, summary, [tabindex]):focus-visible,
+:where(input, select, textarea):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+:focus:not(:focus-visible) { outline: none; }
+::selection { background: var(--brand-ring); color: var(--text-primary); }
+
+/* ── Purposeful glass: overlays only, with solid fallbacks ─────────────── */
+.ll-glass {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .ll-glass {
+    background: color-mix(in srgb, var(--surface) 82%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    backdrop-filter: blur(14px) saturate(1.1);
+  }
+}
+
+/* ── Purposeful gradient: approved colours only ────────────────────────── */
+.ll-gradient-brand {
+  background: linear-gradient(135deg, var(--ll-blue) 0%, color-mix(in srgb, var(--ll-blue) 72%, var(--ll-black)) 100%);
+}
+.ll-gradient-accent {
+  background: linear-gradient(135deg, var(--ll-blue) 0%, var(--ll-red) 100%);
+}
+
+/* ── Unified focus ring helper ─────────────────────────────────────────── */
+.ll-focus:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+
+/* ── Complete Tailwind default ramp overrides ─────────────────────────────── */
+/* Every default Tailwind colour ramp is mapped onto the five-colour system,  */
+/* so no legacy utility class can introduce an unapproved colour at runtime.  */
+:root {
+  --danger-deep: color-mix(in srgb, var(--ll-red) 62%, var(--ll-black));
+  --success-deep: color-mix(in srgb, var(--ll-green) 62%, var(--ll-black));
+  --brand-deep: color-mix(in srgb, var(--ll-blue) 70%, var(--ll-black));
+  --color-red-50: var(--danger-soft);
+  --color-red-100: var(--danger-soft);
+  --color-red-200: var(--danger-soft);
+  --color-red-300: var(--danger-border);
+  --color-red-400: var(--ll-red);
+  --color-red-500: var(--ll-red);
+  --color-red-600: var(--ll-red);
+  --color-red-700: var(--ll-red);
+  --color-red-800: var(--danger-deep);
+  --color-red-900: var(--danger-deep);
+  --color-red-950: var(--danger-deep);
+  --color-rose-50: var(--danger-soft);
+  --color-rose-100: var(--danger-soft);
+  --color-rose-200: var(--danger-soft);
+  --color-rose-300: var(--danger-border);
+  --color-rose-400: var(--ll-red);
+  --color-rose-500: var(--ll-red);
+  --color-rose-600: var(--ll-red);
+  --color-rose-700: var(--ll-red);
+  --color-rose-800: var(--danger-deep);
+  --color-rose-900: var(--danger-deep);
+  --color-rose-950: var(--danger-deep);
+  --color-pink-50: var(--danger-soft);
+  --color-pink-100: var(--danger-soft);
+  --color-pink-200: var(--danger-soft);
+  --color-pink-300: var(--danger-border);
+  --color-pink-400: var(--ll-red);
+  --color-pink-500: var(--ll-red);
+  --color-pink-600: var(--ll-red);
+  --color-pink-700: var(--ll-red);
+  --color-pink-800: var(--danger-deep);
+  --color-pink-900: var(--danger-deep);
+  --color-pink-950: var(--danger-deep);
+  --color-orange-50: var(--danger-soft);
+  --color-orange-100: var(--danger-soft);
+  --color-orange-200: var(--danger-soft);
+  --color-orange-300: var(--danger-border);
+  --color-orange-400: var(--ll-red);
+  --color-orange-500: var(--ll-red);
+  --color-orange-600: var(--ll-red);
+  --color-orange-700: var(--ll-red);
+  --color-orange-800: var(--danger-deep);
+  --color-orange-900: var(--danger-deep);
+  --color-orange-950: var(--danger-deep);
+  --color-amber-50: var(--danger-soft);
+  --color-amber-100: var(--danger-soft);
+  --color-amber-200: var(--danger-soft);
+  --color-amber-300: var(--danger-border);
+  --color-amber-400: var(--ll-red);
+  --color-amber-500: var(--ll-red);
+  --color-amber-600: var(--ll-red);
+  --color-amber-700: var(--ll-red);
+  --color-amber-800: var(--danger-deep);
+  --color-amber-900: var(--danger-deep);
+  --color-amber-950: var(--danger-deep);
+  --color-yellow-50: var(--danger-soft);
+  --color-yellow-100: var(--danger-soft);
+  --color-yellow-200: var(--danger-soft);
+  --color-yellow-300: var(--danger-border);
+  --color-yellow-400: var(--ll-red);
+  --color-yellow-500: var(--ll-red);
+  --color-yellow-600: var(--ll-red);
+  --color-yellow-700: var(--ll-red);
+  --color-yellow-800: var(--danger-deep);
+  --color-yellow-900: var(--danger-deep);
+  --color-yellow-950: var(--danger-deep);
+  --color-green-50: var(--success-soft);
+  --color-green-100: var(--success-soft);
+  --color-green-200: var(--success-soft);
+  --color-green-300: var(--success-border);
+  --color-green-400: var(--ll-green);
+  --color-green-500: var(--ll-green);
+  --color-green-600: var(--ll-green);
+  --color-green-700: var(--ll-green);
+  --color-green-800: var(--success-deep);
+  --color-green-900: var(--success-deep);
+  --color-green-950: var(--success-deep);
+  --color-emerald-50: var(--success-soft);
+  --color-emerald-100: var(--success-soft);
+  --color-emerald-200: var(--success-soft);
+  --color-emerald-300: var(--success-border);
+  --color-emerald-400: var(--ll-green);
+  --color-emerald-500: var(--ll-green);
+  --color-emerald-600: var(--ll-green);
+  --color-emerald-700: var(--ll-green);
+  --color-emerald-800: var(--success-deep);
+  --color-emerald-900: var(--success-deep);
+  --color-emerald-950: var(--success-deep);
+  --color-teal-50: var(--success-soft);
+  --color-teal-100: var(--success-soft);
+  --color-teal-200: var(--success-soft);
+  --color-teal-300: var(--success-border);
+  --color-teal-400: var(--ll-green);
+  --color-teal-500: var(--ll-green);
+  --color-teal-600: var(--ll-green);
+  --color-teal-700: var(--ll-green);
+  --color-teal-800: var(--success-deep);
+  --color-teal-900: var(--success-deep);
+  --color-teal-950: var(--success-deep);
+  --color-lime-50: var(--success-soft);
+  --color-lime-100: var(--success-soft);
+  --color-lime-200: var(--success-soft);
+  --color-lime-300: var(--success-border);
+  --color-lime-400: var(--ll-green);
+  --color-lime-500: var(--ll-green);
+  --color-lime-600: var(--ll-green);
+  --color-lime-700: var(--ll-green);
+  --color-lime-800: var(--success-deep);
+  --color-lime-900: var(--success-deep);
+  --color-lime-950: var(--success-deep);
+  --color-blue-50: var(--brand-soft);
+  --color-blue-100: var(--brand-soft);
+  --color-blue-200: var(--brand-soft);
+  --color-blue-300: var(--brand-border);
+  --color-blue-400: var(--ll-blue);
+  --color-blue-500: var(--ll-blue);
+  --color-blue-600: var(--ll-blue);
+  --color-blue-700: var(--ll-blue);
+  --color-blue-800: var(--brand-deep);
+  --color-blue-900: var(--brand-deep);
+  --color-blue-950: var(--brand-deep);
+  --color-sky-50: var(--brand-soft);
+  --color-sky-100: var(--brand-soft);
+  --color-sky-200: var(--brand-soft);
+  --color-sky-300: var(--brand-border);
+  --color-sky-400: var(--ll-blue);
+  --color-sky-500: var(--ll-blue);
+  --color-sky-600: var(--ll-blue);
+  --color-sky-700: var(--ll-blue);
+  --color-sky-800: var(--brand-deep);
+  --color-sky-900: var(--brand-deep);
+  --color-sky-950: var(--brand-deep);
+  --color-cyan-50: var(--brand-soft);
+  --color-cyan-100: var(--brand-soft);
+  --color-cyan-200: var(--brand-soft);
+  --color-cyan-300: var(--brand-border);
+  --color-cyan-400: var(--ll-blue);
+  --color-cyan-500: var(--ll-blue);
+  --color-cyan-600: var(--ll-blue);
+  --color-cyan-700: var(--ll-blue);
+  --color-cyan-800: var(--brand-deep);
+  --color-cyan-900: var(--brand-deep);
+  --color-cyan-950: var(--brand-deep);
+  --color-indigo-50: var(--brand-soft);
+  --color-indigo-100: var(--brand-soft);
+  --color-indigo-200: var(--brand-soft);
+  --color-indigo-300: var(--brand-border);
+  --color-indigo-400: var(--ll-blue);
+  --color-indigo-500: var(--ll-blue);
+  --color-indigo-600: var(--ll-blue);
+  --color-indigo-700: var(--ll-blue);
+  --color-indigo-800: var(--brand-deep);
+  --color-indigo-900: var(--brand-deep);
+  --color-indigo-950: var(--brand-deep);
+  --color-violet-50: var(--brand-soft);
+  --color-violet-100: var(--brand-soft);
+  --color-violet-200: var(--brand-soft);
+  --color-violet-300: var(--brand-border);
+  --color-violet-400: var(--ll-blue);
+  --color-violet-500: var(--ll-blue);
+  --color-violet-600: var(--ll-blue);
+  --color-violet-700: var(--ll-blue);
+  --color-violet-800: var(--brand-deep);
+  --color-violet-900: var(--brand-deep);
+  --color-violet-950: var(--brand-deep);
+  --color-purple-50: var(--brand-soft);
+  --color-purple-100: var(--brand-soft);
+  --color-purple-200: var(--brand-soft);
+  --color-purple-300: var(--brand-border);
+  --color-purple-400: var(--ll-blue);
+  --color-purple-500: var(--ll-blue);
+  --color-purple-600: var(--ll-blue);
+  --color-purple-700: var(--ll-blue);
+  --color-purple-800: var(--brand-deep);
+  --color-purple-900: var(--brand-deep);
+  --color-purple-950: var(--brand-deep);
+  --color-fuchsia-50: var(--brand-soft);
+  --color-fuchsia-100: var(--brand-soft);
+  --color-fuchsia-200: var(--brand-soft);
+  --color-fuchsia-300: var(--brand-border);
+  --color-fuchsia-400: var(--ll-blue);
+  --color-fuchsia-500: var(--ll-blue);
+  --color-fuchsia-600: var(--ll-blue);
+  --color-fuchsia-700: var(--ll-blue);
+  --color-fuchsia-800: var(--brand-deep);
+  --color-fuchsia-900: var(--brand-deep);
+  --color-fuchsia-950: var(--brand-deep);
+  --color-slate-50: var(--surface-2);
+  --color-slate-100: var(--surface-2);
+  --color-slate-200: var(--border);
+  --color-slate-300: var(--border-2);
+  --color-slate-400: var(--text-faint);
+  --color-slate-500: var(--text-muted);
+  --color-slate-600: var(--text-secondary);
+  --color-slate-700: var(--text-secondary);
+  --color-slate-800: var(--text-primary);
+  --color-slate-900: var(--text-primary);
+  --color-slate-950: var(--text-primary);
+  --color-zinc-50: var(--surface-2);
+  --color-zinc-100: var(--surface-2);
+  --color-zinc-200: var(--border);
+  --color-zinc-300: var(--border-2);
+  --color-zinc-400: var(--text-faint);
+  --color-zinc-500: var(--text-muted);
+  --color-zinc-600: var(--text-secondary);
+  --color-zinc-700: var(--text-secondary);
+  --color-zinc-800: var(--text-primary);
+  --color-zinc-900: var(--text-primary);
+  --color-zinc-950: var(--text-primary);
+  --color-gray-50: var(--surface-2);
+  --color-gray-100: var(--surface-2);
+  --color-gray-200: var(--border);
+  --color-gray-300: var(--border-2);
+  --color-gray-400: var(--text-faint);
+  --color-gray-500: var(--text-muted);
+  --color-gray-600: var(--text-secondary);
+  --color-gray-700: var(--text-secondary);
+  --color-gray-800: var(--text-primary);
+  --color-gray-900: var(--text-primary);
+  --color-gray-950: var(--text-primary);
+  --color-neutral-50: var(--surface-2);
+  --color-neutral-100: var(--surface-2);
+  --color-neutral-200: var(--border);
+  --color-neutral-300: var(--border-2);
+  --color-neutral-400: var(--text-faint);
+  --color-neutral-500: var(--text-muted);
+  --color-neutral-600: var(--text-secondary);
+  --color-neutral-700: var(--text-secondary);
+  --color-neutral-800: var(--text-primary);
+  --color-neutral-900: var(--text-primary);
+  --color-neutral-950: var(--text-primary);
+  --color-stone-50: var(--surface-2);
+  --color-stone-100: var(--surface-2);
+  --color-stone-200: var(--border);
+  --color-stone-300: var(--border-2);
+  --color-stone-400: var(--text-faint);
+  --color-stone-500: var(--text-muted);
+  --color-stone-600: var(--text-secondary);
+  --color-stone-700: var(--text-secondary);
+  --color-stone-800: var(--text-primary);
+  --color-stone-900: var(--text-primary);
+  --color-stone-950: var(--text-primary);
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* LL_THEMES_START — generated theme presets */
+/* Generated by generate_themes.py — 20 selectable themes with AA contrast. */
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='light'] {
+    color-scheme: light;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #F5F5F4;
+    --canvas: var(--bg);
+    --surface: #FFFFFF;
+    --surface-2: color-mix(in srgb, #111111 4%, #FFFFFF);
+    --surface-3: color-mix(in srgb, #111111 8%, #FFFFFF);
+    --surface-hover: color-mix(in srgb, #27272A 10%, #FFFFFF);
+    --surface-sunken: color-mix(in srgb, #111111 2%, #F5F5F4);
+
+    --border: color-mix(in srgb, #111111 14%, transparent);
+    --border-2: color-mix(in srgb, #111111 26%, transparent);
+    --border-strong: color-mix(in srgb, #111111 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #111111;
+    --text-secondary: color-mix(in srgb, #111111 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #111111 82%, transparent);
+    --text-muted: color-mix(in srgb, #111111 72%, transparent);
+    --text-faint: color-mix(in srgb, #111111 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #111111 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #FFFFFF;
+    --ll-black: #111111;
+    --ll-blue: #27272A;
+    --ll-red: #B91C1C;
+    --ll-green: #15803D;
+
+    /* Brand / accent family. */
+    --brand: #27272A;
+    --brand-hover: color-mix(in srgb, #27272A 82%, #111111);
+    --brand-active: color-mix(in srgb, #27272A 65%, #111111);
+    --brand-soft: color-mix(in srgb, #27272A 14%, #FFFFFF);
+    --brand-border: color-mix(in srgb, #27272A 42%, transparent);
+    --brand-text: #212123;
+    --brand-dark: #212123;
+    --brand-deep: #202022;
+    --brand-contrast: #FFFFFF;
+    --brand-ring: color-mix(in srgb, #27272A 28%, transparent);
+    --brand-rgb: 39, 39, 42;
+    --brand-dark-rgb: 33, 33, 35;
+    --accent: #27272A;
+    --accent-contrast: #FFFFFF;
+    --accent-text: #27272A;
+    --accent-soft: color-mix(in srgb, #27272A 14%, #FFFFFF);
+    --accent-border: color-mix(in srgb, #27272A 42%, transparent);
+    --accent-rgb: 39, 39, 42;
+    --on-brand: #FFFFFF;
+    --ring: var(--brand-ring);
+    --ring-offset: #FFFFFF;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #B91C1C;
+    --danger-deep: #991B1B;
+    --danger-text: #991B1B;
+    --danger-soft: color-mix(in srgb, #B91C1C 12%, #FFFFFF);
+    --danger-border: color-mix(in srgb, #B91C1C 42%, transparent);
+    --success: #15803D;
+    --success-deep: #166534;
+    --success-text: #166534;
+    --success-soft: color-mix(in srgb, #15803D 12%, #FFFFFF);
+    --success-border: color-mix(in srgb, #15803D 42%, transparent);
+    --warning: #A16207;
+    --warning-text: #764A0A;
+    --warning-soft: color-mix(in srgb, #A16207 12%, #FFFFFF);
+    --warning-border: color-mix(in srgb, #A16207 42%, transparent);
+    --info: #27272A;
+    --info-text: #212123;
+    --info-soft: color-mix(in srgb, #27272A 14%, #FFFFFF);
+    --info-border: color-mix(in srgb, #27272A 42%, transparent);
+    --info-rgb: 39, 39, 42;
+    --red-500: #B91C1C;
+    --red-600: #991B1B;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #FFFFFF;
+    --on-dark-surface: #27272A;
+    --on-dark-border: color-mix(in srgb, #FFFFFF 28%, transparent);
+    --on-dark-soft: #FFFFFF;
+    --color-on-dark: #FFFFFF;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #27272A;
+    --sidebar-border: color-mix(in srgb, #FFFFFF 24%, transparent);
+    --sidebar-text: #FFFFFF;
+    --sidebar-label: #FFFFFF;
+    --sidebar-active: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
+    --sidebar-active-border: #FFFFFF;
+    --sidebar-hover-bg: #242427;
+    --sidebar-hover-text: #FFFFFF;
+    --sidebar-indicator: #FFFFFF;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #F5F5F4;
+    --tan: var(--surface-2);
+    --card: #FFFFFF;
+    --gold: #27272A;
+    --hero-bg: linear-gradient(135deg, #111111, #27272A);
+    --hero-grid-line: color-mix(in srgb, #FFFFFF 10%, transparent);
+    --hero-mask: linear-gradient(to right, #111111, transparent 85%);
+    --result-bg: #FFFFFF;
+    --result-text: #111111;
+    --scan-accent: #27272A;
+    --scan-accent-2: color-mix(in srgb, #27272A 60%, #FFFFFF);
+    --stat-accent: #27272A;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --skeleton-via: color-mix(in srgb, #111111 12%, #FFFFFF);
+    --skeleton-to: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --surface-rgb: 255, 255, 255;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #27272A;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #212123;
+    --color-brand-deep: #202022;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #111111;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #FFFFFF;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #FFFFFF;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #27272A;
+    --color-surface-dark: #111111;
+    --color-info: #27272A;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 12%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='dark'] {
+    color-scheme: dark;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #0B0B0C;
+    --canvas: var(--bg);
+    --surface: #18181B;
+    --surface-2: color-mix(in srgb, #FAFAFA 4%, #18181B);
+    --surface-3: color-mix(in srgb, #FAFAFA 8%, #18181B);
+    --surface-hover: color-mix(in srgb, #E4E4E7 10%, #18181B);
+    --surface-sunken: color-mix(in srgb, #FAFAFA 2%, #0B0B0C);
+
+    --border: color-mix(in srgb, #FAFAFA 14%, transparent);
+    --border-2: color-mix(in srgb, #FAFAFA 26%, transparent);
+    --border-strong: color-mix(in srgb, #FAFAFA 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #FAFAFA;
+    --text-secondary: color-mix(in srgb, #FAFAFA 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #FAFAFA 82%, transparent);
+    --text-muted: color-mix(in srgb, #FAFAFA 72%, transparent);
+    --text-faint: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #18181B;
+    --ll-black: #FAFAFA;
+    --ll-blue: #E4E4E7;
+    --ll-red: #F87171;
+    --ll-green: #4ADE80;
+
+    /* Brand / accent family. */
+    --brand: #E4E4E7;
+    --brand-hover: color-mix(in srgb, #E4E4E7 82%, #FAFAFA);
+    --brand-active: color-mix(in srgb, #E4E4E7 65%, #FAFAFA);
+    --brand-soft: color-mix(in srgb, #E4E4E7 14%, #18181B);
+    --brand-border: color-mix(in srgb, #E4E4E7 42%, transparent);
+    --brand-text: #E4E4E7;
+    --brand-dark: #E4E4E7;
+    --brand-deep: #E4E4E7;
+    --brand-contrast: #000000;
+    --brand-ring: color-mix(in srgb, #E4E4E7 28%, transparent);
+    --brand-rgb: 228, 228, 231;
+    --brand-dark-rgb: 228, 228, 231;
+    --accent: #E4E4E7;
+    --accent-contrast: #000000;
+    --accent-text: #E4E4E7;
+    --accent-soft: color-mix(in srgb, #E4E4E7 14%, #18181B);
+    --accent-border: color-mix(in srgb, #E4E4E7 42%, transparent);
+    --accent-rgb: 228, 228, 231;
+    --on-brand: #000000;
+    --ring: var(--brand-ring);
+    --ring-offset: #18181B;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #F87171;
+    --danger-deep: #FCA5A5;
+    --danger-text: #F87171;
+    --danger-soft: color-mix(in srgb, #F87171 12%, #18181B);
+    --danger-border: color-mix(in srgb, #F87171 42%, transparent);
+    --success: #4ADE80;
+    --success-deep: #86EFAC;
+    --success-text: #4ADE80;
+    --success-soft: color-mix(in srgb, #4ADE80 12%, #18181B);
+    --success-border: color-mix(in srgb, #4ADE80 42%, transparent);
+    --warning: #FBBF24;
+    --warning-text: #FBBF24;
+    --warning-soft: color-mix(in srgb, #FBBF24 12%, #18181B);
+    --warning-border: color-mix(in srgb, #FBBF24 42%, transparent);
+    --info: #E4E4E7;
+    --info-text: #E4E4E7;
+    --info-soft: color-mix(in srgb, #E4E4E7 14%, #18181B);
+    --info-border: color-mix(in srgb, #E4E4E7 42%, transparent);
+    --info-rgb: 228, 228, 231;
+    --red-500: #F87171;
+    --red-600: #FCA5A5;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #000000;
+    --on-dark-surface: #E4E4E7;
+    --on-dark-border: color-mix(in srgb, #000000 28%, transparent);
+    --on-dark-soft: #000000;
+    --color-on-dark: #000000;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #E4E4E7;
+    --sidebar-border: color-mix(in srgb, #000000 24%, transparent);
+    --sidebar-text: #000000;
+    --sidebar-label: #000000;
+    --sidebar-active: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
+    --sidebar-active-border: #000000;
+    --sidebar-hover-bg: #CCCCCF;
+    --sidebar-hover-text: #000000;
+    --sidebar-indicator: #000000;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #0B0B0C;
+    --tan: var(--surface-2);
+    --card: #18181B;
+    --gold: #E4E4E7;
+    --hero-bg: linear-gradient(135deg, #FAFAFA, #E4E4E7);
+    --hero-grid-line: color-mix(in srgb, #000000 10%, transparent);
+    --hero-mask: linear-gradient(to right, #FAFAFA, transparent 85%);
+    --result-bg: #18181B;
+    --result-text: #FAFAFA;
+    --scan-accent: #E4E4E7;
+    --scan-accent-2: color-mix(in srgb, #E4E4E7 60%, #18181B);
+    --stat-accent: #E4E4E7;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --skeleton-via: color-mix(in srgb, #FAFAFA 12%, #18181B);
+    --skeleton-to: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --surface-rgb: 24, 24, 27;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #E4E4E7;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #E4E4E7;
+    --color-brand-deep: #E4E4E7;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #FAFAFA;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #18181B;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #18181B;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #E4E4E7;
+    --color-surface-dark: #FAFAFA;
+    --color-info: #E4E4E7;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 18%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='light-crimson'] {
+    color-scheme: light;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #F5F5F4;
+    --canvas: var(--bg);
+    --surface: #FFFFFF;
+    --surface-2: color-mix(in srgb, #111111 4%, #FFFFFF);
+    --surface-3: color-mix(in srgb, #111111 8%, #FFFFFF);
+    --surface-hover: color-mix(in srgb, #BE123C 10%, #FFFFFF);
+    --surface-sunken: color-mix(in srgb, #111111 2%, #F5F5F4);
+
+    --border: color-mix(in srgb, #111111 14%, transparent);
+    --border-2: color-mix(in srgb, #111111 26%, transparent);
+    --border-strong: color-mix(in srgb, #111111 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #111111;
+    --text-secondary: color-mix(in srgb, #111111 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #111111 82%, transparent);
+    --text-muted: color-mix(in srgb, #111111 72%, transparent);
+    --text-faint: color-mix(in srgb, #111111 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #111111 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #FFFFFF;
+    --ll-black: #111111;
+    --ll-blue: #BE123C;
+    --ll-red: #B91C1C;
+    --ll-green: #15803D;
+
+    /* Brand / accent family. */
+    --brand: #BE123C;
+    --brand-hover: color-mix(in srgb, #BE123C 82%, #111111);
+    --brand-active: color-mix(in srgb, #BE123C 65%, #111111);
+    --brand-soft: color-mix(in srgb, #BE123C 14%, #FFFFFF);
+    --brand-border: color-mix(in srgb, #BE123C 42%, transparent);
+    --brand-text: #8E1230;
+    --brand-dark: #8E1230;
+    --brand-deep: #8A122F;
+    --brand-contrast: #FFFFFF;
+    --brand-ring: color-mix(in srgb, #BE123C 28%, transparent);
+    --brand-rgb: 190, 18, 60;
+    --brand-dark-rgb: 142, 18, 48;
+    --accent: #BE123C;
+    --accent-contrast: #FFFFFF;
+    --accent-text: #BE123C;
+    --accent-soft: color-mix(in srgb, #BE123C 14%, #FFFFFF);
+    --accent-border: color-mix(in srgb, #BE123C 42%, transparent);
+    --accent-rgb: 190, 18, 60;
+    --on-brand: #FFFFFF;
+    --ring: var(--brand-ring);
+    --ring-offset: #FFFFFF;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #B91C1C;
+    --danger-deep: #991B1B;
+    --danger-text: #991B1B;
+    --danger-soft: color-mix(in srgb, #B91C1C 12%, #FFFFFF);
+    --danger-border: color-mix(in srgb, #B91C1C 42%, transparent);
+    --success: #15803D;
+    --success-deep: #166534;
+    --success-text: #166534;
+    --success-soft: color-mix(in srgb, #15803D 12%, #FFFFFF);
+    --success-border: color-mix(in srgb, #15803D 42%, transparent);
+    --warning: #A16207;
+    --warning-text: #764A0A;
+    --warning-soft: color-mix(in srgb, #A16207 12%, #FFFFFF);
+    --warning-border: color-mix(in srgb, #A16207 42%, transparent);
+    --info: #BE123C;
+    --info-text: #8E1230;
+    --info-soft: color-mix(in srgb, #BE123C 14%, #FFFFFF);
+    --info-border: color-mix(in srgb, #BE123C 42%, transparent);
+    --info-rgb: 190, 18, 60;
+    --red-500: #B91C1C;
+    --red-600: #991B1B;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #FFFFFF;
+    --on-dark-surface: #BE123C;
+    --on-dark-border: color-mix(in srgb, #FFFFFF 28%, transparent);
+    --on-dark-soft: #FFFFFF;
+    --color-on-dark: #FFFFFF;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #BE123C;
+    --sidebar-border: color-mix(in srgb, #FFFFFF 24%, transparent);
+    --sidebar-text: #FFFFFF;
+    --sidebar-label: #FFFFFF;
+    --sidebar-active: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
+    --sidebar-active-border: #FFFFFF;
+    --sidebar-hover-bg: #A91237;
+    --sidebar-hover-text: #FFFFFF;
+    --sidebar-indicator: #FFFFFF;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #F5F5F4;
+    --tan: var(--surface-2);
+    --card: #FFFFFF;
+    --gold: #BE123C;
+    --hero-bg: linear-gradient(135deg, #111111, #BE123C);
+    --hero-grid-line: color-mix(in srgb, #FFFFFF 10%, transparent);
+    --hero-mask: linear-gradient(to right, #111111, transparent 85%);
+    --result-bg: #FFFFFF;
+    --result-text: #111111;
+    --scan-accent: #BE123C;
+    --scan-accent-2: color-mix(in srgb, #BE123C 60%, #FFFFFF);
+    --stat-accent: #BE123C;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --skeleton-via: color-mix(in srgb, #111111 12%, #FFFFFF);
+    --skeleton-to: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --surface-rgb: 255, 255, 255;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #BE123C;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #8E1230;
+    --color-brand-deep: #8A122F;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #111111;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #FFFFFF;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #FFFFFF;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #BE123C;
+    --color-surface-dark: #111111;
+    --color-info: #BE123C;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 12%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='dark-crimson'] {
+    color-scheme: dark;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #0B0B0C;
+    --canvas: var(--bg);
+    --surface: #18181B;
+    --surface-2: color-mix(in srgb, #FAFAFA 4%, #18181B);
+    --surface-3: color-mix(in srgb, #FAFAFA 8%, #18181B);
+    --surface-hover: color-mix(in srgb, #FB7185 10%, #18181B);
+    --surface-sunken: color-mix(in srgb, #FAFAFA 2%, #0B0B0C);
+
+    --border: color-mix(in srgb, #FAFAFA 14%, transparent);
+    --border-2: color-mix(in srgb, #FAFAFA 26%, transparent);
+    --border-strong: color-mix(in srgb, #FAFAFA 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #FAFAFA;
+    --text-secondary: color-mix(in srgb, #FAFAFA 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #FAFAFA 82%, transparent);
+    --text-muted: color-mix(in srgb, #FAFAFA 72%, transparent);
+    --text-faint: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #18181B;
+    --ll-black: #FAFAFA;
+    --ll-blue: #FB7185;
+    --ll-red: #F87171;
+    --ll-green: #4ADE80;
+
+    /* Brand / accent family. */
+    --brand: #FB7185;
+    --brand-hover: color-mix(in srgb, #FB7185 82%, #FAFAFA);
+    --brand-active: color-mix(in srgb, #FB7185 65%, #FAFAFA);
+    --brand-soft: color-mix(in srgb, #FB7185 14%, #18181B);
+    --brand-border: color-mix(in srgb, #FB7185 42%, transparent);
+    --brand-text: #FB7185;
+    --brand-dark: #FB7185;
+    --brand-deep: #FB7185;
+    --brand-contrast: #000000;
+    --brand-ring: color-mix(in srgb, #FB7185 28%, transparent);
+    --brand-rgb: 251, 113, 133;
+    --brand-dark-rgb: 251, 113, 133;
+    --accent: #FB7185;
+    --accent-contrast: #000000;
+    --accent-text: #FB7185;
+    --accent-soft: color-mix(in srgb, #FB7185 14%, #18181B);
+    --accent-border: color-mix(in srgb, #FB7185 42%, transparent);
+    --accent-rgb: 251, 113, 133;
+    --on-brand: #000000;
+    --ring: var(--brand-ring);
+    --ring-offset: #18181B;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #F87171;
+    --danger-deep: #FCA5A5;
+    --danger-text: #F87171;
+    --danger-soft: color-mix(in srgb, #F87171 12%, #18181B);
+    --danger-border: color-mix(in srgb, #F87171 42%, transparent);
+    --success: #4ADE80;
+    --success-deep: #86EFAC;
+    --success-text: #4ADE80;
+    --success-soft: color-mix(in srgb, #4ADE80 12%, #18181B);
+    --success-border: color-mix(in srgb, #4ADE80 42%, transparent);
+    --warning: #FBBF24;
+    --warning-text: #FBBF24;
+    --warning-soft: color-mix(in srgb, #FBBF24 12%, #18181B);
+    --warning-border: color-mix(in srgb, #FBBF24 42%, transparent);
+    --info: #FB7185;
+    --info-text: #FB7185;
+    --info-soft: color-mix(in srgb, #FB7185 14%, #18181B);
+    --info-border: color-mix(in srgb, #FB7185 42%, transparent);
+    --info-rgb: 251, 113, 133;
+    --red-500: #F87171;
+    --red-600: #FCA5A5;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #000000;
+    --on-dark-surface: #FB7185;
+    --on-dark-border: color-mix(in srgb, #000000 28%, transparent);
+    --on-dark-soft: #000000;
+    --color-on-dark: #000000;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #FB7185;
+    --sidebar-border: color-mix(in srgb, #000000 24%, transparent);
+    --sidebar-text: #000000;
+    --sidebar-label: #000000;
+    --sidebar-active: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
+    --sidebar-active-border: #000000;
+    --sidebar-hover-bg: #E06678;
+    --sidebar-hover-text: #000000;
+    --sidebar-indicator: #000000;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #0B0B0C;
+    --tan: var(--surface-2);
+    --card: #18181B;
+    --gold: #FB7185;
+    --hero-bg: linear-gradient(135deg, #FAFAFA, #FB7185);
+    --hero-grid-line: color-mix(in srgb, #000000 10%, transparent);
+    --hero-mask: linear-gradient(to right, #FAFAFA, transparent 85%);
+    --result-bg: #18181B;
+    --result-text: #FAFAFA;
+    --scan-accent: #FB7185;
+    --scan-accent-2: color-mix(in srgb, #FB7185 60%, #18181B);
+    --stat-accent: #FB7185;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --skeleton-via: color-mix(in srgb, #FAFAFA 12%, #18181B);
+    --skeleton-to: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --surface-rgb: 24, 24, 27;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #FB7185;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #FB7185;
+    --color-brand-deep: #FB7185;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #FAFAFA;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #18181B;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #18181B;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #FB7185;
+    --color-surface-dark: #FAFAFA;
+    --color-info: #FB7185;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 18%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='light-ember'] {
+    color-scheme: light;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #F5F5F4;
+    --canvas: var(--bg);
+    --surface: #FFFFFF;
+    --surface-2: color-mix(in srgb, #111111 4%, #FFFFFF);
+    --surface-3: color-mix(in srgb, #111111 8%, #FFFFFF);
+    --surface-hover: color-mix(in srgb, #C2410C 10%, #FFFFFF);
+    --surface-sunken: color-mix(in srgb, #111111 2%, #F5F5F4);
+
+    --border: color-mix(in srgb, #111111 14%, transparent);
+    --border-2: color-mix(in srgb, #111111 26%, transparent);
+    --border-strong: color-mix(in srgb, #111111 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #111111;
+    --text-secondary: color-mix(in srgb, #111111 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #111111 82%, transparent);
+    --text-muted: color-mix(in srgb, #111111 72%, transparent);
+    --text-faint: color-mix(in srgb, #111111 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #111111 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #FFFFFF;
+    --ll-black: #111111;
+    --ll-blue: #C2410C;
+    --ll-red: #B91C1C;
+    --ll-green: #15803D;
+
+    /* Brand / accent family. */
+    --brand: #C2410C;
+    --brand-hover: color-mix(in srgb, #C2410C 82%, #111111);
+    --brand-active: color-mix(in srgb, #C2410C 65%, #111111);
+    --brand-soft: color-mix(in srgb, #C2410C 14%, #FFFFFF);
+    --brand-border: color-mix(in srgb, #C2410C 42%, transparent);
+    --brand-text: #90340D;
+    --brand-dark: #90340D;
+    --brand-deep: #8D330E;
+    --brand-contrast: #FFFFFF;
+    --brand-ring: color-mix(in srgb, #C2410C 28%, transparent);
+    --brand-rgb: 194, 65, 12;
+    --brand-dark-rgb: 144, 52, 13;
+    --accent: #C2410C;
+    --accent-contrast: #FFFFFF;
+    --accent-text: #C2410C;
+    --accent-soft: color-mix(in srgb, #C2410C 14%, #FFFFFF);
+    --accent-border: color-mix(in srgb, #C2410C 42%, transparent);
+    --accent-rgb: 194, 65, 12;
+    --on-brand: #FFFFFF;
+    --ring: var(--brand-ring);
+    --ring-offset: #FFFFFF;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #B91C1C;
+    --danger-deep: #991B1B;
+    --danger-text: #991B1B;
+    --danger-soft: color-mix(in srgb, #B91C1C 12%, #FFFFFF);
+    --danger-border: color-mix(in srgb, #B91C1C 42%, transparent);
+    --success: #15803D;
+    --success-deep: #166534;
+    --success-text: #166534;
+    --success-soft: color-mix(in srgb, #15803D 12%, #FFFFFF);
+    --success-border: color-mix(in srgb, #15803D 42%, transparent);
+    --warning: #A16207;
+    --warning-text: #764A0A;
+    --warning-soft: color-mix(in srgb, #A16207 12%, #FFFFFF);
+    --warning-border: color-mix(in srgb, #A16207 42%, transparent);
+    --info: #C2410C;
+    --info-text: #90340D;
+    --info-soft: color-mix(in srgb, #C2410C 14%, #FFFFFF);
+    --info-border: color-mix(in srgb, #C2410C 42%, transparent);
+    --info-rgb: 194, 65, 12;
+    --red-500: #B91C1C;
+    --red-600: #991B1B;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #FFFFFF;
+    --on-dark-surface: #C2410C;
+    --on-dark-border: color-mix(in srgb, #FFFFFF 28%, transparent);
+    --on-dark-soft: #FFFFFF;
+    --color-on-dark: #FFFFFF;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #C2410C;
+    --sidebar-border: color-mix(in srgb, #FFFFFF 24%, transparent);
+    --sidebar-text: #FFFFFF;
+    --sidebar-label: #FFFFFF;
+    --sidebar-active: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
+    --sidebar-active-border: #FFFFFF;
+    --sidebar-hover-bg: #AD3B0D;
+    --sidebar-hover-text: #FFFFFF;
+    --sidebar-indicator: #FFFFFF;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #F5F5F4;
+    --tan: var(--surface-2);
+    --card: #FFFFFF;
+    --gold: #C2410C;
+    --hero-bg: linear-gradient(135deg, #111111, #C2410C);
+    --hero-grid-line: color-mix(in srgb, #FFFFFF 10%, transparent);
+    --hero-mask: linear-gradient(to right, #111111, transparent 85%);
+    --result-bg: #FFFFFF;
+    --result-text: #111111;
+    --scan-accent: #C2410C;
+    --scan-accent-2: color-mix(in srgb, #C2410C 60%, #FFFFFF);
+    --stat-accent: #C2410C;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --skeleton-via: color-mix(in srgb, #111111 12%, #FFFFFF);
+    --skeleton-to: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --surface-rgb: 255, 255, 255;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #C2410C;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #90340D;
+    --color-brand-deep: #8D330E;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #111111;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #FFFFFF;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #FFFFFF;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #C2410C;
+    --color-surface-dark: #111111;
+    --color-info: #C2410C;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 12%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='dark-ember'] {
+    color-scheme: dark;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #0B0B0C;
+    --canvas: var(--bg);
+    --surface: #18181B;
+    --surface-2: color-mix(in srgb, #FAFAFA 4%, #18181B);
+    --surface-3: color-mix(in srgb, #FAFAFA 8%, #18181B);
+    --surface-hover: color-mix(in srgb, #FB923C 10%, #18181B);
+    --surface-sunken: color-mix(in srgb, #FAFAFA 2%, #0B0B0C);
+
+    --border: color-mix(in srgb, #FAFAFA 14%, transparent);
+    --border-2: color-mix(in srgb, #FAFAFA 26%, transparent);
+    --border-strong: color-mix(in srgb, #FAFAFA 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #FAFAFA;
+    --text-secondary: color-mix(in srgb, #FAFAFA 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #FAFAFA 82%, transparent);
+    --text-muted: color-mix(in srgb, #FAFAFA 72%, transparent);
+    --text-faint: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #18181B;
+    --ll-black: #FAFAFA;
+    --ll-blue: #FB923C;
+    --ll-red: #F87171;
+    --ll-green: #4ADE80;
+
+    /* Brand / accent family. */
+    --brand: #FB923C;
+    --brand-hover: color-mix(in srgb, #FB923C 82%, #FAFAFA);
+    --brand-active: color-mix(in srgb, #FB923C 65%, #FAFAFA);
+    --brand-soft: color-mix(in srgb, #FB923C 14%, #18181B);
+    --brand-border: color-mix(in srgb, #FB923C 42%, transparent);
+    --brand-text: #FB923C;
+    --brand-dark: #FB923C;
+    --brand-deep: #FB923C;
+    --brand-contrast: #000000;
+    --brand-ring: color-mix(in srgb, #FB923C 28%, transparent);
+    --brand-rgb: 251, 146, 60;
+    --brand-dark-rgb: 251, 146, 60;
+    --accent: #FB923C;
+    --accent-contrast: #000000;
+    --accent-text: #FB923C;
+    --accent-soft: color-mix(in srgb, #FB923C 14%, #18181B);
+    --accent-border: color-mix(in srgb, #FB923C 42%, transparent);
+    --accent-rgb: 251, 146, 60;
+    --on-brand: #000000;
+    --ring: var(--brand-ring);
+    --ring-offset: #18181B;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #F87171;
+    --danger-deep: #FCA5A5;
+    --danger-text: #F87171;
+    --danger-soft: color-mix(in srgb, #F87171 12%, #18181B);
+    --danger-border: color-mix(in srgb, #F87171 42%, transparent);
+    --success: #4ADE80;
+    --success-deep: #86EFAC;
+    --success-text: #4ADE80;
+    --success-soft: color-mix(in srgb, #4ADE80 12%, #18181B);
+    --success-border: color-mix(in srgb, #4ADE80 42%, transparent);
+    --warning: #FBBF24;
+    --warning-text: #FBBF24;
+    --warning-soft: color-mix(in srgb, #FBBF24 12%, #18181B);
+    --warning-border: color-mix(in srgb, #FBBF24 42%, transparent);
+    --info: #FB923C;
+    --info-text: #FB923C;
+    --info-soft: color-mix(in srgb, #FB923C 14%, #18181B);
+    --info-border: color-mix(in srgb, #FB923C 42%, transparent);
+    --info-rgb: 251, 146, 60;
+    --red-500: #F87171;
+    --red-600: #FCA5A5;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #000000;
+    --on-dark-surface: #FB923C;
+    --on-dark-border: color-mix(in srgb, #000000 28%, transparent);
+    --on-dark-soft: #000000;
+    --color-on-dark: #000000;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #FB923C;
+    --sidebar-border: color-mix(in srgb, #000000 24%, transparent);
+    --sidebar-text: #000000;
+    --sidebar-label: #000000;
+    --sidebar-active: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
+    --sidebar-active-border: #000000;
+    --sidebar-hover-bg: #E08338;
+    --sidebar-hover-text: #000000;
+    --sidebar-indicator: #000000;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #0B0B0C;
+    --tan: var(--surface-2);
+    --card: #18181B;
+    --gold: #FB923C;
+    --hero-bg: linear-gradient(135deg, #FAFAFA, #FB923C);
+    --hero-grid-line: color-mix(in srgb, #000000 10%, transparent);
+    --hero-mask: linear-gradient(to right, #FAFAFA, transparent 85%);
+    --result-bg: #18181B;
+    --result-text: #FAFAFA;
+    --scan-accent: #FB923C;
+    --scan-accent-2: color-mix(in srgb, #FB923C 60%, #18181B);
+    --stat-accent: #FB923C;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --skeleton-via: color-mix(in srgb, #FAFAFA 12%, #18181B);
+    --skeleton-to: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --surface-rgb: 24, 24, 27;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #FB923C;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #FB923C;
+    --color-brand-deep: #FB923C;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #FAFAFA;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #18181B;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #18181B;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #FB923C;
+    --color-surface-dark: #FAFAFA;
+    --color-info: #FB923C;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 18%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='light-amber'] {
+    color-scheme: light;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #F5F5F4;
+    --canvas: var(--bg);
+    --surface: #FFFFFF;
+    --surface-2: color-mix(in srgb, #111111 4%, #FFFFFF);
+    --surface-3: color-mix(in srgb, #111111 8%, #FFFFFF);
+    --surface-hover: color-mix(in srgb, #A16207 10%, #FFFFFF);
+    --surface-sunken: color-mix(in srgb, #111111 2%, #F5F5F4);
+
+    --border: color-mix(in srgb, #111111 14%, transparent);
+    --border-2: color-mix(in srgb, #111111 26%, transparent);
+    --border-strong: color-mix(in srgb, #111111 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #111111;
+    --text-secondary: color-mix(in srgb, #111111 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #111111 82%, transparent);
+    --text-muted: color-mix(in srgb, #111111 72%, transparent);
+    --text-faint: color-mix(in srgb, #111111 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #111111 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #FFFFFF;
+    --ll-black: #111111;
+    --ll-blue: #A16207;
+    --ll-red: #B91C1C;
+    --ll-green: #15803D;
+
+    /* Brand / accent family. */
+    --brand: #A16207;
+    --brand-hover: color-mix(in srgb, #A16207 82%, #111111);
+    --brand-active: color-mix(in srgb, #A16207 65%, #111111);
+    --brand-soft: color-mix(in srgb, #A16207 14%, #FFFFFF);
+    --brand-border: color-mix(in srgb, #A16207 42%, transparent);
+    --brand-text: #794B0A;
+    --brand-dark: #794B0A;
+    --brand-deep: #764A0A;
+    --brand-contrast: #FFFFFF;
+    --brand-ring: color-mix(in srgb, #A16207 28%, transparent);
+    --brand-rgb: 161, 98, 7;
+    --brand-dark-rgb: 121, 75, 10;
+    --accent: #A16207;
+    --accent-contrast: #FFFFFF;
+    --accent-text: #A16207;
+    --accent-soft: color-mix(in srgb, #A16207 14%, #FFFFFF);
+    --accent-border: color-mix(in srgb, #A16207 42%, transparent);
+    --accent-rgb: 161, 98, 7;
+    --on-brand: #FFFFFF;
+    --ring: var(--brand-ring);
+    --ring-offset: #FFFFFF;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #B91C1C;
+    --danger-deep: #991B1B;
+    --danger-text: #991B1B;
+    --danger-soft: color-mix(in srgb, #B91C1C 12%, #FFFFFF);
+    --danger-border: color-mix(in srgb, #B91C1C 42%, transparent);
+    --success: #15803D;
+    --success-deep: #166534;
+    --success-text: #166534;
+    --success-soft: color-mix(in srgb, #15803D 12%, #FFFFFF);
+    --success-border: color-mix(in srgb, #15803D 42%, transparent);
+    --warning: #A16207;
+    --warning-text: #764A0A;
+    --warning-soft: color-mix(in srgb, #A16207 12%, #FFFFFF);
+    --warning-border: color-mix(in srgb, #A16207 42%, transparent);
+    --info: #A16207;
+    --info-text: #794B0A;
+    --info-soft: color-mix(in srgb, #A16207 14%, #FFFFFF);
+    --info-border: color-mix(in srgb, #A16207 42%, transparent);
+    --info-rgb: 161, 98, 7;
+    --red-500: #B91C1C;
+    --red-600: #991B1B;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #FFFFFF;
+    --on-dark-surface: #A16207;
+    --on-dark-border: color-mix(in srgb, #FFFFFF 28%, transparent);
+    --on-dark-soft: #FFFFFF;
+    --color-on-dark: #FFFFFF;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #A16207;
+    --sidebar-border: color-mix(in srgb, #FFFFFF 24%, transparent);
+    --sidebar-text: #FFFFFF;
+    --sidebar-label: #FFFFFF;
+    --sidebar-active: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
+    --sidebar-active-border: #FFFFFF;
+    --sidebar-hover-bg: #905808;
+    --sidebar-hover-text: #FFFFFF;
+    --sidebar-indicator: #FFFFFF;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #F5F5F4;
+    --tan: var(--surface-2);
+    --card: #FFFFFF;
+    --gold: #A16207;
+    --hero-bg: linear-gradient(135deg, #111111, #A16207);
+    --hero-grid-line: color-mix(in srgb, #FFFFFF 10%, transparent);
+    --hero-mask: linear-gradient(to right, #111111, transparent 85%);
+    --result-bg: #FFFFFF;
+    --result-text: #111111;
+    --scan-accent: #A16207;
+    --scan-accent-2: color-mix(in srgb, #A16207 60%, #FFFFFF);
+    --stat-accent: #A16207;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --skeleton-via: color-mix(in srgb, #111111 12%, #FFFFFF);
+    --skeleton-to: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --surface-rgb: 255, 255, 255;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #A16207;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #794B0A;
+    --color-brand-deep: #764A0A;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #111111;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #FFFFFF;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #FFFFFF;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #A16207;
+    --color-surface-dark: #111111;
+    --color-info: #A16207;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 12%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='dark-amber'] {
+    color-scheme: dark;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #0B0B0C;
+    --canvas: var(--bg);
+    --surface: #18181B;
+    --surface-2: color-mix(in srgb, #FAFAFA 4%, #18181B);
+    --surface-3: color-mix(in srgb, #FAFAFA 8%, #18181B);
+    --surface-hover: color-mix(in srgb, #FBBF24 10%, #18181B);
+    --surface-sunken: color-mix(in srgb, #FAFAFA 2%, #0B0B0C);
+
+    --border: color-mix(in srgb, #FAFAFA 14%, transparent);
+    --border-2: color-mix(in srgb, #FAFAFA 26%, transparent);
+    --border-strong: color-mix(in srgb, #FAFAFA 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #FAFAFA;
+    --text-secondary: color-mix(in srgb, #FAFAFA 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #FAFAFA 82%, transparent);
+    --text-muted: color-mix(in srgb, #FAFAFA 72%, transparent);
+    --text-faint: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #18181B;
+    --ll-black: #FAFAFA;
+    --ll-blue: #FBBF24;
+    --ll-red: #F87171;
+    --ll-green: #4ADE80;
+
+    /* Brand / accent family. */
+    --brand: #FBBF24;
+    --brand-hover: color-mix(in srgb, #FBBF24 82%, #FAFAFA);
+    --brand-active: color-mix(in srgb, #FBBF24 65%, #FAFAFA);
+    --brand-soft: color-mix(in srgb, #FBBF24 14%, #18181B);
+    --brand-border: color-mix(in srgb, #FBBF24 42%, transparent);
+    --brand-text: #FBBF24;
+    --brand-dark: #FBBF24;
+    --brand-deep: #FBBF24;
+    --brand-contrast: #000000;
+    --brand-ring: color-mix(in srgb, #FBBF24 28%, transparent);
+    --brand-rgb: 251, 191, 36;
+    --brand-dark-rgb: 251, 191, 36;
+    --accent: #FBBF24;
+    --accent-contrast: #000000;
+    --accent-text: #FBBF24;
+    --accent-soft: color-mix(in srgb, #FBBF24 14%, #18181B);
+    --accent-border: color-mix(in srgb, #FBBF24 42%, transparent);
+    --accent-rgb: 251, 191, 36;
+    --on-brand: #000000;
+    --ring: var(--brand-ring);
+    --ring-offset: #18181B;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #F87171;
+    --danger-deep: #FCA5A5;
+    --danger-text: #F87171;
+    --danger-soft: color-mix(in srgb, #F87171 12%, #18181B);
+    --danger-border: color-mix(in srgb, #F87171 42%, transparent);
+    --success: #4ADE80;
+    --success-deep: #86EFAC;
+    --success-text: #4ADE80;
+    --success-soft: color-mix(in srgb, #4ADE80 12%, #18181B);
+    --success-border: color-mix(in srgb, #4ADE80 42%, transparent);
+    --warning: #FBBF24;
+    --warning-text: #FBBF24;
+    --warning-soft: color-mix(in srgb, #FBBF24 12%, #18181B);
+    --warning-border: color-mix(in srgb, #FBBF24 42%, transparent);
+    --info: #FBBF24;
+    --info-text: #FBBF24;
+    --info-soft: color-mix(in srgb, #FBBF24 14%, #18181B);
+    --info-border: color-mix(in srgb, #FBBF24 42%, transparent);
+    --info-rgb: 251, 191, 36;
+    --red-500: #F87171;
+    --red-600: #FCA5A5;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #000000;
+    --on-dark-surface: #FBBF24;
+    --on-dark-border: color-mix(in srgb, #000000 28%, transparent);
+    --on-dark-soft: #000000;
+    --color-on-dark: #000000;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #FBBF24;
+    --sidebar-border: color-mix(in srgb, #000000 24%, transparent);
+    --sidebar-text: #000000;
+    --sidebar-label: #000000;
+    --sidebar-active: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
+    --sidebar-active-border: #000000;
+    --sidebar-hover-bg: #E0AB23;
+    --sidebar-hover-text: #000000;
+    --sidebar-indicator: #000000;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #0B0B0C;
+    --tan: var(--surface-2);
+    --card: #18181B;
+    --gold: #FBBF24;
+    --hero-bg: linear-gradient(135deg, #FAFAFA, #FBBF24);
+    --hero-grid-line: color-mix(in srgb, #000000 10%, transparent);
+    --hero-mask: linear-gradient(to right, #FAFAFA, transparent 85%);
+    --result-bg: #18181B;
+    --result-text: #FAFAFA;
+    --scan-accent: #FBBF24;
+    --scan-accent-2: color-mix(in srgb, #FBBF24 60%, #18181B);
+    --stat-accent: #FBBF24;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --skeleton-via: color-mix(in srgb, #FAFAFA 12%, #18181B);
+    --skeleton-to: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --surface-rgb: 24, 24, 27;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #FBBF24;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #FBBF24;
+    --color-brand-deep: #FBBF24;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #FAFAFA;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #18181B;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #18181B;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #FBBF24;
+    --color-surface-dark: #FAFAFA;
+    --color-info: #FBBF24;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 18%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='light-gold'] {
+    color-scheme: light;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #F5F5F4;
+    --canvas: var(--bg);
+    --surface: #FFFFFF;
+    --surface-2: color-mix(in srgb, #111111 4%, #FFFFFF);
+    --surface-3: color-mix(in srgb, #111111 8%, #FFFFFF);
+    --surface-hover: color-mix(in srgb, #854D0E 10%, #FFFFFF);
+    --surface-sunken: color-mix(in srgb, #111111 2%, #F5F5F4);
+
+    --border: color-mix(in srgb, #111111 14%, transparent);
+    --border-2: color-mix(in srgb, #111111 26%, transparent);
+    --border-strong: color-mix(in srgb, #111111 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #111111;
+    --text-secondary: color-mix(in srgb, #111111 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #111111 82%, transparent);
+    --text-muted: color-mix(in srgb, #111111 72%, transparent);
+    --text-faint: color-mix(in srgb, #111111 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #111111 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #FFFFFF;
+    --ll-black: #111111;
+    --ll-blue: #854D0E;
+    --ll-red: #B91C1C;
+    --ll-green: #15803D;
+
+    /* Brand / accent family. */
+    --brand: #854D0E;
+    --brand-hover: color-mix(in srgb, #854D0E 82%, #111111);
+    --brand-active: color-mix(in srgb, #854D0E 65%, #111111);
+    --brand-soft: color-mix(in srgb, #854D0E 14%, #FFFFFF);
+    --brand-border: color-mix(in srgb, #854D0E 42%, transparent);
+    --brand-text: #653C0F;
+    --brand-dark: #653C0F;
+    --brand-deep: #623B0F;
+    --brand-contrast: #FFFFFF;
+    --brand-ring: color-mix(in srgb, #854D0E 28%, transparent);
+    --brand-rgb: 133, 77, 14;
+    --brand-dark-rgb: 101, 60, 15;
+    --accent: #854D0E;
+    --accent-contrast: #FFFFFF;
+    --accent-text: #854D0E;
+    --accent-soft: color-mix(in srgb, #854D0E 14%, #FFFFFF);
+    --accent-border: color-mix(in srgb, #854D0E 42%, transparent);
+    --accent-rgb: 133, 77, 14;
+    --on-brand: #FFFFFF;
+    --ring: var(--brand-ring);
+    --ring-offset: #FFFFFF;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #B91C1C;
+    --danger-deep: #991B1B;
+    --danger-text: #991B1B;
+    --danger-soft: color-mix(in srgb, #B91C1C 12%, #FFFFFF);
+    --danger-border: color-mix(in srgb, #B91C1C 42%, transparent);
+    --success: #15803D;
+    --success-deep: #166534;
+    --success-text: #166534;
+    --success-soft: color-mix(in srgb, #15803D 12%, #FFFFFF);
+    --success-border: color-mix(in srgb, #15803D 42%, transparent);
+    --warning: #A16207;
+    --warning-text: #764A0A;
+    --warning-soft: color-mix(in srgb, #A16207 12%, #FFFFFF);
+    --warning-border: color-mix(in srgb, #A16207 42%, transparent);
+    --info: #854D0E;
+    --info-text: #653C0F;
+    --info-soft: color-mix(in srgb, #854D0E 14%, #FFFFFF);
+    --info-border: color-mix(in srgb, #854D0E 42%, transparent);
+    --info-rgb: 133, 77, 14;
+    --red-500: #B91C1C;
+    --red-600: #991B1B;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #FFFFFF;
+    --on-dark-surface: #854D0E;
+    --on-dark-border: color-mix(in srgb, #FFFFFF 28%, transparent);
+    --on-dark-soft: #FFFFFF;
+    --color-on-dark: #FFFFFF;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #854D0E;
+    --sidebar-border: color-mix(in srgb, #FFFFFF 24%, transparent);
+    --sidebar-text: #FFFFFF;
+    --sidebar-label: #FFFFFF;
+    --sidebar-active: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
+    --sidebar-active-border: #FFFFFF;
+    --sidebar-hover-bg: #77460E;
+    --sidebar-hover-text: #FFFFFF;
+    --sidebar-indicator: #FFFFFF;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #F5F5F4;
+    --tan: var(--surface-2);
+    --card: #FFFFFF;
+    --gold: #854D0E;
+    --hero-bg: linear-gradient(135deg, #111111, #854D0E);
+    --hero-grid-line: color-mix(in srgb, #FFFFFF 10%, transparent);
+    --hero-mask: linear-gradient(to right, #111111, transparent 85%);
+    --result-bg: #FFFFFF;
+    --result-text: #111111;
+    --scan-accent: #854D0E;
+    --scan-accent-2: color-mix(in srgb, #854D0E 60%, #FFFFFF);
+    --stat-accent: #854D0E;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --skeleton-via: color-mix(in srgb, #111111 12%, #FFFFFF);
+    --skeleton-to: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --surface-rgb: 255, 255, 255;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #854D0E;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #653C0F;
+    --color-brand-deep: #623B0F;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #111111;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #FFFFFF;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #FFFFFF;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #854D0E;
+    --color-surface-dark: #111111;
+    --color-info: #854D0E;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 12%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='dark-gold'] {
+    color-scheme: dark;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #0B0B0C;
+    --canvas: var(--bg);
+    --surface: #18181B;
+    --surface-2: color-mix(in srgb, #FAFAFA 4%, #18181B);
+    --surface-3: color-mix(in srgb, #FAFAFA 8%, #18181B);
+    --surface-hover: color-mix(in srgb, #FCD34D 10%, #18181B);
+    --surface-sunken: color-mix(in srgb, #FAFAFA 2%, #0B0B0C);
+
+    --border: color-mix(in srgb, #FAFAFA 14%, transparent);
+    --border-2: color-mix(in srgb, #FAFAFA 26%, transparent);
+    --border-strong: color-mix(in srgb, #FAFAFA 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #FAFAFA;
+    --text-secondary: color-mix(in srgb, #FAFAFA 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #FAFAFA 82%, transparent);
+    --text-muted: color-mix(in srgb, #FAFAFA 72%, transparent);
+    --text-faint: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #18181B;
+    --ll-black: #FAFAFA;
+    --ll-blue: #FCD34D;
+    --ll-red: #F87171;
+    --ll-green: #4ADE80;
+
+    /* Brand / accent family. */
+    --brand: #FCD34D;
+    --brand-hover: color-mix(in srgb, #FCD34D 82%, #FAFAFA);
+    --brand-active: color-mix(in srgb, #FCD34D 65%, #FAFAFA);
+    --brand-soft: color-mix(in srgb, #FCD34D 14%, #18181B);
+    --brand-border: color-mix(in srgb, #FCD34D 42%, transparent);
+    --brand-text: #FCD34D;
+    --brand-dark: #FCD34D;
+    --brand-deep: #FCD34D;
+    --brand-contrast: #000000;
+    --brand-ring: color-mix(in srgb, #FCD34D 28%, transparent);
+    --brand-rgb: 252, 211, 77;
+    --brand-dark-rgb: 252, 211, 77;
+    --accent: #FCD34D;
+    --accent-contrast: #000000;
+    --accent-text: #FCD34D;
+    --accent-soft: color-mix(in srgb, #FCD34D 14%, #18181B);
+    --accent-border: color-mix(in srgb, #FCD34D 42%, transparent);
+    --accent-rgb: 252, 211, 77;
+    --on-brand: #000000;
+    --ring: var(--brand-ring);
+    --ring-offset: #18181B;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #F87171;
+    --danger-deep: #FCA5A5;
+    --danger-text: #F87171;
+    --danger-soft: color-mix(in srgb, #F87171 12%, #18181B);
+    --danger-border: color-mix(in srgb, #F87171 42%, transparent);
+    --success: #4ADE80;
+    --success-deep: #86EFAC;
+    --success-text: #4ADE80;
+    --success-soft: color-mix(in srgb, #4ADE80 12%, #18181B);
+    --success-border: color-mix(in srgb, #4ADE80 42%, transparent);
+    --warning: #FBBF24;
+    --warning-text: #FBBF24;
+    --warning-soft: color-mix(in srgb, #FBBF24 12%, #18181B);
+    --warning-border: color-mix(in srgb, #FBBF24 42%, transparent);
+    --info: #FCD34D;
+    --info-text: #FCD34D;
+    --info-soft: color-mix(in srgb, #FCD34D 14%, #18181B);
+    --info-border: color-mix(in srgb, #FCD34D 42%, transparent);
+    --info-rgb: 252, 211, 77;
+    --red-500: #F87171;
+    --red-600: #FCA5A5;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #000000;
+    --on-dark-surface: #FCD34D;
+    --on-dark-border: color-mix(in srgb, #000000 28%, transparent);
+    --on-dark-soft: #000000;
+    --color-on-dark: #000000;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #FCD34D;
+    --sidebar-border: color-mix(in srgb, #000000 24%, transparent);
+    --sidebar-text: #000000;
+    --sidebar-label: #000000;
+    --sidebar-active: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
+    --sidebar-active-border: #000000;
+    --sidebar-hover-bg: #E1BD47;
+    --sidebar-hover-text: #000000;
+    --sidebar-indicator: #000000;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #0B0B0C;
+    --tan: var(--surface-2);
+    --card: #18181B;
+    --gold: #FCD34D;
+    --hero-bg: linear-gradient(135deg, #FAFAFA, #FCD34D);
+    --hero-grid-line: color-mix(in srgb, #000000 10%, transparent);
+    --hero-mask: linear-gradient(to right, #FAFAFA, transparent 85%);
+    --result-bg: #18181B;
+    --result-text: #FAFAFA;
+    --scan-accent: #FCD34D;
+    --scan-accent-2: color-mix(in srgb, #FCD34D 60%, #18181B);
+    --stat-accent: #FCD34D;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --skeleton-via: color-mix(in srgb, #FAFAFA 12%, #18181B);
+    --skeleton-to: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --surface-rgb: 24, 24, 27;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #FCD34D;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #FCD34D;
+    --color-brand-deep: #FCD34D;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #FAFAFA;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #18181B;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #18181B;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #FCD34D;
+    --color-surface-dark: #FAFAFA;
+    --color-info: #FCD34D;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 18%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='light-lime'] {
+    color-scheme: light;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #F5F5F4;
+    --canvas: var(--bg);
+    --surface: #FFFFFF;
+    --surface-2: color-mix(in srgb, #111111 4%, #FFFFFF);
+    --surface-3: color-mix(in srgb, #111111 8%, #FFFFFF);
+    --surface-hover: color-mix(in srgb, #4D7C0F 10%, #FFFFFF);
+    --surface-sunken: color-mix(in srgb, #111111 2%, #F5F5F4);
+
+    --border: color-mix(in srgb, #111111 14%, transparent);
+    --border-2: color-mix(in srgb, #111111 26%, transparent);
+    --border-strong: color-mix(in srgb, #111111 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #111111;
+    --text-secondary: color-mix(in srgb, #111111 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #111111 82%, transparent);
+    --text-muted: color-mix(in srgb, #111111 72%, transparent);
+    --text-faint: color-mix(in srgb, #111111 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #111111 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #FFFFFF;
+    --ll-black: #111111;
+    --ll-blue: #4D7C0F;
+    --ll-red: #B91C1C;
+    --ll-green: #15803D;
+
+    /* Brand / accent family. */
+    --brand: #4D7C0F;
+    --brand-hover: color-mix(in srgb, #4D7C0F 82%, #111111);
+    --brand-active: color-mix(in srgb, #4D7C0F 65%, #111111);
+    --brand-soft: color-mix(in srgb, #4D7C0F 14%, #FFFFFF);
+    --brand-border: color-mix(in srgb, #4D7C0F 42%, transparent);
+    --brand-text: #3C5E10;
+    --brand-dark: #3C5E10;
+    --brand-deep: #3B5C10;
+    --brand-contrast: #FFFFFF;
+    --brand-ring: color-mix(in srgb, #4D7C0F 28%, transparent);
+    --brand-rgb: 77, 124, 15;
+    --brand-dark-rgb: 60, 94, 16;
+    --accent: #4D7C0F;
+    --accent-contrast: #FFFFFF;
+    --accent-text: #4D7C0F;
+    --accent-soft: color-mix(in srgb, #4D7C0F 14%, #FFFFFF);
+    --accent-border: color-mix(in srgb, #4D7C0F 42%, transparent);
+    --accent-rgb: 77, 124, 15;
+    --on-brand: #FFFFFF;
+    --ring: var(--brand-ring);
+    --ring-offset: #FFFFFF;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #B91C1C;
+    --danger-deep: #991B1B;
+    --danger-text: #991B1B;
+    --danger-soft: color-mix(in srgb, #B91C1C 12%, #FFFFFF);
+    --danger-border: color-mix(in srgb, #B91C1C 42%, transparent);
+    --success: #15803D;
+    --success-deep: #166534;
+    --success-text: #166534;
+    --success-soft: color-mix(in srgb, #15803D 12%, #FFFFFF);
+    --success-border: color-mix(in srgb, #15803D 42%, transparent);
+    --warning: #A16207;
+    --warning-text: #764A0A;
+    --warning-soft: color-mix(in srgb, #A16207 12%, #FFFFFF);
+    --warning-border: color-mix(in srgb, #A16207 42%, transparent);
+    --info: #4D7C0F;
+    --info-text: #3C5E10;
+    --info-soft: color-mix(in srgb, #4D7C0F 14%, #FFFFFF);
+    --info-border: color-mix(in srgb, #4D7C0F 42%, transparent);
+    --info-rgb: 77, 124, 15;
+    --red-500: #B91C1C;
+    --red-600: #991B1B;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #FFFFFF;
+    --on-dark-surface: #4D7C0F;
+    --on-dark-border: color-mix(in srgb, #FFFFFF 28%, transparent);
+    --on-dark-soft: #FFFFFF;
+    --color-on-dark: #FFFFFF;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #4D7C0F;
+    --sidebar-border: color-mix(in srgb, #FFFFFF 24%, transparent);
+    --sidebar-text: #FFFFFF;
+    --sidebar-label: #FFFFFF;
+    --sidebar-active: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
+    --sidebar-active-border: #FFFFFF;
+    --sidebar-hover-bg: #466F0F;
+    --sidebar-hover-text: #FFFFFF;
+    --sidebar-indicator: #FFFFFF;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #F5F5F4;
+    --tan: var(--surface-2);
+    --card: #FFFFFF;
+    --gold: #4D7C0F;
+    --hero-bg: linear-gradient(135deg, #111111, #4D7C0F);
+    --hero-grid-line: color-mix(in srgb, #FFFFFF 10%, transparent);
+    --hero-mask: linear-gradient(to right, #111111, transparent 85%);
+    --result-bg: #FFFFFF;
+    --result-text: #111111;
+    --scan-accent: #4D7C0F;
+    --scan-accent-2: color-mix(in srgb, #4D7C0F 60%, #FFFFFF);
+    --stat-accent: #4D7C0F;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --skeleton-via: color-mix(in srgb, #111111 12%, #FFFFFF);
+    --skeleton-to: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --surface-rgb: 255, 255, 255;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #4D7C0F;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #3C5E10;
+    --color-brand-deep: #3B5C10;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #111111;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #FFFFFF;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #FFFFFF;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #4D7C0F;
+    --color-surface-dark: #111111;
+    --color-info: #4D7C0F;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 12%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='dark-lime'] {
+    color-scheme: dark;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #0B0B0C;
+    --canvas: var(--bg);
+    --surface: #18181B;
+    --surface-2: color-mix(in srgb, #FAFAFA 4%, #18181B);
+    --surface-3: color-mix(in srgb, #FAFAFA 8%, #18181B);
+    --surface-hover: color-mix(in srgb, #A3E635 10%, #18181B);
+    --surface-sunken: color-mix(in srgb, #FAFAFA 2%, #0B0B0C);
+
+    --border: color-mix(in srgb, #FAFAFA 14%, transparent);
+    --border-2: color-mix(in srgb, #FAFAFA 26%, transparent);
+    --border-strong: color-mix(in srgb, #FAFAFA 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #FAFAFA;
+    --text-secondary: color-mix(in srgb, #FAFAFA 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #FAFAFA 82%, transparent);
+    --text-muted: color-mix(in srgb, #FAFAFA 72%, transparent);
+    --text-faint: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #18181B;
+    --ll-black: #FAFAFA;
+    --ll-blue: #A3E635;
+    --ll-red: #F87171;
+    --ll-green: #4ADE80;
+
+    /* Brand / accent family. */
+    --brand: #A3E635;
+    --brand-hover: color-mix(in srgb, #A3E635 82%, #FAFAFA);
+    --brand-active: color-mix(in srgb, #A3E635 65%, #FAFAFA);
+    --brand-soft: color-mix(in srgb, #A3E635 14%, #18181B);
+    --brand-border: color-mix(in srgb, #A3E635 42%, transparent);
+    --brand-text: #A3E635;
+    --brand-dark: #A3E635;
+    --brand-deep: #A3E635;
+    --brand-contrast: #000000;
+    --brand-ring: color-mix(in srgb, #A3E635 28%, transparent);
+    --brand-rgb: 163, 230, 53;
+    --brand-dark-rgb: 163, 230, 53;
+    --accent: #A3E635;
+    --accent-contrast: #000000;
+    --accent-text: #A3E635;
+    --accent-soft: color-mix(in srgb, #A3E635 14%, #18181B);
+    --accent-border: color-mix(in srgb, #A3E635 42%, transparent);
+    --accent-rgb: 163, 230, 53;
+    --on-brand: #000000;
+    --ring: var(--brand-ring);
+    --ring-offset: #18181B;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #F87171;
+    --danger-deep: #FCA5A5;
+    --danger-text: #F87171;
+    --danger-soft: color-mix(in srgb, #F87171 12%, #18181B);
+    --danger-border: color-mix(in srgb, #F87171 42%, transparent);
+    --success: #4ADE80;
+    --success-deep: #86EFAC;
+    --success-text: #4ADE80;
+    --success-soft: color-mix(in srgb, #4ADE80 12%, #18181B);
+    --success-border: color-mix(in srgb, #4ADE80 42%, transparent);
+    --warning: #FBBF24;
+    --warning-text: #FBBF24;
+    --warning-soft: color-mix(in srgb, #FBBF24 12%, #18181B);
+    --warning-border: color-mix(in srgb, #FBBF24 42%, transparent);
+    --info: #A3E635;
+    --info-text: #A3E635;
+    --info-soft: color-mix(in srgb, #A3E635 14%, #18181B);
+    --info-border: color-mix(in srgb, #A3E635 42%, transparent);
+    --info-rgb: 163, 230, 53;
+    --red-500: #F87171;
+    --red-600: #FCA5A5;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #000000;
+    --on-dark-surface: #A3E635;
+    --on-dark-border: color-mix(in srgb, #000000 28%, transparent);
+    --on-dark-soft: #000000;
+    --color-on-dark: #000000;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #A3E635;
+    --sidebar-border: color-mix(in srgb, #000000 24%, transparent);
+    --sidebar-text: #000000;
+    --sidebar-label: #000000;
+    --sidebar-active: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
+    --sidebar-active-border: #000000;
+    --sidebar-hover-bg: #92CD32;
+    --sidebar-hover-text: #000000;
+    --sidebar-indicator: #000000;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #0B0B0C;
+    --tan: var(--surface-2);
+    --card: #18181B;
+    --gold: #A3E635;
+    --hero-bg: linear-gradient(135deg, #FAFAFA, #A3E635);
+    --hero-grid-line: color-mix(in srgb, #000000 10%, transparent);
+    --hero-mask: linear-gradient(to right, #FAFAFA, transparent 85%);
+    --result-bg: #18181B;
+    --result-text: #FAFAFA;
+    --scan-accent: #A3E635;
+    --scan-accent-2: color-mix(in srgb, #A3E635 60%, #18181B);
+    --stat-accent: #A3E635;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --skeleton-via: color-mix(in srgb, #FAFAFA 12%, #18181B);
+    --skeleton-to: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --surface-rgb: 24, 24, 27;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #A3E635;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #A3E635;
+    --color-brand-deep: #A3E635;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #FAFAFA;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #18181B;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #18181B;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #A3E635;
+    --color-surface-dark: #FAFAFA;
+    --color-info: #A3E635;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 18%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='light-emerald'] {
+    color-scheme: light;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #F5F5F4;
+    --canvas: var(--bg);
+    --surface: #FFFFFF;
+    --surface-2: color-mix(in srgb, #111111 4%, #FFFFFF);
+    --surface-3: color-mix(in srgb, #111111 8%, #FFFFFF);
+    --surface-hover: color-mix(in srgb, #047857 10%, #FFFFFF);
+    --surface-sunken: color-mix(in srgb, #111111 2%, #F5F5F4);
+
+    --border: color-mix(in srgb, #111111 14%, transparent);
+    --border-2: color-mix(in srgb, #111111 26%, transparent);
+    --border-strong: color-mix(in srgb, #111111 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #111111;
+    --text-secondary: color-mix(in srgb, #111111 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #111111 82%, transparent);
+    --text-muted: color-mix(in srgb, #111111 72%, transparent);
+    --text-faint: color-mix(in srgb, #111111 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #111111 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #FFFFFF;
+    --ll-black: #111111;
+    --ll-blue: #047857;
+    --ll-red: #B91C1C;
+    --ll-green: #15803D;
+
+    /* Brand / accent family. */
+    --brand: #047857;
+    --brand-hover: color-mix(in srgb, #047857 82%, #111111);
+    --brand-active: color-mix(in srgb, #047857 65%, #111111);
+    --brand-soft: color-mix(in srgb, #047857 14%, #FFFFFF);
+    --brand-border: color-mix(in srgb, #047857 42%, transparent);
+    --brand-text: #085B43;
+    --brand-dark: #085B43;
+    --brand-deep: #085942;
+    --brand-contrast: #FFFFFF;
+    --brand-ring: color-mix(in srgb, #047857 28%, transparent);
+    --brand-rgb: 4, 120, 87;
+    --brand-dark-rgb: 8, 91, 67;
+    --accent: #047857;
+    --accent-contrast: #FFFFFF;
+    --accent-text: #047857;
+    --accent-soft: color-mix(in srgb, #047857 14%, #FFFFFF);
+    --accent-border: color-mix(in srgb, #047857 42%, transparent);
+    --accent-rgb: 4, 120, 87;
+    --on-brand: #FFFFFF;
+    --ring: var(--brand-ring);
+    --ring-offset: #FFFFFF;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #B91C1C;
+    --danger-deep: #991B1B;
+    --danger-text: #991B1B;
+    --danger-soft: color-mix(in srgb, #B91C1C 12%, #FFFFFF);
+    --danger-border: color-mix(in srgb, #B91C1C 42%, transparent);
+    --success: #15803D;
+    --success-deep: #166534;
+    --success-text: #166534;
+    --success-soft: color-mix(in srgb, #15803D 12%, #FFFFFF);
+    --success-border: color-mix(in srgb, #15803D 42%, transparent);
+    --warning: #A16207;
+    --warning-text: #764A0A;
+    --warning-soft: color-mix(in srgb, #A16207 12%, #FFFFFF);
+    --warning-border: color-mix(in srgb, #A16207 42%, transparent);
+    --info: #047857;
+    --info-text: #085B43;
+    --info-soft: color-mix(in srgb, #047857 14%, #FFFFFF);
+    --info-border: color-mix(in srgb, #047857 42%, transparent);
+    --info-rgb: 4, 120, 87;
+    --red-500: #B91C1C;
+    --red-600: #991B1B;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #FFFFFF;
+    --on-dark-surface: #047857;
+    --on-dark-border: color-mix(in srgb, #FFFFFF 28%, transparent);
+    --on-dark-soft: #FFFFFF;
+    --color-on-dark: #FFFFFF;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #047857;
+    --sidebar-border: color-mix(in srgb, #FFFFFF 24%, transparent);
+    --sidebar-text: #FFFFFF;
+    --sidebar-label: #FFFFFF;
+    --sidebar-active: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
+    --sidebar-active-border: #FFFFFF;
+    --sidebar-hover-bg: #066C4F;
+    --sidebar-hover-text: #FFFFFF;
+    --sidebar-indicator: #FFFFFF;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #F5F5F4;
+    --tan: var(--surface-2);
+    --card: #FFFFFF;
+    --gold: #047857;
+    --hero-bg: linear-gradient(135deg, #111111, #047857);
+    --hero-grid-line: color-mix(in srgb, #FFFFFF 10%, transparent);
+    --hero-mask: linear-gradient(to right, #111111, transparent 85%);
+    --result-bg: #FFFFFF;
+    --result-text: #111111;
+    --scan-accent: #047857;
+    --scan-accent-2: color-mix(in srgb, #047857 60%, #FFFFFF);
+    --stat-accent: #047857;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --skeleton-via: color-mix(in srgb, #111111 12%, #FFFFFF);
+    --skeleton-to: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --surface-rgb: 255, 255, 255;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #047857;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #085B43;
+    --color-brand-deep: #085942;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #111111;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #FFFFFF;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #FFFFFF;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #047857;
+    --color-surface-dark: #111111;
+    --color-info: #047857;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 12%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='dark-emerald'] {
+    color-scheme: dark;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #0B0B0C;
+    --canvas: var(--bg);
+    --surface: #18181B;
+    --surface-2: color-mix(in srgb, #FAFAFA 4%, #18181B);
+    --surface-3: color-mix(in srgb, #FAFAFA 8%, #18181B);
+    --surface-hover: color-mix(in srgb, #34D399 10%, #18181B);
+    --surface-sunken: color-mix(in srgb, #FAFAFA 2%, #0B0B0C);
+
+    --border: color-mix(in srgb, #FAFAFA 14%, transparent);
+    --border-2: color-mix(in srgb, #FAFAFA 26%, transparent);
+    --border-strong: color-mix(in srgb, #FAFAFA 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #FAFAFA;
+    --text-secondary: color-mix(in srgb, #FAFAFA 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #FAFAFA 82%, transparent);
+    --text-muted: color-mix(in srgb, #FAFAFA 72%, transparent);
+    --text-faint: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #18181B;
+    --ll-black: #FAFAFA;
+    --ll-blue: #34D399;
+    --ll-red: #F87171;
+    --ll-green: #4ADE80;
+
+    /* Brand / accent family. */
+    --brand: #34D399;
+    --brand-hover: color-mix(in srgb, #34D399 82%, #FAFAFA);
+    --brand-active: color-mix(in srgb, #34D399 65%, #FAFAFA);
+    --brand-soft: color-mix(in srgb, #34D399 14%, #18181B);
+    --brand-border: color-mix(in srgb, #34D399 42%, transparent);
+    --brand-text: #34D399;
+    --brand-dark: #34D399;
+    --brand-deep: #34D399;
+    --brand-contrast: #000000;
+    --brand-ring: color-mix(in srgb, #34D399 28%, transparent);
+    --brand-rgb: 52, 211, 153;
+    --brand-dark-rgb: 52, 211, 153;
+    --accent: #34D399;
+    --accent-contrast: #000000;
+    --accent-text: #34D399;
+    --accent-soft: color-mix(in srgb, #34D399 14%, #18181B);
+    --accent-border: color-mix(in srgb, #34D399 42%, transparent);
+    --accent-rgb: 52, 211, 153;
+    --on-brand: #000000;
+    --ring: var(--brand-ring);
+    --ring-offset: #18181B;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #F87171;
+    --danger-deep: #FCA5A5;
+    --danger-text: #F87171;
+    --danger-soft: color-mix(in srgb, #F87171 12%, #18181B);
+    --danger-border: color-mix(in srgb, #F87171 42%, transparent);
+    --success: #4ADE80;
+    --success-deep: #86EFAC;
+    --success-text: #4ADE80;
+    --success-soft: color-mix(in srgb, #4ADE80 12%, #18181B);
+    --success-border: color-mix(in srgb, #4ADE80 42%, transparent);
+    --warning: #FBBF24;
+    --warning-text: #FBBF24;
+    --warning-soft: color-mix(in srgb, #FBBF24 12%, #18181B);
+    --warning-border: color-mix(in srgb, #FBBF24 42%, transparent);
+    --info: #34D399;
+    --info-text: #34D399;
+    --info-soft: color-mix(in srgb, #34D399 14%, #18181B);
+    --info-border: color-mix(in srgb, #34D399 42%, transparent);
+    --info-rgb: 52, 211, 153;
+    --red-500: #F87171;
+    --red-600: #FCA5A5;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #000000;
+    --on-dark-surface: #34D399;
+    --on-dark-border: color-mix(in srgb, #000000 28%, transparent);
+    --on-dark-soft: #000000;
+    --color-on-dark: #000000;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #34D399;
+    --sidebar-border: color-mix(in srgb, #000000 24%, transparent);
+    --sidebar-text: #000000;
+    --sidebar-label: #000000;
+    --sidebar-active: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
+    --sidebar-active-border: #000000;
+    --sidebar-hover-bg: #31BD8A;
+    --sidebar-hover-text: #000000;
+    --sidebar-indicator: #000000;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #0B0B0C;
+    --tan: var(--surface-2);
+    --card: #18181B;
+    --gold: #34D399;
+    --hero-bg: linear-gradient(135deg, #FAFAFA, #34D399);
+    --hero-grid-line: color-mix(in srgb, #000000 10%, transparent);
+    --hero-mask: linear-gradient(to right, #FAFAFA, transparent 85%);
+    --result-bg: #18181B;
+    --result-text: #FAFAFA;
+    --scan-accent: #34D399;
+    --scan-accent-2: color-mix(in srgb, #34D399 60%, #18181B);
+    --stat-accent: #34D399;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --skeleton-via: color-mix(in srgb, #FAFAFA 12%, #18181B);
+    --skeleton-to: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --surface-rgb: 24, 24, 27;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #34D399;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #34D399;
+    --color-brand-deep: #34D399;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #FAFAFA;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #18181B;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #18181B;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #34D399;
+    --color-surface-dark: #FAFAFA;
+    --color-info: #34D399;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 18%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='light-forest'] {
+    color-scheme: light;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #F5F5F4;
+    --canvas: var(--bg);
+    --surface: #FFFFFF;
+    --surface-2: color-mix(in srgb, #111111 4%, #FFFFFF);
+    --surface-3: color-mix(in srgb, #111111 8%, #FFFFFF);
+    --surface-hover: color-mix(in srgb, #166534 10%, #FFFFFF);
+    --surface-sunken: color-mix(in srgb, #111111 2%, #F5F5F4);
+
+    --border: color-mix(in srgb, #111111 14%, transparent);
+    --border-2: color-mix(in srgb, #111111 26%, transparent);
+    --border-strong: color-mix(in srgb, #111111 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #111111;
+    --text-secondary: color-mix(in srgb, #111111 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #111111 82%, transparent);
+    --text-muted: color-mix(in srgb, #111111 72%, transparent);
+    --text-faint: color-mix(in srgb, #111111 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #111111 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #FFFFFF;
+    --ll-black: #111111;
+    --ll-blue: #166534;
+    --ll-red: #B91C1C;
+    --ll-green: #15803D;
+
+    /* Brand / accent family. */
+    --brand: #166534;
+    --brand-hover: color-mix(in srgb, #166534 82%, #111111);
+    --brand-active: color-mix(in srgb, #166534 65%, #111111);
+    --brand-soft: color-mix(in srgb, #166534 14%, #FFFFFF);
+    --brand-border: color-mix(in srgb, #166534 42%, transparent);
+    --brand-text: #154D2A;
+    --brand-dark: #154D2A;
+    --brand-deep: #144C2A;
+    --brand-contrast: #FFFFFF;
+    --brand-ring: color-mix(in srgb, #166534 28%, transparent);
+    --brand-rgb: 22, 101, 52;
+    --brand-dark-rgb: 21, 77, 42;
+    --accent: #166534;
+    --accent-contrast: #FFFFFF;
+    --accent-text: #166534;
+    --accent-soft: color-mix(in srgb, #166534 14%, #FFFFFF);
+    --accent-border: color-mix(in srgb, #166534 42%, transparent);
+    --accent-rgb: 22, 101, 52;
+    --on-brand: #FFFFFF;
+    --ring: var(--brand-ring);
+    --ring-offset: #FFFFFF;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #B91C1C;
+    --danger-deep: #991B1B;
+    --danger-text: #991B1B;
+    --danger-soft: color-mix(in srgb, #B91C1C 12%, #FFFFFF);
+    --danger-border: color-mix(in srgb, #B91C1C 42%, transparent);
+    --success: #15803D;
+    --success-deep: #166534;
+    --success-text: #166534;
+    --success-soft: color-mix(in srgb, #15803D 12%, #FFFFFF);
+    --success-border: color-mix(in srgb, #15803D 42%, transparent);
+    --warning: #A16207;
+    --warning-text: #764A0A;
+    --warning-soft: color-mix(in srgb, #A16207 12%, #FFFFFF);
+    --warning-border: color-mix(in srgb, #A16207 42%, transparent);
+    --info: #166534;
+    --info-text: #154D2A;
+    --info-soft: color-mix(in srgb, #166534 14%, #FFFFFF);
+    --info-border: color-mix(in srgb, #166534 42%, transparent);
+    --info-rgb: 22, 101, 52;
+    --red-500: #B91C1C;
+    --red-600: #991B1B;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #FFFFFF;
+    --on-dark-surface: #166534;
+    --on-dark-border: color-mix(in srgb, #FFFFFF 28%, transparent);
+    --on-dark-soft: #FFFFFF;
+    --color-on-dark: #FFFFFF;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #166534;
+    --sidebar-border: color-mix(in srgb, #FFFFFF 24%, transparent);
+    --sidebar-text: #FFFFFF;
+    --sidebar-label: #FFFFFF;
+    --sidebar-active: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
+    --sidebar-active-border: #FFFFFF;
+    --sidebar-hover-bg: #155B30;
+    --sidebar-hover-text: #FFFFFF;
+    --sidebar-indicator: #FFFFFF;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #F5F5F4;
+    --tan: var(--surface-2);
+    --card: #FFFFFF;
+    --gold: #166534;
+    --hero-bg: linear-gradient(135deg, #111111, #166534);
+    --hero-grid-line: color-mix(in srgb, #FFFFFF 10%, transparent);
+    --hero-mask: linear-gradient(to right, #111111, transparent 85%);
+    --result-bg: #FFFFFF;
+    --result-text: #111111;
+    --scan-accent: #166534;
+    --scan-accent-2: color-mix(in srgb, #166534 60%, #FFFFFF);
+    --stat-accent: #166534;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --skeleton-via: color-mix(in srgb, #111111 12%, #FFFFFF);
+    --skeleton-to: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --surface-rgb: 255, 255, 255;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #166534;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #154D2A;
+    --color-brand-deep: #144C2A;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #111111;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #FFFFFF;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #FFFFFF;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #166534;
+    --color-surface-dark: #111111;
+    --color-info: #166534;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 12%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='dark-forest'] {
+    color-scheme: dark;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #0B0B0C;
+    --canvas: var(--bg);
+    --surface: #18181B;
+    --surface-2: color-mix(in srgb, #FAFAFA 4%, #18181B);
+    --surface-3: color-mix(in srgb, #FAFAFA 8%, #18181B);
+    --surface-hover: color-mix(in srgb, #4ADE80 10%, #18181B);
+    --surface-sunken: color-mix(in srgb, #FAFAFA 2%, #0B0B0C);
+
+    --border: color-mix(in srgb, #FAFAFA 14%, transparent);
+    --border-2: color-mix(in srgb, #FAFAFA 26%, transparent);
+    --border-strong: color-mix(in srgb, #FAFAFA 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #FAFAFA;
+    --text-secondary: color-mix(in srgb, #FAFAFA 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #FAFAFA 82%, transparent);
+    --text-muted: color-mix(in srgb, #FAFAFA 72%, transparent);
+    --text-faint: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #18181B;
+    --ll-black: #FAFAFA;
+    --ll-blue: #4ADE80;
+    --ll-red: #F87171;
+    --ll-green: #4ADE80;
+
+    /* Brand / accent family. */
+    --brand: #4ADE80;
+    --brand-hover: color-mix(in srgb, #4ADE80 82%, #FAFAFA);
+    --brand-active: color-mix(in srgb, #4ADE80 65%, #FAFAFA);
+    --brand-soft: color-mix(in srgb, #4ADE80 14%, #18181B);
+    --brand-border: color-mix(in srgb, #4ADE80 42%, transparent);
+    --brand-text: #4ADE80;
+    --brand-dark: #4ADE80;
+    --brand-deep: #4ADE80;
+    --brand-contrast: #000000;
+    --brand-ring: color-mix(in srgb, #4ADE80 28%, transparent);
+    --brand-rgb: 74, 222, 128;
+    --brand-dark-rgb: 74, 222, 128;
+    --accent: #4ADE80;
+    --accent-contrast: #000000;
+    --accent-text: #4ADE80;
+    --accent-soft: color-mix(in srgb, #4ADE80 14%, #18181B);
+    --accent-border: color-mix(in srgb, #4ADE80 42%, transparent);
+    --accent-rgb: 74, 222, 128;
+    --on-brand: #000000;
+    --ring: var(--brand-ring);
+    --ring-offset: #18181B;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #F87171;
+    --danger-deep: #FCA5A5;
+    --danger-text: #F87171;
+    --danger-soft: color-mix(in srgb, #F87171 12%, #18181B);
+    --danger-border: color-mix(in srgb, #F87171 42%, transparent);
+    --success: #4ADE80;
+    --success-deep: #86EFAC;
+    --success-text: #4ADE80;
+    --success-soft: color-mix(in srgb, #4ADE80 12%, #18181B);
+    --success-border: color-mix(in srgb, #4ADE80 42%, transparent);
+    --warning: #FBBF24;
+    --warning-text: #FBBF24;
+    --warning-soft: color-mix(in srgb, #FBBF24 12%, #18181B);
+    --warning-border: color-mix(in srgb, #FBBF24 42%, transparent);
+    --info: #4ADE80;
+    --info-text: #4ADE80;
+    --info-soft: color-mix(in srgb, #4ADE80 14%, #18181B);
+    --info-border: color-mix(in srgb, #4ADE80 42%, transparent);
+    --info-rgb: 74, 222, 128;
+    --red-500: #F87171;
+    --red-600: #FCA5A5;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #000000;
+    --on-dark-surface: #4ADE80;
+    --on-dark-border: color-mix(in srgb, #000000 28%, transparent);
+    --on-dark-soft: #000000;
+    --color-on-dark: #000000;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #4ADE80;
+    --sidebar-border: color-mix(in srgb, #000000 24%, transparent);
+    --sidebar-text: #000000;
+    --sidebar-label: #000000;
+    --sidebar-active: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
+    --sidebar-active-border: #000000;
+    --sidebar-hover-bg: #44C674;
+    --sidebar-hover-text: #000000;
+    --sidebar-indicator: #000000;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #0B0B0C;
+    --tan: var(--surface-2);
+    --card: #18181B;
+    --gold: #4ADE80;
+    --hero-bg: linear-gradient(135deg, #FAFAFA, #4ADE80);
+    --hero-grid-line: color-mix(in srgb, #000000 10%, transparent);
+    --hero-mask: linear-gradient(to right, #FAFAFA, transparent 85%);
+    --result-bg: #18181B;
+    --result-text: #FAFAFA;
+    --scan-accent: #4ADE80;
+    --scan-accent-2: color-mix(in srgb, #4ADE80 60%, #18181B);
+    --stat-accent: #4ADE80;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --skeleton-via: color-mix(in srgb, #FAFAFA 12%, #18181B);
+    --skeleton-to: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --surface-rgb: 24, 24, 27;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #4ADE80;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #4ADE80;
+    --color-brand-deep: #4ADE80;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #FAFAFA;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #18181B;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #18181B;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #4ADE80;
+    --color-surface-dark: #FAFAFA;
+    --color-info: #4ADE80;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 18%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='light-teal'] {
+    color-scheme: light;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #F5F5F4;
+    --canvas: var(--bg);
+    --surface: #FFFFFF;
+    --surface-2: color-mix(in srgb, #111111 4%, #FFFFFF);
+    --surface-3: color-mix(in srgb, #111111 8%, #FFFFFF);
+    --surface-hover: color-mix(in srgb, #0F766E 10%, #FFFFFF);
+    --surface-sunken: color-mix(in srgb, #111111 2%, #F5F5F4);
+
+    --border: color-mix(in srgb, #111111 14%, transparent);
+    --border-2: color-mix(in srgb, #111111 26%, transparent);
+    --border-strong: color-mix(in srgb, #111111 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #111111;
+    --text-secondary: color-mix(in srgb, #111111 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #111111 82%, transparent);
+    --text-muted: color-mix(in srgb, #111111 72%, transparent);
+    --text-faint: color-mix(in srgb, #111111 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #111111 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #FFFFFF;
+    --ll-black: #111111;
+    --ll-blue: #0F766E;
+    --ll-red: #B91C1C;
+    --ll-green: #15803D;
+
+    /* Brand / accent family. */
+    --brand: #0F766E;
+    --brand-hover: color-mix(in srgb, #0F766E 82%, #111111);
+    --brand-active: color-mix(in srgb, #0F766E 65%, #111111);
+    --brand-soft: color-mix(in srgb, #0F766E 14%, #FFFFFF);
+    --brand-border: color-mix(in srgb, #0F766E 42%, transparent);
+    --brand-text: #105A54;
+    --brand-dark: #105A54;
+    --brand-deep: #105852;
+    --brand-contrast: #FFFFFF;
+    --brand-ring: color-mix(in srgb, #0F766E 28%, transparent);
+    --brand-rgb: 15, 118, 110;
+    --brand-dark-rgb: 16, 90, 84;
+    --accent: #0F766E;
+    --accent-contrast: #FFFFFF;
+    --accent-text: #0F766E;
+    --accent-soft: color-mix(in srgb, #0F766E 14%, #FFFFFF);
+    --accent-border: color-mix(in srgb, #0F766E 42%, transparent);
+    --accent-rgb: 15, 118, 110;
+    --on-brand: #FFFFFF;
+    --ring: var(--brand-ring);
+    --ring-offset: #FFFFFF;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #B91C1C;
+    --danger-deep: #991B1B;
+    --danger-text: #991B1B;
+    --danger-soft: color-mix(in srgb, #B91C1C 12%, #FFFFFF);
+    --danger-border: color-mix(in srgb, #B91C1C 42%, transparent);
+    --success: #15803D;
+    --success-deep: #166534;
+    --success-text: #166534;
+    --success-soft: color-mix(in srgb, #15803D 12%, #FFFFFF);
+    --success-border: color-mix(in srgb, #15803D 42%, transparent);
+    --warning: #A16207;
+    --warning-text: #764A0A;
+    --warning-soft: color-mix(in srgb, #A16207 12%, #FFFFFF);
+    --warning-border: color-mix(in srgb, #A16207 42%, transparent);
+    --info: #0F766E;
+    --info-text: #105A54;
+    --info-soft: color-mix(in srgb, #0F766E 14%, #FFFFFF);
+    --info-border: color-mix(in srgb, #0F766E 42%, transparent);
+    --info-rgb: 15, 118, 110;
+    --red-500: #B91C1C;
+    --red-600: #991B1B;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #FFFFFF;
+    --on-dark-surface: #0F766E;
+    --on-dark-border: color-mix(in srgb, #FFFFFF 28%, transparent);
+    --on-dark-soft: #FFFFFF;
+    --color-on-dark: #FFFFFF;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #0F766E;
+    --sidebar-border: color-mix(in srgb, #FFFFFF 24%, transparent);
+    --sidebar-text: #FFFFFF;
+    --sidebar-label: #FFFFFF;
+    --sidebar-active: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
+    --sidebar-active-border: #FFFFFF;
+    --sidebar-hover-bg: #0F6A63;
+    --sidebar-hover-text: #FFFFFF;
+    --sidebar-indicator: #FFFFFF;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #F5F5F4;
+    --tan: var(--surface-2);
+    --card: #FFFFFF;
+    --gold: #0F766E;
+    --hero-bg: linear-gradient(135deg, #111111, #0F766E);
+    --hero-grid-line: color-mix(in srgb, #FFFFFF 10%, transparent);
+    --hero-mask: linear-gradient(to right, #111111, transparent 85%);
+    --result-bg: #FFFFFF;
+    --result-text: #111111;
+    --scan-accent: #0F766E;
+    --scan-accent-2: color-mix(in srgb, #0F766E 60%, #FFFFFF);
+    --stat-accent: #0F766E;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --skeleton-via: color-mix(in srgb, #111111 12%, #FFFFFF);
+    --skeleton-to: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --surface-rgb: 255, 255, 255;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #0F766E;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #105A54;
+    --color-brand-deep: #105852;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #111111;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #FFFFFF;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #FFFFFF;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #0F766E;
+    --color-surface-dark: #111111;
+    --color-info: #0F766E;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 12%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='dark-teal'] {
+    color-scheme: dark;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #0B0B0C;
+    --canvas: var(--bg);
+    --surface: #18181B;
+    --surface-2: color-mix(in srgb, #FAFAFA 4%, #18181B);
+    --surface-3: color-mix(in srgb, #FAFAFA 8%, #18181B);
+    --surface-hover: color-mix(in srgb, #2DD4BF 10%, #18181B);
+    --surface-sunken: color-mix(in srgb, #FAFAFA 2%, #0B0B0C);
+
+    --border: color-mix(in srgb, #FAFAFA 14%, transparent);
+    --border-2: color-mix(in srgb, #FAFAFA 26%, transparent);
+    --border-strong: color-mix(in srgb, #FAFAFA 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #FAFAFA;
+    --text-secondary: color-mix(in srgb, #FAFAFA 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #FAFAFA 82%, transparent);
+    --text-muted: color-mix(in srgb, #FAFAFA 72%, transparent);
+    --text-faint: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #18181B;
+    --ll-black: #FAFAFA;
+    --ll-blue: #2DD4BF;
+    --ll-red: #F87171;
+    --ll-green: #4ADE80;
+
+    /* Brand / accent family. */
+    --brand: #2DD4BF;
+    --brand-hover: color-mix(in srgb, #2DD4BF 82%, #FAFAFA);
+    --brand-active: color-mix(in srgb, #2DD4BF 65%, #FAFAFA);
+    --brand-soft: color-mix(in srgb, #2DD4BF 14%, #18181B);
+    --brand-border: color-mix(in srgb, #2DD4BF 42%, transparent);
+    --brand-text: #2DD4BF;
+    --brand-dark: #2DD4BF;
+    --brand-deep: #2DD4BF;
+    --brand-contrast: #000000;
+    --brand-ring: color-mix(in srgb, #2DD4BF 28%, transparent);
+    --brand-rgb: 45, 212, 191;
+    --brand-dark-rgb: 45, 212, 191;
+    --accent: #2DD4BF;
+    --accent-contrast: #000000;
+    --accent-text: #2DD4BF;
+    --accent-soft: color-mix(in srgb, #2DD4BF 14%, #18181B);
+    --accent-border: color-mix(in srgb, #2DD4BF 42%, transparent);
+    --accent-rgb: 45, 212, 191;
+    --on-brand: #000000;
+    --ring: var(--brand-ring);
+    --ring-offset: #18181B;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #F87171;
+    --danger-deep: #FCA5A5;
+    --danger-text: #F87171;
+    --danger-soft: color-mix(in srgb, #F87171 12%, #18181B);
+    --danger-border: color-mix(in srgb, #F87171 42%, transparent);
+    --success: #4ADE80;
+    --success-deep: #86EFAC;
+    --success-text: #4ADE80;
+    --success-soft: color-mix(in srgb, #4ADE80 12%, #18181B);
+    --success-border: color-mix(in srgb, #4ADE80 42%, transparent);
+    --warning: #FBBF24;
+    --warning-text: #FBBF24;
+    --warning-soft: color-mix(in srgb, #FBBF24 12%, #18181B);
+    --warning-border: color-mix(in srgb, #FBBF24 42%, transparent);
+    --info: #2DD4BF;
+    --info-text: #2DD4BF;
+    --info-soft: color-mix(in srgb, #2DD4BF 14%, #18181B);
+    --info-border: color-mix(in srgb, #2DD4BF 42%, transparent);
+    --info-rgb: 45, 212, 191;
+    --red-500: #F87171;
+    --red-600: #FCA5A5;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #000000;
+    --on-dark-surface: #2DD4BF;
+    --on-dark-border: color-mix(in srgb, #000000 28%, transparent);
+    --on-dark-soft: #000000;
+    --color-on-dark: #000000;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #2DD4BF;
+    --sidebar-border: color-mix(in srgb, #000000 24%, transparent);
+    --sidebar-text: #000000;
+    --sidebar-label: #000000;
+    --sidebar-active: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
+    --sidebar-active-border: #000000;
+    --sidebar-hover-bg: #2ABDAB;
+    --sidebar-hover-text: #000000;
+    --sidebar-indicator: #000000;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #0B0B0C;
+    --tan: var(--surface-2);
+    --card: #18181B;
+    --gold: #2DD4BF;
+    --hero-bg: linear-gradient(135deg, #FAFAFA, #2DD4BF);
+    --hero-grid-line: color-mix(in srgb, #000000 10%, transparent);
+    --hero-mask: linear-gradient(to right, #FAFAFA, transparent 85%);
+    --result-bg: #18181B;
+    --result-text: #FAFAFA;
+    --scan-accent: #2DD4BF;
+    --scan-accent-2: color-mix(in srgb, #2DD4BF 60%, #18181B);
+    --stat-accent: #2DD4BF;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --skeleton-via: color-mix(in srgb, #FAFAFA 12%, #18181B);
+    --skeleton-to: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --surface-rgb: 24, 24, 27;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #2DD4BF;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #2DD4BF;
+    --color-brand-deep: #2DD4BF;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #FAFAFA;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #18181B;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #18181B;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #2DD4BF;
+    --color-surface-dark: #FAFAFA;
+    --color-info: #2DD4BF;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 18%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='light-rose'] {
+    color-scheme: light;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #F5F5F4;
+    --canvas: var(--bg);
+    --surface: #FFFFFF;
+    --surface-2: color-mix(in srgb, #111111 4%, #FFFFFF);
+    --surface-3: color-mix(in srgb, #111111 8%, #FFFFFF);
+    --surface-hover: color-mix(in srgb, #BE185D 10%, #FFFFFF);
+    --surface-sunken: color-mix(in srgb, #111111 2%, #F5F5F4);
+
+    --border: color-mix(in srgb, #111111 14%, transparent);
+    --border-2: color-mix(in srgb, #111111 26%, transparent);
+    --border-strong: color-mix(in srgb, #111111 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #111111;
+    --text-secondary: color-mix(in srgb, #111111 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #111111 82%, transparent);
+    --text-muted: color-mix(in srgb, #111111 72%, transparent);
+    --text-faint: color-mix(in srgb, #111111 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #111111 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #FFFFFF;
+    --ll-black: #111111;
+    --ll-blue: #BE185D;
+    --ll-red: #B91C1C;
+    --ll-green: #15803D;
+
+    /* Brand / accent family. */
+    --brand: #BE185D;
+    --brand-hover: color-mix(in srgb, #BE185D 82%, #111111);
+    --brand-active: color-mix(in srgb, #BE185D 65%, #111111);
+    --brand-soft: color-mix(in srgb, #BE185D 14%, #FFFFFF);
+    --brand-border: color-mix(in srgb, #BE185D 42%, transparent);
+    --brand-text: #8E1648;
+    --brand-dark: #8E1648;
+    --brand-deep: #8A1646;
+    --brand-contrast: #FFFFFF;
+    --brand-ring: color-mix(in srgb, #BE185D 28%, transparent);
+    --brand-rgb: 190, 24, 93;
+    --brand-dark-rgb: 142, 22, 72;
+    --accent: #BE185D;
+    --accent-contrast: #FFFFFF;
+    --accent-text: #BE185D;
+    --accent-soft: color-mix(in srgb, #BE185D 14%, #FFFFFF);
+    --accent-border: color-mix(in srgb, #BE185D 42%, transparent);
+    --accent-rgb: 190, 24, 93;
+    --on-brand: #FFFFFF;
+    --ring: var(--brand-ring);
+    --ring-offset: #FFFFFF;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #B91C1C;
+    --danger-deep: #991B1B;
+    --danger-text: #991B1B;
+    --danger-soft: color-mix(in srgb, #B91C1C 12%, #FFFFFF);
+    --danger-border: color-mix(in srgb, #B91C1C 42%, transparent);
+    --success: #15803D;
+    --success-deep: #166534;
+    --success-text: #166534;
+    --success-soft: color-mix(in srgb, #15803D 12%, #FFFFFF);
+    --success-border: color-mix(in srgb, #15803D 42%, transparent);
+    --warning: #A16207;
+    --warning-text: #764A0A;
+    --warning-soft: color-mix(in srgb, #A16207 12%, #FFFFFF);
+    --warning-border: color-mix(in srgb, #A16207 42%, transparent);
+    --info: #BE185D;
+    --info-text: #8E1648;
+    --info-soft: color-mix(in srgb, #BE185D 14%, #FFFFFF);
+    --info-border: color-mix(in srgb, #BE185D 42%, transparent);
+    --info-rgb: 190, 24, 93;
+    --red-500: #B91C1C;
+    --red-600: #991B1B;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #FFFFFF;
+    --on-dark-surface: #BE185D;
+    --on-dark-border: color-mix(in srgb, #FFFFFF 28%, transparent);
+    --on-dark-soft: #FFFFFF;
+    --color-on-dark: #FFFFFF;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #BE185D;
+    --sidebar-border: color-mix(in srgb, #FFFFFF 24%, transparent);
+    --sidebar-text: #FFFFFF;
+    --sidebar-label: #FFFFFF;
+    --sidebar-active: #FFFFFF;
+    --sidebar-active-bg: color-mix(in srgb, #000000 12%, var(--sidebar-bg));
+    --sidebar-active-border: #FFFFFF;
+    --sidebar-hover-bg: #A91754;
+    --sidebar-hover-text: #FFFFFF;
+    --sidebar-indicator: #FFFFFF;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #F5F5F4;
+    --tan: var(--surface-2);
+    --card: #FFFFFF;
+    --gold: #BE185D;
+    --hero-bg: linear-gradient(135deg, #111111, #BE185D);
+    --hero-grid-line: color-mix(in srgb, #FFFFFF 10%, transparent);
+    --hero-mask: linear-gradient(to right, #111111, transparent 85%);
+    --result-bg: #FFFFFF;
+    --result-text: #111111;
+    --scan-accent: #BE185D;
+    --scan-accent-2: color-mix(in srgb, #BE185D 60%, #FFFFFF);
+    --stat-accent: #BE185D;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --skeleton-via: color-mix(in srgb, #111111 12%, #FFFFFF);
+    --skeleton-to: color-mix(in srgb, #111111 6%, #FFFFFF);
+    --surface-rgb: 255, 255, 255;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #BE185D;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #8E1648;
+    --color-brand-deep: #8A1646;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #111111;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #FFFFFF;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #FFFFFF;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #BE185D;
+    --color-surface-dark: #111111;
+    --color-info: #BE185D;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 12%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+  /* html:root beats legacy :root.dark / html.dark / html[data-theme] rules. */
+  html:root[data-theme='dark-rose'] {
+    color-scheme: dark;
+
+    /* Canonical surfaces and text — the opposite pole of the selected mode. */
+    --bg: #0B0B0C;
+    --canvas: var(--bg);
+    --surface: #18181B;
+    --surface-2: color-mix(in srgb, #FAFAFA 4%, #18181B);
+    --surface-3: color-mix(in srgb, #FAFAFA 8%, #18181B);
+    --surface-hover: color-mix(in srgb, #F472B6 10%, #18181B);
+    --surface-sunken: color-mix(in srgb, #FAFAFA 2%, #0B0B0C);
+
+    --border: color-mix(in srgb, #FAFAFA 14%, transparent);
+    --border-2: color-mix(in srgb, #FAFAFA 26%, transparent);
+    --border-strong: color-mix(in srgb, #FAFAFA 44%, transparent);
+    --line: var(--border);
+    --line-strong: var(--border-strong);
+
+    --text-primary: #FAFAFA;
+    --text-secondary: color-mix(in srgb, #FAFAFA 92%, transparent);
+    --text-tertiary: color-mix(in srgb, #FAFAFA 82%, transparent);
+    --text-muted: color-mix(in srgb, #FAFAFA 72%, transparent);
+    --text-faint: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text-placeholder: color-mix(in srgb, #FAFAFA 62%, transparent);
+    --text: var(--text-primary);
+    --ink: var(--text-primary);
+    --ink-soft: var(--text-secondary);
+    --ink-muted: var(--text-muted);
+    --muted: var(--text-muted);
+    --faint: var(--text-faint);
+
+    /* Legacy five-colour primitives are remapped to this theme. Any old
+       color-mix(var(--ll-blue) ...) rule now follows the chosen accent. */
+    --ll-white: #18181B;
+    --ll-black: #FAFAFA;
+    --ll-blue: #F472B6;
+    --ll-red: #F87171;
+    --ll-green: #4ADE80;
+
+    /* Brand / accent family. */
+    --brand: #F472B6;
+    --brand-hover: color-mix(in srgb, #F472B6 82%, #FAFAFA);
+    --brand-active: color-mix(in srgb, #F472B6 65%, #FAFAFA);
+    --brand-soft: color-mix(in srgb, #F472B6 14%, #18181B);
+    --brand-border: color-mix(in srgb, #F472B6 42%, transparent);
+    --brand-text: #F472B6;
+    --brand-dark: #F472B6;
+    --brand-deep: #F472B6;
+    --brand-contrast: #000000;
+    --brand-ring: color-mix(in srgb, #F472B6 28%, transparent);
+    --brand-rgb: 244, 114, 182;
+    --brand-dark-rgb: 244, 114, 182;
+    --accent: #F472B6;
+    --accent-contrast: #000000;
+    --accent-text: #F472B6;
+    --accent-soft: color-mix(in srgb, #F472B6 14%, #18181B);
+    --accent-border: color-mix(in srgb, #F472B6 42%, transparent);
+    --accent-rgb: 244, 114, 182;
+    --on-brand: #000000;
+    --ring: var(--brand-ring);
+    --ring-offset: #18181B;
+    --focus-ring: var(--brand-ring);
+
+    /* Status families. */
+    --danger: #F87171;
+    --danger-deep: #FCA5A5;
+    --danger-text: #F87171;
+    --danger-soft: color-mix(in srgb, #F87171 12%, #18181B);
+    --danger-border: color-mix(in srgb, #F87171 42%, transparent);
+    --success: #4ADE80;
+    --success-deep: #86EFAC;
+    --success-text: #4ADE80;
+    --success-soft: color-mix(in srgb, #4ADE80 12%, #18181B);
+    --success-border: color-mix(in srgb, #4ADE80 42%, transparent);
+    --warning: #FBBF24;
+    --warning-text: #FBBF24;
+    --warning-soft: color-mix(in srgb, #FBBF24 12%, #18181B);
+    --warning-border: color-mix(in srgb, #FBBF24 42%, transparent);
+    --info: #F472B6;
+    --info-text: #F472B6;
+    --info-soft: color-mix(in srgb, #F472B6 14%, #18181B);
+    --info-border: color-mix(in srgb, #F472B6 42%, transparent);
+    --info-rgb: 244, 114, 182;
+    --red-500: #F87171;
+    --red-600: #FCA5A5;
+
+    /* Text on dark/accent surfaces is always the computed opposite. */
+    --on-dark: #000000;
+    --on-dark-surface: #F472B6;
+    --on-dark-border: color-mix(in srgb, #000000 28%, transparent);
+    --on-dark-soft: #000000;
+    --color-on-dark: #000000;
+
+    /* Navigation chrome follows the accent, not a hard-coded blue. */
+    --sidebar-bg: #F472B6;
+    --sidebar-border: color-mix(in srgb, #000000 24%, transparent);
+    --sidebar-text: #000000;
+    --sidebar-label: #000000;
+    --sidebar-active: #000000;
+    --sidebar-active-bg: color-mix(in srgb, #FFFFFF 12%, var(--sidebar-bg));
+    --sidebar-active-border: #000000;
+    --sidebar-hover-bg: #DA67A3;
+    --sidebar-hover-text: #000000;
+    --sidebar-indicator: #000000;
+
+    /* Component-specific aliases used by public/admin screens. */
+    --cream: #0B0B0C;
+    --tan: var(--surface-2);
+    --card: #18181B;
+    --gold: #F472B6;
+    --hero-bg: linear-gradient(135deg, #FAFAFA, #F472B6);
+    --hero-grid-line: color-mix(in srgb, #000000 10%, transparent);
+    --hero-mask: linear-gradient(to right, #FAFAFA, transparent 85%);
+    --result-bg: #18181B;
+    --result-text: #FAFAFA;
+    --scan-accent: #F472B6;
+    --scan-accent-2: color-mix(in srgb, #F472B6 60%, #18181B);
+    --stat-accent: #F472B6;
+    --ui-brand-mist: var(--brand-soft);
+    --ui-accent-mist: var(--accent-soft);
+    --ui-canvas-wash: var(--surface-2);
+    --ui-hairline: var(--border);
+    --skeleton-from: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --skeleton-via: color-mix(in srgb, #FAFAFA 12%, #18181B);
+    --skeleton-to: color-mix(in srgb, #FAFAFA 6%, #18181B);
+    --surface-rgb: 24, 24, 27;
+    --shadow-rgb: 0, 0, 0;
+    --night-rgb: 0, 0, 0;
+
+    /* Tailwind @theme aliases on the public site. */
+    --color-brand: #F472B6;
+    --color-brand-100: var(--brand-soft);
+    --color-brand-200: var(--brand-border);
+    --color-brand-dark: #F472B6;
+    --color-brand-deep: #F472B6;
+    --color-brand-soft: var(--brand-soft);
+    --color-ink: #FAFAFA;
+    --color-muted: var(--text-muted);
+    --color-faint: var(--text-faint);
+    --color-subtle: var(--text-tertiary);
+    --color-surface: #18181B;
+    --color-surface-muted: var(--surface-2);
+    --color-card: #18181B;
+    --color-line: var(--border);
+    --color-line-strong: var(--border-2);
+    --color-accent: #F472B6;
+    --color-surface-dark: #FAFAFA;
+    --color-info: #F472B6;
+    --color-info-soft: var(--info-soft);
+
+    --shadow-color: color-mix(in srgb, #000000 18%, transparent);
+    --shadow-xs: 0 1px 2px 0 var(--shadow-color);
+    --shadow-sm: 0 1px 3px 0 var(--shadow-color);
+    --shadow-md: 0 4px 10px -2px var(--shadow-color);
+    --shadow-lg: 0 14px 28px -8px var(--shadow-color);
+    --shadow-pop: 0 10px 32px -8px var(--shadow-color);
+  }
+
+@media print {
+  :root, [data-theme] {
+    --bg: #ffffff !important;
+    --surface: #ffffff !important;
+    --surface-2: #ffffff !important;
+    --surface-3: #ffffff !important;
+    --surface-hover: #ffffff !important;
+    --text-primary: #000000 !important;
+    --text-secondary: #333333 !important;
+    --text-tertiary: #555555 !important;
+    --text-muted: #666666 !important;
+    --text-faint: #777777 !important;
+    --brand: #000000 !important;
+    --brand-text: #000000 !important;
+    --danger: #000000 !important;
+    --danger-deep: #000000 !important;
+    --success: #000000 !important;
+    --success-deep: #000000 !important;
+  }
+  html, body { background: #ffffff !important; color: #000000 !important; }
+}
+/* LL_THEMES_END */

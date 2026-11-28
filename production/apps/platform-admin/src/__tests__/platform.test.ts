@@ -4,7 +4,9 @@ import {
   PLATFORM_TOKEN_KEY,
   PLATFORM_USER_KEY,
   buildPlatformHeaders,
+  createTagItem,
   fetchPlatformDashboard,
+  fetchPlatformOrganizations,
   fetchPlatformSummary,
   listTagItems,
   registerReader,
@@ -117,6 +119,45 @@ describe("platform API access", () => {
       `${API_BASE}/tags/items?limit=50&organization_id=hotel-a`,
       expect.anything(),
     );
+  });
+
+  it("reads hotel codes from organization records and posts the start number", async () => {
+    localStorageMock.getItem.mockReturnValue("platform-token");
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => [
+          {
+            organization_id: "hotel-a",
+            name: "Goldi Sands",
+            type: "hotel",
+            status: "ACTIVE",
+            hotel_code: "G",
+          },
+        ],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ linen_id: "BSG-A0041YN" }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const hotels = await fetchPlatformOrganizations();
+    expect(hotels[0].hotel_code).toBe("G");
+
+    const created = await createTagItem({
+      organization_id: "hotel-a",
+      item_type: "bedsheet",
+      category: "BEDSHEET",
+      start_number: 41,
+    });
+    expect(created.linen_id).toBe("BSG-A0041YN");
+    const [url, init] = fetchMock.mock.calls[1];
+    expect(url).toBe(`${API_BASE}/tags/items`);
+    expect(JSON.parse(init.body)).toMatchObject({ start_number: 41 });
   });
 
   it("registers readers through the hardware endpoint", async () => {

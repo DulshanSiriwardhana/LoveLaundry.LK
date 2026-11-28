@@ -22,6 +22,7 @@ import {
   saveAnnouncement,
   saveTheme,
   type CompatibilityRow,
+  type OrganizationRow,
   type PlatformSummary,
   type TagAlert,
 } from "./api";
@@ -57,6 +58,18 @@ const ROUTES: Route[] = [
   "announcements",
   "themes",
   "audit",
+];
+
+/** Item choices mirror the backend's structured item-code mapping. */
+const TAG_ITEM_TYPES = [
+  { value: "bedsheet", label: "Bedsheet (BS)" },
+  { value: "pillowcase", label: "Pillowcase (PC)" },
+  { value: "towel", label: "Towel (TW)" },
+  { value: "duvet cover", label: "Duvet cover (DC)" },
+  { value: "bath mat", label: "Bath mat (BM)" },
+  { value: "tablecloth", label: "Tablecloth (TC)" },
+  { value: "napkin", label: "Napkin (NK)" },
+  { value: "robe", label: "Robe (RB)" },
 ];
 
 const LABELS: Record<Route, string> = {
@@ -194,10 +207,12 @@ export function App() {
   const [theme, setTheme] = useState({ scope: "global", theme: '{"primary":"#00008B"}' });
   const [dashboardScope, setDashboardScope] = useState<DashboardScope>("platform");
   const [dashboardOrganization, setDashboardOrganization] = useState("");
+  const [tagOrganizations, setTagOrganizations] = useState<OrganizationRow[]>([]);
   const [tagDraft, setTagDraft] = useState({
     organization_id: "",
     item_type: "bedsheet",
-    category: "bed",
+    category: "bedsheet",
+    start_number: 1,
   });
   const [readerDraft, setReaderDraft] = useState({
     reader_id: "",
@@ -229,12 +244,14 @@ export function App() {
           setData(await fetchPlatformOrganizations());
           break;
         case "tags": {
-          const [items, alerts] = await Promise.all([
+          const [items, alerts, organizations] = await Promise.all([
             listTagItems(500),
             fetchTagAlerts(),
+            fetchPlatformOrganizations(),
           ]);
           setData(items);
           setAux(alerts);
+          setTagOrganizations(organizations.filter((row) => row.type === "hotel"));
           break;
         }
         case "readers": {
@@ -356,6 +373,7 @@ export function App() {
         organization_id: tagDraft.organization_id.trim(),
         item_type: tagDraft.item_type.trim(),
         category: tagDraft.category.trim(),
+        start_number: Math.max(1, Number(tagDraft.start_number) || 1),
       });
       setNotice(`Created ${created.linen_id} with one permanent identity.`);
       await load();
@@ -578,34 +596,60 @@ export function App() {
             <form className="editor" onSubmit={(event) => void submitTag(event)}>
               <h3>Create one permanent linen identity</h3>
               <label>
-                Organization ID
-                <input
+                Owning hotel record
+                <select
                   value={tagDraft.organization_id}
                   onChange={(event) =>
                     setTagDraft({ ...tagDraft, organization_id: event.target.value })
                   }
                   required
-                />
+                >
+                  <option value="">Select a hotel</option>
+                  {tagOrganizations.map((org) => (
+                    <option key={org.organization_id} value={org.organization_id}>
+                      {org.name}{org.hotel_code ? ` — ${org.hotel_code}` : " — no code"}
+                    </option>
+                  ))}
+                </select>
               </label>
               <label>
                 Item type
-                <input
+                <select
                   value={tagDraft.item_type}
                   onChange={(event) =>
-                    setTagDraft({ ...tagDraft, item_type: event.target.value })
+                    setTagDraft({
+                      ...tagDraft,
+                      item_type: event.target.value,
+                      category: event.target.value,
+                    })
+                  }
+                  required
+                >
+                  {TAG_ITEM_TYPES.map((item) => (
+                    <option key={item.value} value={item.value}>{item.label}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Start number
+                <input
+                  type="number"
+                  min={1}
+                  max={259974}
+                  value={tagDraft.start_number}
+                  onChange={(event) =>
+                    setTagDraft({
+                      ...tagDraft,
+                      start_number: Math.max(1, Number(event.target.value) || 1),
+                    })
                   }
                   required
                 />
               </label>
-              <label>
-                Category
-                <input
-                  value={tagDraft.category}
-                  onChange={(event) =>
-                    setTagDraft({ ...tagDraft, category: event.target.value })
-                  }
-                />
-              </label>
+              <p className="empty">
+                The hotel code is read from the selected record. Example: bedsheets at
+                hotel code G start at 1 produce BSG-A0001XL.
+              </p>
               <button type="submit">Create tag identity</button>
             </form>
           </>

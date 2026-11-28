@@ -1,13 +1,32 @@
 import { describe, expect, it } from "vitest";
-import { classifyLinen, normaliseCode, parseLinenCode, summarise, transitionViolation } from "../scan-session";
+import { checkLetters, classifyLinen, isValidStructuredId, normaliseCode, parseLinenCode, summarise, transitionViolation } from "../scan-session";
 import type { TransitionCatalogue } from "../api";
+
+const TAG = "BSG-A0001XL";
 
 describe("hotel scanner session helpers", () => {
   it("normalises tag codes and extracts codes from deep links", () => {
-    expect(normaliseCode("  ll-abc123 ")).toBe("LL-ABC123");
-    expect(parseLinenCode("https://lovelaundry.lk/scan?code=LL-A1B2C3")).toBe("LL-A1B2C3");
-    expect(parseLinenCode("https://lovelaundry.lk/tag/LL-A1B2C3")).toBe("LL-A1B2C3");
+    expect(normaliseCode(`  ${TAG.toLowerCase()} `)).toBe(TAG);
+    expect(parseLinenCode(`https://lovelaundry.lk/scan?code=${TAG.toLowerCase()}`)).toBe(TAG);
+    expect(parseLinenCode(`https://lovelaundry.lk/tag/${TAG}`)).toBe(TAG);
     expect(parseLinenCode("https://example.com/home")).toBeNull();
+  });
+
+  it("accepts checksummed item+hotel+sequence codes from tags and URLs", () => {
+    expect(checkLetters("BSG-A0001")).toBe("XL");
+    expect(isValidStructuredId(TAG)).toBe(true);
+    expect(parseLinenCode(TAG.toLowerCase())).toBe(TAG);
+    expect(parseLinenCode(`LOVE LAUNDRY ${TAG} KING BEDSHEET`)).toBe(TAG);
+    expect(parseLinenCode(`https://lovelaundry.lk/i/${TAG}`)).toBe(TAG);
+    expect(parseLinenCode(`https://lovelaundry.lk/scan?code=${TAG}`)).toBe(TAG);
+  });
+
+  it("rejects legacy tags, old numeric IDs and wrong check letters", () => {
+    for (const bad of ["LL-A1B2C3", "BSG-00001", "BSG-A0001XY"]) {
+      expect(isValidStructuredId(bad)).toBe(false);
+      expect(parseLinenCode(bad)).toBeNull();
+      expect(parseLinenCode(`https://lovelaundry.lk/i/${bad}`)).toBeNull();
+    }
   });
 
   it("classifies bath and pool towels and bedsheets", () => {

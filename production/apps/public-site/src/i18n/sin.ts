@@ -255,7 +255,7 @@ const sin: Record<string, string> = {
     trackDescription:
         "ඔබේ රෙදි ටැග් එකේ කේතය හෝ ඇණවුම් හැඳුනුම් අංකය ඇතුළත් කර නවතම අදියර බලන්න. පිවිසීමක් අවශ්‍ය නැත.",
     trackLabel: "ටැග් කේතය හෝ ඇණවුම් අංකය",
-    trackPlaceholder: "උදා. LL-4821 හෝ 1042",
+    trackPlaceholder: "උදා. BSG-A0001XL හෝ 1042",
     trackButton: "ඇණවුම නිරීක්ෂණය කරන්න",
     trackTracking: "නිරීක්ෂණය කරමින්...",
     trackQrHint:

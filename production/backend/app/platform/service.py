@@ -72,14 +72,17 @@ class PlatformAdminService:
                     or document.get("id")
                     or document.get("_id")
                 )
-                rows.append(
-                    {
-                        "organization_id": str(identifier or ""),
-                        "name": str(document.get("name") or document.get("user_name") or ""),
-                        "type": kind[:-1],
-                        "status": str(document.get("status") or ""),
-                    }
-                )
+                row = {
+                    "organization_id": str(identifier or ""),
+                    "name": str(document.get("name") or document.get("user_name") or ""),
+                    "type": kind[:-1],
+                    "status": str(document.get("status") or ""),
+                }
+                if kind == "hotels":
+                    # Tag IDs need the code stored on the hotel record, never a
+                    # value derived from the display name in the browser.
+                    row["hotel_code"] = str(document.get("hotel_code") or "")
+                rows.append(row)
         return rows
 
     async def announcements(self) -> list[dict]:

@@ -2,20 +2,26 @@
 
 from __future__ import annotations
 
+import re
+
 from fastapi import HTTPException, status
 
 from ..core.principal import assert_organization_access, is_platform_admin
 from ..events.models import new_event, utc_now
 from ..events.outbox import OutboxStore
 from .models import (
+    MAX_LINEN_SEQUENCE,
     generate_epc,
-    new_linen_id,
+    is_valid_structured_id,
     new_tag_serial,
     normalize_epc,
+    normalize_owner_code,
     normalize_qr,
     normalize_tid,
     public_qr_view,
     qr_payload,
+    structured_item_code,
+    structured_linen_id,
 )
 from .repository import IdentityRepository
 
@@ -79,6 +85,28 @@ class IdentityService:
         assert_organization_access(principal, requested)
         return requested
 
+    async def _owner_code(self, organization_id: str, payload: dict) -> str:
+        """Resolve the hotel code used in a structured tag.
+
+        The central hotel record wins. ``owner_code`` is accepted only for
+        older callers/tests that have no registry record yet; the platform UI
+        never offers a free-text code field.
+        """
+
+        record_code = await self.repository.find_organization_code(organization_id)
+        if record_code:
+            return normalize_owner_code(record_code)
+
+        supplied = str(payload.get("owner_code") or "").strip()
+        if supplied:
+            return normalize_owner_code(supplied)
+
+        # Backward compatibility for API clients created before hotel codes
+        # were stored on registry records (e.g. ``hotel-a`` -> ``HA``).
+        words = re.findall(r"[A-Za-z0-9]+", organization_id or "")
+        fallback = "".join(word[0] for word in words)[:5] if words else "ORG"
+        return normalize_owner_code(fallback or "ORG")
+
     @staticmethod
     def _assert_mapping_organization(
         rows: list[dict], organization_id: str, principal: dict
@@ -118,6 +146,8 @@ class IdentityService:
         tid: str,
         organization_id: str,
         payload: dict,
+        owner_code: str = "",
+        item_code: str = "",
     ) -> dict:
         return {
             "linen_id": linen_id,
@@ -136,6 +166,8 @@ class IdentityService:
             "owner_organization_id": str(
                 payload.get("owner_organization_id") or organization_id
             ),
+            "owner_code": str(owner_code or ""),
+            "item_code": str(item_code or ""),
             "batch_id": str(payload.get("batch_id") or ""),
             "manufacturer_id": str(payload.get("manufacturer_id") or ""),
             "model_id": str(payload.get("model_id") or ""),
@@ -149,14 +181,46 @@ class IdentityService:
     async def create_item(self, payload: dict, principal: dict) -> dict:
         organization_id = self._organization(payload, principal)
         prefix, length = self._epc_config()
-        sequence = await self.repository.next_sequence("linen_item")
-        linen_id = new_linen_id(
-            str(payload.get("item_type") or payload.get("category") or ""), sequence
+        item_type = str(payload.get("item_type") or payload.get("category") or "")
+        category = str(payload.get("category") or "")
+        owner_code = await self._owner_code(organization_id, payload)
+        code = structured_item_code(category, item_type)
+        try:
+            start_number = int(payload.get("start_number") or 1)
+        except (TypeError, ValueError) as exc:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid start number") from exc
+        if not 1 <= start_number <= MAX_LINEN_SEQUENCE:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                f"Start number must be between 1 and {MAX_LINEN_SEQUENCE}",
+            )
+        sequence = await self.repository.next_sequence(
+            f"linen_item:{organization_id}:{code}:{owner_code}", start_number
         )
-        qr_id = normalize_qr(payload.get("qr_id") or linen_id)
+        try:
+            linen_id = structured_linen_id(category, item_type, owner_code, sequence)
+        except ValueError as exc:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
+        qr_raw = str(payload.get("qr_id") or "").strip()
+        if qr_raw:
+            try:
+                qr_id = normalize_qr(qr_raw)
+            except ValueError as exc:
+                raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
+            if not is_valid_structured_id(qr_id):
+                raise HTTPException(
+                    status.HTTP_400_BAD_REQUEST,
+                    "QR identifier must use the current tag format",
+                )
+        else:
+            qr_id = linen_id
         epc_raw = str(payload.get("epc") or "").strip()
         epc = normalize_epc(epc_raw, length) if epc_raw else generate_epc(sequence, prefix, length)
-        serial = str(payload.get("tag_serial") or "").strip() or new_tag_serial(sequence)
+        # Tag serials identify a physical label across the whole deployment, so
+        # they use their own global counter. The linen sequence is scoped per
+        # hotel and item, and two hotels may legitimately both start at 1.
+        serial_sequence = await self.repository.next_sequence("tag_serial")
+        serial = str(payload.get("tag_serial") or "").strip() or new_tag_serial(serial_sequence)
         tid = normalize_tid(str(payload.get("tid") or ""))
 
         await self._unique_qr(qr_id)
@@ -172,6 +236,8 @@ class IdentityService:
             tid=tid,
             organization_id=organization_id,
             payload=payload,
+            owner_code=owner_code,
+            item_code=code,
         )
         saved = await self.repository.save_item(item)
         await self.repository.save_assignment(
@@ -211,6 +277,10 @@ class IdentityService:
 
     async def resolve_qr(self, value: str, principal: dict) -> dict:
         identifier = normalize_qr(value)
+        if not is_valid_structured_id(identifier):
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST, "Unsupported tag code format"
+            )
         item = await self.repository.find_by_qr(identifier)
         if item is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Unknown QR identifier")

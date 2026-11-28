@@ -71,6 +71,14 @@
 	url = https://github.com/LoveLaundry/worker-service.git
 	branch = main
 
+[submodule "system-manegment/hotel-app"]
+	path = system-manegment/hotel-app
+	url = https://github.com/LoveLaundry/hotel-app.git
+	branch = main
+[submodule "system-manegment/shop-app"]
+	path = system-manegment/shop-app
+	url = https://github.com/LoveLaundry/shop-app.git
+	branch = main
 [submodule "system-manegment/release"]
 	path = system-manegment/release
 	url = https://github.com/LoveLaundry/release.git

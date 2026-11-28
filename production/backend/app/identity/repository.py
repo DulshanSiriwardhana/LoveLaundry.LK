@@ -10,7 +10,12 @@ from ..events.models import utc_now
 
 
 class IdentityRepository:
-    async def next_sequence(self, name: str) -> int:
+    async def next_sequence(self, name: str, start_number: int = 1) -> int:
+        raise NotImplementedError
+
+    async def find_organization_code(self, organization_id: str) -> str:
+        """Read the owning hotel's short code from the central registry."""
+
         raise NotImplementedError
 
     async def get_item(self, linen_id: str) -> dict | None:
@@ -106,8 +111,11 @@ def _matches(row: dict, **filters) -> bool:
 
 
 class InMemoryIdentityRepository(IdentityRepository):
-    def __init__(self) -> None:
+    def __init__(self, organization_records: dict[str, str] | None = None) -> None:
         self.counters: dict[str, int] = {}
+        # organization_id -> hotel_code; seeded by tests or by an in-memory
+        # deployment that needs record-backed ownership codes.
+        self.organizations: dict[str, str] = dict(organization_records or {})
         self.items: dict[str, dict] = {}
         self.batches: dict[str, dict] = {}
         self.manufacturers: dict[str, dict] = {}
@@ -119,9 +127,28 @@ class InMemoryIdentityRepository(IdentityRepository):
         self.failure_reports: list[dict] = []
         self.imports: dict[str, dict] = {}
 
-    async def next_sequence(self, name: str) -> int:
-        self.counters[name] = self.counters.get(name, 0) + 1
+    async def next_sequence(self, name: str, start_number: int = 1) -> int:
+        requested = max(1, int(start_number or 1))
+        current = self.counters.get(name, 0)
+        if current + 1 < requested:
+            current = requested - 1
+        self.counters[name] = current + 1
         return self.counters[name]
+
+    async def find_organization_code(self, organization_id: str) -> str:
+        identifier = str(organization_id or "").strip()
+        if not identifier:
+            return ""
+        if identifier in self.organizations:
+            return str(self.organizations[identifier] or "")
+        return next(
+            (
+                str(code or "")
+                for key, code in self.organizations.items()
+                if str(key).upper() == identifier.upper()
+            ),
+            "",
+        )
 
     async def get_item(self, linen_id: str) -> dict | None:
         row = self.items.get(linen_id)
@@ -261,6 +288,7 @@ class MongoIdentityRepository(IdentityRepository):
 
     def __init__(self, linen_database, central_database=None) -> None:
         procurement = central_database if central_database is not None else linen_database
+        self.central = procurement
         self.counters = linen_database["identity_counters"]
         self.items = linen_database["linen_identifiers"]
         self.assignments = linen_database["tag_assignments"]
@@ -279,14 +307,53 @@ class MongoIdentityRepository(IdentityRepository):
             return None
         return {key: value for key, value in document.items() if key != "_id"}
 
-    async def next_sequence(self, name: str) -> int:
+    async def next_sequence(self, name: str, start_number: int = 1) -> int:
+        """Advance a named counter, seeding it at the admin's start number.
+
+        The start number only seeds a new counter (or jumps a live counter
+        forward). It can never move one backwards, which would reissue an ID.
+        """
+
+        requested = max(1, int(start_number or 1))
+        existing = await self.counters.find_one({"name": name})
+        if existing is None:
+            # Seed explicitly then increment; `$inc` + `$setOnInsert` is
+            # order-dependent and seeded one number too early in test doubles.
+            await self.counters.insert_one({"name": name, "value": requested - 1})
+            document = await self.counters.find_one_and_update(
+                {"name": name}, {"$inc": {"value": 1}}, return_document=True
+            )
+            return int((document or {}).get("value") or requested)
+
+        current = int(existing.get("value") or 0)
+        if requested > current + 1:
+            await self.counters.update_one(
+                {"name": name}, {"$set": {"value": requested - 1}}
+            )
         document = await self.counters.find_one_and_update(
-            {"name": name},
-            {"$inc": {"value": 1}},
-            upsert=True,
-            return_document=True,
+            {"name": name}, {"$inc": {"value": 1}}, return_document=True
         )
-        return int(document.get("value") or 1)
+        return int((document or {}).get("value") or requested)
+
+    async def find_organization_code(self, organization_id: str) -> str:
+        """Find the hotel code on the central registry record for ``organization_id``."""
+
+        identifier = str(organization_id or "").strip()
+        if not identifier:
+            return ""
+        fields = ("hotel_id", "organization_id", "laundry_id", "shop_id", "id")
+        for kind in ("hotels", "laundries", "shops"):
+            collection = self.central[kind]
+            for field in fields:
+                cursor = collection.find({field: identifier}).limit(1)
+                rows = await cursor.to_list(length=1)
+                if rows:
+                    row = rows[0]
+                    for key in ("hotel_code", "organization_code", "code"):
+                        if row.get(key):
+                            return str(row[key])
+                    return ""
+        return ""
 
     async def get_item(self, linen_id: str) -> dict | None:
         return self._clean(await self.items.find_one({"linen_id": linen_id}))

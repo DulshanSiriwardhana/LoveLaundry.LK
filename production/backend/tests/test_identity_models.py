@@ -5,10 +5,15 @@ from app.identity.models import (
     new_linen_id,
     new_tag_serial,
     normalize_epc,
+    normalize_owner_code,
     normalize_qr,
     normalize_tid,
     public_qr_view,
     qr_payload,
+    is_valid_structured_id,
+    series_and_number,
+    structured_item_code,
+    structured_linen_id,
 )
 
 
@@ -16,6 +21,34 @@ def test_linen_ids_are_deterministic_and_category_aware() -> None:
     assert new_linen_id("bedsheet", 1) == "BED-000001"
     assert new_linen_id("Bath Towel", 5000) == "TOW-005000"
     assert new_linen_id("", 7) == "LIN-000007"
+
+
+def test_structured_ids_encode_item_owner_and_starting_number() -> None:
+    assert structured_item_code("BEDSHEET", "King Bedsheet") == "BS"
+    assert structured_item_code("TOWEL", "") == "TW"
+    assert structured_item_code("DUVET_COVER", "duvet cover") == "DC"
+    assert normalize_owner_code("g") == "G"
+    assert structured_linen_id("BEDSHEET", "King Bedsheet", "G", 1) == "BSG-A0001XL"
+    assert structured_linen_id("BEDSHEET", "", "G", 12345) == "BSG-B2346BH"
+    assert series_and_number(9999) == ("A", 9999)
+    assert series_and_number(10000) == ("B", 1)
+
+
+def test_structured_id_rejects_invalid_owner_or_sequence() -> None:
+    with pytest.raises(ValueError):
+        normalize_owner_code("TOO-LONG-CODE")
+    with pytest.raises(ValueError):
+        structured_linen_id("BEDSHEET", "", "G", 0)
+    with pytest.raises(ValueError):
+        structured_linen_id("BEDSHEET", "", "G", 259975)
+
+
+def test_only_checksummed_ids_are_valid() -> None:
+    assert is_valid_structured_id("BSG-A0001XL") is True
+    assert is_valid_structured_id("BSG-A0001XY") is False
+    assert is_valid_structured_id("BSG-00001") is False
+    assert is_valid_structured_id("LL-7K4P92") is False
+    assert is_valid_structured_id("BSG-A0000AA") is False
 
 
 def test_epc_is_fixed_width_hex_and_unique() -> None:

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "test": "vitest run",
+    "test": "vitest run && node --test tests/theme-contrast.node.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

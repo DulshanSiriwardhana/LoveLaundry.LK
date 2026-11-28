@@ -39,10 +39,10 @@
     --card: var(--color-card);
     --line: var(--color-line);
     --gold: var(--color-accent);
-    --brand-rgb: 0, 0, 139;
-    --brand-dark-rgb: 0, 0, 139;
+    --brand-rgb: 0, 0, 0;
+    --brand-dark-rgb: 0, 0, 0;
     --accent-rgb: 255, 0, 0;
-    --info-rgb: 0, 0, 139;
+    --info-rgb: 0, 0, 0;
     --night-rgb: 0, 0, 0;
     --surface-rgb: 255, 255, 255;
     --shadow-rgb: 0, 0, 0;

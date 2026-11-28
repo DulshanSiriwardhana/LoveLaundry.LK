@@ -32,6 +32,50 @@ _HEX = re.compile(r"^[0-9a-fA-F]+$")
 _QR_PATH = re.compile(r"/i/([A-Za-z0-9._-]+)")
 _SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 
+# Structured identities are ``{ITEM}{HOTEL}-{SERIES}{NUMBER}{CHECK}`` — e.g.
+# ``BSG-A0001XY``. ITEM comes from the selected linen category/item type, HOTEL
+# from the owning hotel's registry record, and CHECK catches mistyped scans.
+_STRUCTURED_ITEM_KEYWORDS: tuple[tuple[str, str], ...] = (
+    ("bath mat", "BM"),
+    ("bathmat", "BM"),
+    ("pillow case", "PC"),
+    ("pillowcase", "PC"),
+    ("duvet cover", "DC"),
+    ("duvet", "DC"),
+    ("table cloth", "TC"),
+    ("tablecloth", "TC"),
+    ("bed sheet", "BS"),
+    ("bedsheet", "BS"),
+    ("sheet", "BS"),
+    ("bath towel", "TW"),
+    ("towel", "TW"),
+    ("napkin", "NK"),
+    ("uniform", "UN"),
+    ("robe", "RB"),
+    ("slipper", "SL"),
+    ("curtain", "CR"),
+    ("blanket", "BL"),
+)
+_STRUCTURED_ITEM_FALLBACK = {
+    "BEDSHEET": "BS",
+    "PILLOWCASE": "PC",
+    "TOWEL": "TW",
+    "DUVETCOVER": "DC",
+    "BATHMAT": "BM",
+    "UNIFORM": "UN",
+    "TABLECLOTH": "TC",
+    "NAPKIN": "NK",
+    "ROBE": "RB",
+    "SLIPPER": "SL",
+    "OTHER": "OT",
+}
+_OWNER_CODE = re.compile(r"^[A-Z0-9]{1,5}$")
+_STRUCTURED_ID = re.compile(
+    r"^([A-Z]{2}[A-Z0-9]{1,5})-([A-Z])(\d{4})([A-Z]{2})$"
+)
+_NUMBERS_PER_SERIES = 9999
+MAX_LINEN_SEQUENCE = 26 * _NUMBERS_PER_SERIES
+
 
 def item_type_prefix(item_type: str, fallback: str = "LIN") -> str:
     key = (item_type or "").strip().lower()
@@ -44,11 +88,81 @@ def item_type_prefix(item_type: str, fallback: str = "LIN") -> str:
 
 
 def new_linen_id(item_type: str, sequence: int) -> str:
-    """Return a permanent, human-readable linen identifier."""
+    """Return a permanent, human-readable linen identifier (legacy format)."""
 
     if sequence < 0:
         raise ValueError("Linen sequence must be non-negative")
     return f"{item_type_prefix(item_type)}-{sequence:06d}"
+
+
+def structured_item_code(category: str, item_type: str = "") -> str:
+    """Return the two-letter item part of a structured linen ID."""
+
+    normalized = " ".join(
+        " ".join(re.sub(r"[^a-z0-9]+", " ", str(value or "").lower()).split())
+        for value in (category, item_type)
+    ).strip()
+    for keyword, code in _STRUCTURED_ITEM_KEYWORDS:
+        if keyword in normalized:
+            return code
+    for value in (category, item_type):
+        key = re.sub(r"[^A-Z0-9]", "", str(value or "").upper())
+        if key in _STRUCTURED_ITEM_FALLBACK:
+            return _STRUCTURED_ITEM_FALLBACK[key]
+        if len(key) >= 2:
+            return key[:2]
+    return "OT"
+
+
+def normalize_owner_code(value: str) -> str:
+    """Validate the hotel code copied from an organization record."""
+
+    code = re.sub(r"[^A-Za-z0-9]", "", str(value or "")).upper()
+    if not _OWNER_CODE.match(code):
+        raise ValueError("The selected hotel needs a 1-5 character hotel code")
+    return code
+
+
+def series_and_number(sequence: int) -> tuple[str, int]:
+    """Map a 1-based sequence to ``('A', 1)`` … ``('Z', 9999)``."""
+
+    value = int(sequence)
+    if value < 1 or value > MAX_LINEN_SEQUENCE:
+        raise ValueError(f"Linen sequence must be between 1 and {MAX_LINEN_SEQUENCE}")
+    offset = value - 1
+    return chr(65 + offset // _NUMBERS_PER_SERIES), offset % _NUMBERS_PER_SERIES + 1
+
+
+def checksum(base: str) -> str:
+    """Two uppercase check letters for the tag base (mod 676)."""
+
+    text = base.replace("-", "").upper()
+    total = sum((index + 1) * ord(char) for index, char in enumerate(text))
+    value = total % (26 * 26)
+    return chr(65 + value // 26) + chr(65 + value % 26)
+
+
+def structured_linen_id(category: str, item_type: str, owner: str, sequence: int) -> str:
+    """Return a permanent ID such as ``BSG-A0001XY``."""
+
+    series, number = series_and_number(sequence)
+    base = (
+        f"{structured_item_code(category, item_type)}"
+        f"{normalize_owner_code(owner)}-{series}{number:04d}"
+    )
+    return base + checksum(base)
+
+
+def is_valid_structured_id(value: str) -> bool:
+    """True only for a well-formed tag whose check letters match."""
+
+    match = _STRUCTURED_ID.match(str(value or "").strip().upper())
+    if not match:
+        return False
+    prefix, series, digits, check = match.groups()
+    if not 1 <= int(digits) <= _NUMBERS_PER_SERIES:
+        return False
+    return check == checksum(f"{prefix}-{series}{digits}")
 
 
 def new_tag_serial(sequence: int, prefix: str = "TAG") -> str:

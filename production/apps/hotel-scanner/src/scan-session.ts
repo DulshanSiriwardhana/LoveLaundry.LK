@@ -39,11 +39,32 @@ export interface SessionSummary {
 }
 
 const CODE_PARAM = /[?&#](?:code|linen_id|linen|tag|id)=([^&#\s]+)/i;
-const LL_TOKEN = /\bLL-[A-Za-z0-9][A-Za-z0-9._-]*/;
-const CODE_SHAPE = /^[A-Z0-9][A-Z0-9._-]{1,63}$/;
-const CODE_IN_URL = /^LL-[A-Z0-9][A-Z0-9._-]*$/;
+const STRUCTURED_ID = /^([A-Z]{2}[A-Z0-9]{1,5})-([A-Z])(\d{4})([A-Z]{2})$/;
+/** Matches a whole tag inside partly-read label text. */
+const TAG_TOKEN = /\b[A-Z]{2}[A-Z0-9]{1,5}-[A-Z]\d{4}[A-Z]{2}\b/;
 const WRAPPERS = /^[\s"'`<([{]+|[\s"'`>)[\]}]+$/g;
 const CONTROL_CHARS = /[\u0000-\u001f\u007f]/g;
+
+/** Two check letters: weighted mod-676 over the base, same as both APIs. */
+export function checkLetters(base: string): string {
+  const text = base.replace(/-/g, "").toUpperCase();
+  let total = 0;
+  for (let index = 0; index < text.length; index += 1) {
+    total += (index + 1) * text.charCodeAt(index);
+  }
+  const value = total % 676;
+  return String.fromCharCode(65 + Math.floor(value / 26), 65 + (value % 26));
+}
+
+/** Only checksummed tags are valid; LL-xxxxxx and numeric-only IDs are not. */
+export function isValidStructuredId(value: string): boolean {
+  const match = STRUCTURED_ID.exec(value.trim().toUpperCase());
+  if (!match) return false;
+  const [, prefix, series, digits, check] = match;
+  const number = Number(digits);
+  if (number < 1 || number > 9999) return false;
+  return check === checkLetters(`${prefix}-${series}${digits}`);
+}
 
 function percentDecode(value: string): string {
   try {
@@ -72,14 +93,14 @@ export function parseLinenCode(raw: string | null | undefined): string | null {
   }
 
   candidate = candidate.replace(CONTROL_CHARS, " ").replace(WRAPPERS, "").trim().toUpperCase();
-  if (fromUrl ? CODE_IN_URL.test(candidate) : CODE_SHAPE.test(candidate)) return candidate;
+  if (isValidStructuredId(candidate)) return candidate;
 
-  const embedded = LL_TOKEN.exec(original.toUpperCase());
-  return embedded ? embedded[0].replace(/[._-]+$/, "") : null;
+  const embedded = TAG_TOKEN.exec(original.toUpperCase());
+  return embedded && isValidStructuredId(embedded[0]) ? embedded[0] : null;
 }
 
 /** Canonical code for a tag, falling back to the cleaned raw value so RFID/EPC
- * identifiers that are not LL-codes still flow through unchanged. */
+ * identifiers still flow through unchanged. */
 export function normaliseCode(raw: string): string {
   return parseLinenCode(raw) ?? (raw ?? "").replace(CONTROL_CHARS, " ").trim().toUpperCase();
 }

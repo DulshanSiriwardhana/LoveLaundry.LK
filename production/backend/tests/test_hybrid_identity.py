@@ -380,6 +380,50 @@ async def test_foreign_reader_cannot_submit_to_another_organization_session() ->
     assert denied.value.status_code == 403
 
 
+def test_tag_creation_uses_structured_id_with_configured_start_number(client) -> None:
+    first = client.post(
+        "/tags/items",
+        json={
+            "organization_id": "hotel-a",
+            "item_type": "bedsheet",
+            "category": "BEDSHEET",
+            "owner_code": "G",
+            "start_number": 41,
+        },
+    )
+    assert first.status_code == 200
+    assert first.json()["linen_id"] == "BSG-A0041YN"
+
+    second = client.post(
+        "/tags/items",
+        json={
+            "organization_id": "hotel-a",
+            "item_type": "bedsheet",
+            "category": "BEDSHEET",
+            "owner_code": "G",
+            "start_number": 1,
+        },
+    )
+    assert second.status_code == 200
+    assert second.json()["linen_id"] == "BSG-A0042YV"
+
+
+def test_hotel_record_code_overrides_any_client_supplied_code(client) -> None:
+    get_runtime().identity_repository.organizations["hotel-record"] = "G"
+    created = client.post(
+        "/tags/items",
+        json={
+            "organization_id": "hotel-record",
+            "item_type": "bedsheet",
+            "category": "BEDSHEET",
+            "owner_code": "ZZ",
+        },
+    )
+    assert created.status_code == 200
+    assert created.json()["linen_id"] == "BSG-A0001XL"
+    assert created.json()["owner_code"] == "G"
+
+
 def test_public_qr_endpoint_exposes_only_safe_fields(client) -> None:
     created = client.post(
         "/tags/items",
@@ -400,6 +444,25 @@ def test_public_qr_endpoint_exposes_only_safe_fields(client) -> None:
     assert sheet.status_code == 200
     assert sheet.headers["content-type"].startswith("image/svg+xml")
     assert "<path" in sheet.text
+
+
+def test_public_qr_rejects_legacy_and_bad_checksum_codes(client) -> None:
+    for code in ("LL-7K4P92", "BSG-00001", "BSG-A0001XY"):
+        response = client.get(f"/i/{code}")
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Unsupported tag code format"
+
+    # A caller cannot register a label with an unscannable identifier either.
+    created = client.post(
+        "/tags/items",
+        json={
+            "organization_id": "hotel-a",
+            "item_type": "bedsheet",
+            "category": "BEDSHEET",
+            "qr_id": "LL-7K4P92",
+        },
+    )
+    assert created.status_code == 400
 
 
 def test_readers_and_dashboards_routes_are_registered(client) -> None:

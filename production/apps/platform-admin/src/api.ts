@@ -8,6 +8,8 @@ export interface OrganizationRow {
   name: string;
   type: string;
   status: string;
+  /** Present for hotels; used to show the code that will appear in tag IDs. */
+  hotel_code?: string;
 }
 
 export interface AnnouncementRow {
@@ -109,6 +111,8 @@ export interface CreateTagPayload {
   size?: string;
   material?: string;
   batch_id?: string;
+  /** Seeds the hotel+item sequence; the backend reads the hotel code from the record. */
+  start_number?: number;
 }
 
 export interface RegisterReaderPayload {

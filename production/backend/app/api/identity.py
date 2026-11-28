@@ -48,6 +48,10 @@ class CreateLinenItemRequest(BaseModel):
     tag_serial: str = ""
     tid: str = ""
     owner_organization_id: str = ""
+    # Optional for older callers/tests. The platform UI derives this from the
+    # selected hotel record on the backend and never offers a free-text code.
+    owner_code: str = ""
+    start_number: int | None = Field(default=None, ge=1, le=259974)
     batch_id: str = ""
     manufacturer_id: str = ""
     model_id: str = ""

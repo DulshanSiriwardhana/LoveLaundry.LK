@@ -9,9 +9,9 @@ import {
 } from 'react';
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   LOVE LAUNDRY — UNIFIED THEME KIT / STANDARD
+   LOVE LAUNDRY — UNIFIED THEME KIT / NO-BLUE
    ───────────────────────────────────────────────────────────────────────────
-   40 selectable themes. Each preset pins a surface and an accent; body
+   20 selectable themes. Each preset pins a surface and an accent; body
    text is always the opposite pole of that surface, and accent controls carry
    a computed on-accent colour. WCAG AA (>= 4.5:1) is verified by the generator.
    Preference persists in localStorage and is applied to <html data-theme>
@@ -47,26 +47,6 @@ export const THEMES: readonly ThemeOption[] = [
   { id: 'dark-teal', label: 'Teal Dark', mode: 'dark', swatch: '#2DD4BF', background: '#0B0B0C' },
   { id: 'light-rose', label: 'Rose Light', mode: 'light', swatch: '#BE185D', background: '#F5F5F4' },
   { id: 'dark-rose', label: 'Rose Dark', mode: 'dark', swatch: '#F472B6', background: '#0B0B0C' },
-  { id: 'light-magenta', label: 'Magenta Light', mode: 'light', swatch: '#A21CAF', background: '#F5F5F4' },
-  { id: 'dark-magenta', label: 'Magenta Dark', mode: 'dark', swatch: '#E879F9', background: '#0B0B0C' },
-  { id: 'light-plum', label: 'Plum Light', mode: 'light', swatch: '#7E22CE', background: '#F5F5F4' },
-  { id: 'dark-plum', label: 'Plum Dark', mode: 'dark', swatch: '#C084FC', background: '#0B0B0C' },
-  { id: 'light-violet', label: 'Violet Light', mode: 'light', swatch: '#6D28D9', background: '#F5F5F4' },
-  { id: 'dark-violet', label: 'Violet Dark', mode: 'dark', swatch: '#A78BFA', background: '#0B0B0C' },
-  { id: 'light-indigo', label: 'Indigo Light', mode: 'light', swatch: '#4338CA', background: '#F5F5F4' },
-  { id: 'dark-indigo', label: 'Indigo Dark', mode: 'dark', swatch: '#818CF8', background: '#0B0B0C' },
-  { id: 'light-cobalt', label: 'Cobalt Light', mode: 'light', swatch: '#1D4ED8', background: '#F5F5F4' },
-  { id: 'dark-cobalt', label: 'Cobalt Dark', mode: 'dark', swatch: '#60A5FA', background: '#0B0B0C' },
-  { id: 'light-azure', label: 'Azure Light', mode: 'light', swatch: '#0369A1', background: '#F5F5F4' },
-  { id: 'dark-azure', label: 'Azure Dark', mode: 'dark', swatch: '#38BDF8', background: '#0B0B0C' },
-  { id: 'light-cyan', label: 'Cyan Light', mode: 'light', swatch: '#0E7490', background: '#F5F5F4' },
-  { id: 'dark-cyan', label: 'Cyan Dark', mode: 'dark', swatch: '#22D3EE', background: '#0B0B0C' },
-  { id: 'light-slate', label: 'Slate Light', mode: 'light', swatch: '#334155', background: '#F5F5F4' },
-  { id: 'dark-slate', label: 'Slate Dark', mode: 'dark', swatch: '#CBD5E1', background: '#0B0B0C' },
-  { id: 'light-sand', label: 'Sand Light', mode: 'light', swatch: '#78716C', background: '#F5F5F4' },
-  { id: 'dark-sand', label: 'Sand Dark', mode: 'dark', swatch: '#D6D3D1', background: '#0B0B0C' },
-  { id: 'light-olive', label: 'Olive Light', mode: 'light', swatch: '#3F6212', background: '#F5F5F4' },
-  { id: 'dark-olive', label: 'Olive Dark', mode: 'dark', swatch: '#BEF264', background: '#0B0B0C' },
 ] as const;
 
 export type ThemeId = (typeof THEMES)[number]['id'];
@@ -80,7 +60,7 @@ const BY_ID = new Map(THEMES.map(t => [t.id, t] as const));
 
 /** Inline this in <head> before stylesheets to eliminate theme flash. */
 export const THEME_INIT_SCRIPT = `(function(){try{
-var ids=['light','dark','light-crimson','dark-crimson','light-ember','dark-ember','light-amber','dark-amber','light-gold','dark-gold','light-lime','dark-lime','light-emerald','dark-emerald','light-forest','dark-forest','light-teal','dark-teal','light-rose','dark-rose','light-magenta','dark-magenta','light-plum','dark-plum','light-violet','dark-violet','light-indigo','dark-indigo','light-cobalt','dark-cobalt','light-azure','dark-azure','light-cyan','dark-cyan','light-slate','dark-slate','light-sand','dark-sand','light-olive','dark-olive'];
+var ids=['light','dark','light-crimson','dark-crimson','light-ember','dark-ember','light-amber','dark-amber','light-gold','dark-gold','light-lime','dark-lime','light-emerald','dark-emerald','light-forest','dark-forest','light-teal','dark-teal','light-rose','dark-rose'];
 var t=localStorage.getItem('${THEME_STORAGE_KEY}');
 if(ids.indexOf(t)<0){
   var legacy=localStorage.getItem('${LEGACY_KEY}');

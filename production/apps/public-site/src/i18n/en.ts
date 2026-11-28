@@ -255,7 +255,7 @@ const en = {
     trackDescription:
         "Enter the code from your garment tag or your quotation/order ID to see the latest processing stage. No login needed.",
     trackLabel: "Tag code or order ID",
-    trackPlaceholder: "e.g. LL-4821 or 1042",
+    trackPlaceholder: "e.g. BSG-A0001XL or 1042",
     trackButton: "Track order",
     trackTracking: "Tracking...",
     trackQrHint:

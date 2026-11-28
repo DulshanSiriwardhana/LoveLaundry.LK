@@ -858,7 +858,7 @@ export function App() {
                   <textarea
                     value={qrBatchDraft}
                     onChange={(event) => setQrBatchDraft(event.target.value)}
-                    placeholder={"LL-4F2K9\nhttps://lovelaundry.lk/linen/LL-7K4P92"}
+                    placeholder={"BSG-A0001XL\nhttps://lovelaundry.lk/i/BSG-A0002XT"}
                     aria-label="QR payloads, one per line"
                   />
                 </label>
