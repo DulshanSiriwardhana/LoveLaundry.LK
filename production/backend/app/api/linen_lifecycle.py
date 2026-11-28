@@ -99,7 +99,28 @@ async def list_linen(
     dependencies=[Depends(require_capability("view_linen"))],
 )
 async def linen_profile(linen_id: str, principal=Depends(get_current_user)) -> dict:
-    return await get_runtime().linen_service.profile(linen_id, principal)
+    result = await get_runtime().linen_service.profile(linen_id, principal)
+    profile = result.get("profile") or {}
+    # The scanner verifies a tag through this endpoint without mutating state.
+    # Additive flat fields keep the existing `{profile, history}` contract while
+    # giving it the `status`/`current_stage` projection it reads.
+    projection = {
+        key: profile.get(key)
+        for key in (
+            "linen_id",
+            "organization_id",
+            "category",
+            "item_type",
+            "description",
+            "size",
+            "client_name",
+            "status",
+            "current_stage",
+            "wash_count",
+            "last_seen_at",
+        )
+    }
+    return {**result, **projection}
 
 
 @router.get(

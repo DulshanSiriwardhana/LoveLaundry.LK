@@ -14,12 +14,17 @@ from .api import (
     health_router,
     identity_router,
     integration_router,
+    linen_compat_router,
     linen_lifecycle_router,
+    linen_live_router,
     linen_router,
+    client_portal_router,
     notifications_router,
     platform_router,
     rfid_router,
     scanning_router,
+    shop_bills_compat_router,
+    user_compat_router,
 )
 from .authentication.router import router as auth_router
 from .core.config import get_settings
@@ -124,8 +129,20 @@ def create_app(user_lookup=None) -> FastAPI:
         rfid_router,
         scanning_router,
         dashboards_router,
+        linen_compat_router,
+        user_compat_router,
+        client_portal_router,
+        shop_bills_compat_router,
+        linen_live_router,
     ):
         app.include_router(router)
+
+    # Client dataAPI namespace aliases: the hotel/shop/linen-room operational
+    # clients call these surfaces through `${VITE_BILL_API_URL}/...`
+    # (same-origin `/api/bills`) after the reverse proxy strips `/api`.
+    app.include_router(linen_compat_router, prefix="/bills")
+    app.include_router(client_portal_router, prefix="/bills")
+    app.include_router(shop_bills_compat_router, prefix="/bills")
 
     if user_lookup is not None:
         from .authentication.router import set_user_finder

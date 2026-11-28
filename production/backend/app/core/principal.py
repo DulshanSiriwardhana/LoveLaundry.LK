@@ -211,6 +211,51 @@ def normalize_principal(user: dict, claims: dict | None = None) -> dict:
     if not organization_id:
         organization_id = _first(source.get("hotel_id")) or _first(source.get("shop_id"))
 
+    # Client sessions carry a nested scope. It is rebuilt here from verified
+    # claims/account fields so every downstream service can apply the same
+    # laundry + client-name predicate without re-reading the token.
+    nested = source.get("client_scope")
+    client_scope = dict(nested) if isinstance(nested, dict) else {}
+    client_type = (
+        _first(source.get("client_type"))
+        or _first(client_scope.get("client_type"))
+    ).upper()
+    if not client_type and any(role.startswith(("HOTEL_", "SHOP_")) for role in roles):
+        client_type = "SHOP" if any(role.startswith("SHOP_") for role in roles) else "HOTEL"
+    client_name = (
+        _first(source.get("client_name"))
+        or _first(source.get("hotel_name"))
+        or _first(source.get("shop_name"))
+        or _first(client_scope.get("client_name"))
+    )
+    scope_laundry = _first(client_scope.get("laundry_id")) or _first(
+        source.get("laundry_id")
+    )
+    if client_type == "HOTEL":
+        scope_hotel = _first(source.get("hotel_id")) or _first(client_scope.get("hotel_id"))
+        scope_shop = ""
+    elif client_type == "SHOP":
+        scope_hotel = ""
+        scope_shop = _first(source.get("shop_id")) or _first(client_scope.get("shop_id"))
+    else:
+        scope_hotel = _first(source.get("hotel_id")) or _first(client_scope.get("hotel_id"))
+        scope_shop = _first(source.get("shop_id")) or _first(client_scope.get("shop_id"))
+    resolved_scope = {
+        "laundry_id": scope_laundry,
+        "client_name": client_name,
+        "client_type": client_type,
+        "hotel_id": scope_hotel,
+        "shop_id": scope_shop,
+    }
+    if scope_hotel:
+        scoped_ids["hotel"].add(scope_hotel)
+        organization_ids.add(scope_hotel)
+    if scope_shop:
+        scoped_ids["shop"].add(scope_shop)
+        organization_ids.add(scope_shop)
+    if scope_laundry and _first(source.get("token_kind")).lower() == "client":
+        organization_ids.add(scope_laundry)
+
     return {
         "actor_id": auth_id,
         "auth_id": auth_id,
@@ -229,6 +274,11 @@ def normalize_principal(user: dict, claims: dict | None = None) -> dict:
         "shop_ids": sorted(scoped_ids["shop"]),
         "platform_admin": bool(source.get("platform_admin")) or "PLATFORM_ADMIN" in roles,
         "support_entry": bool(source.get("support_entry")),
+        "token_kind": _first(source.get("token_kind")).lower()
+        or ("client" if client_type else ""),
+        "client_name": client_name,
+        "client_type": client_type,
+        "client_scope": resolved_scope,
     }
 
 
@@ -288,6 +338,44 @@ def assert_organization_access(principal: dict, organization_id: str | None) -> 
         raise HTTPException(
             status.HTTP_403_FORBIDDEN, "Resource belongs to another organization"
         )
+
+
+def require_client_scope(principal: dict, side: str | None = None) -> dict:
+    """Return the verified (laundry, client) scope for a client-only endpoint.
+
+    Staff and support sessions never reach a hotel/shop portal even when they
+    happen to carry a hotel id. With authentication disabled in local
+    development the scope may come from the local principal, but production
+    requires an explicit client token kind.
+    """
+
+    from fastapi import HTTPException, status
+
+    from .config import get_settings
+
+    scope = principal.get("client_scope")
+    if not isinstance(scope, dict):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Client session has no account scope")
+    if get_settings().auth_required and _first(principal.get("token_kind")).lower() != "client":
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "This endpoint requires a client account")
+
+    laundry_id = _first(scope.get("laundry_id")).lower()
+    client_name = _first(scope.get("client_name"))
+    client_type = _first(scope.get("client_type")).upper()
+    if not laundry_id or not client_name or client_type not in {"HOTEL", "SHOP"}:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Client session has an incomplete scope")
+    if side and client_type != side.upper():
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            f"This endpoint is for {side.lower()} accounts only",
+        )
+    return {
+        "laundry_id": laundry_id,
+        "client_name": client_name,
+        "client_type": client_type,
+        "hotel_id": _first(scope.get("hotel_id")),
+        "shop_id": _first(scope.get("shop_id")),
+    }
 
 
 def actor_identity(principal: dict, supplied=None) -> dict:

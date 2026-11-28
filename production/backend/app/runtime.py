@@ -8,6 +8,7 @@ same stores. Tests can replace the runtime atomically with `set_runtime`.
 from __future__ import annotations
 
 from collections import defaultdict
+from uuid import uuid4
 
 from .analytics.dashboards import DashboardService
 from .audit.service import AuditEventHandler, InMemoryAuditStore, MongoAuditStore
@@ -51,6 +52,7 @@ from .notifications.service import (
     NotificationEventHandler,
     NotificationHub,
 )
+from .operations.repository import OperationalRepository
 from .platform.service import PlatformAdminService
 from .reconciliation.service import (
     InMemoryReconciliationStore,
@@ -59,38 +61,163 @@ from .reconciliation.service import (
 )
 
 
+_QUERY_OPERATORS = {"$eq", "$ne", "$in", "$nin", "$gt", "$gte", "$lt", "$lte", "$exists"}
+
+
+def _matches(document: dict, query: dict) -> bool:
+    for key, expected in query.items():
+        if key == "$or":
+            if not any(_matches(document, clause) for clause in expected):
+                return False
+            continue
+        if key == "$and":
+            if not all(_matches(document, clause) for clause in expected):
+                return False
+            continue
+        value = document.get(key)
+        if isinstance(expected, dict) and set(expected).issubset(_QUERY_OPERATORS):
+            for operator, operand in expected.items():
+                if operator == "$eq" and value != operand:
+                    return False
+                if operator == "$ne" and value == operand:
+                    return False
+                if operator == "$in" and value not in operand:
+                    return False
+                if operator == "$nin" and value in operand:
+                    return False
+                if operator == "$exists" and (key in document) != bool(operand):
+                    return False
+                if operator in {"$gt", "$gte", "$lt", "$lte"}:
+                    if value is None:
+                        return False
+                    if operator == "$gt" and not value > operand:
+                        return False
+                    if operator == "$gte" and not value >= operand:
+                        return False
+                    if operator == "$lt" and not value < operand:
+                        return False
+                    if operator == "$lte" and not value <= operand:
+                        return False
+            continue
+        if value != expected:
+            return False
+    return True
+
+
+def _sort_value(value):
+    if value is None:
+        return (0, 0, "")
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return (1, value, "")
+    return (2, 0, str(value))
+
+
+class _WriteResult:
+    def __init__(
+        self,
+        inserted_id=None,
+        matched_count: int = 0,
+        modified_count: int = 0,
+    ) -> None:
+        self.inserted_id = inserted_id
+        self.matched_count = matched_count
+        self.modified_count = modified_count
+
+
 class _InMemoryCollection:
     def __init__(self) -> None:
         self.documents: list[dict] = []
 
-    async def find(self, query: dict | None = None):
-        query = query or {}
+    async def find(self, query: dict | None = None, projection=None):
+        return _InMemoryCursor(
+            [dict(row) for row in self.documents if _matches(row, query or {})]
+        )
 
-        def matches(document: dict) -> bool:
-            for key, expected in query.items():
-                value = document.get(key)
-                if isinstance(expected, dict) and "$exists" in expected:
-                    exists = key in document
-                    if exists != bool(expected["$exists"]):
-                        return False
-                    continue
-                if value != expected:
-                    return False
-            return True
-
-        return _InMemoryCursor([dict(row) for row in self.documents if matches(row)])
+    async def find_one(self, query: dict | None = None, *, sort=None) -> dict | None:
+        cursor = _InMemoryCursor(
+            [dict(row) for row in self.documents if _matches(row, query or {})]
+        )
+        if sort:
+            cursor.sort(sort)
+        rows = await cursor.to_list(length=1)
+        return rows[0] if rows else None
 
     async def count_documents(self, query: dict | None = None) -> int:
         cursor = await self.find(query)
         return len(await cursor.to_list(length=None))
 
-    async def replace_one(self, query: dict, document: dict, upsert: bool = False) -> None:
+    async def insert_one(self, document: dict) -> _WriteResult:
+        row = dict(document)
+        row.setdefault("_id", uuid4().hex)
+        self.documents.append(row)
+        return _WriteResult(inserted_id=row["_id"])
+
+    def _apply_update(self, row: dict, update: dict, inserting: bool = False) -> None:
+        for operator, fields in update.items():
+            if operator == "$set":
+                row.update({key: dict(value) if isinstance(value, dict) else value for key, value in fields.items()})
+            elif operator == "$setOnInsert" and inserting:
+                row.update(fields)
+            elif operator == "$inc":
+                for key, amount in fields.items():
+                    row[key] = int(row.get(key) or 0) + int(amount)
+            elif operator == "$unset":
+                for key in fields:
+                    row.pop(key, None)
+            elif operator == "$setOnInsert":
+                continue
+            else:
+                raise ValueError(f"Unsupported in-memory update operator: {operator}")
+
+    async def update_one(
+        self, query: dict, update: dict, upsert: bool = False
+    ) -> _WriteResult:
         for index, row in enumerate(self.documents):
-            if all(row.get(key) == value for key, value in query.items()):
-                self.documents[index] = dict(document)
-                return
+            if _matches(row, query):
+                self._apply_update(row, update)
+                return _WriteResult(matched_count=1, modified_count=1)
         if upsert:
-            self.documents.append(dict(document))
+            row = {
+                key: value
+                for key, value in query.items()
+                if isinstance(value, (str, int, float, bool)) or value is None
+            }
+            self._apply_update(row, update, inserting=True)
+            row.setdefault("_id", uuid4().hex)
+            self.documents.append(row)
+            return _WriteResult(inserted_id=row["_id"], matched_count=0, modified_count=1)
+        return _WriteResult()
+
+    async def find_one_and_update(
+        self, query: dict, update: dict, *, upsert: bool = False, return_document=False
+    ) -> dict | None:
+        for row in self.documents:
+            if _matches(row, query):
+                self._apply_update(row, update)
+                return dict(row)
+        if not upsert:
+            return None
+        row = {
+            key: value
+            for key, value in query.items()
+            if isinstance(value, (str, int, float, bool)) or value is None
+        }
+        self._apply_update(row, update, inserting=True)
+        row.setdefault("_id", uuid4().hex)
+        self.documents.append(row)
+        return dict(row)
+
+    async def replace_one(self, query: dict, document: dict, upsert: bool = False) -> _WriteResult:
+        for index, row in enumerate(self.documents):
+            if _matches(row, query):
+                self.documents[index] = dict(document)
+                return _WriteResult(matched_count=1, modified_count=1)
+        if upsert:
+            row = dict(document)
+            row.setdefault("_id", uuid4().hex)
+            self.documents.append(row)
+            return _WriteResult(inserted_id=row["_id"])
+        return _WriteResult()
 
 
 class _InMemoryCursor:
@@ -101,12 +228,27 @@ class _InMemoryCursor:
         self.rows = self.rows[:count]
         return self
 
-    def sort(self, key: str, direction: int = 1):
-        self.rows.sort(key=lambda row: str(row.get(key) or ""), reverse=direction < 0)
+    def skip(self, count: int):
+        self.rows = self.rows[count:]
+        return self
+
+    def sort(self, key, direction: int = 1):
+        specs = key if isinstance(key, (list, tuple)) else [(key, direction)]
+        for field, order in reversed(list(specs)):
+            self.rows.sort(
+                key=lambda row: _sort_value(row.get(field)), reverse=order < 0
+            )
         return self
 
     async def to_list(self, length: int | None = None) -> list[dict]:
         return self.rows if length is None else self.rows[:length]
+
+    def __aiter__(self):
+        async def iterate():
+            for row in self.rows:
+                yield row
+
+        return iterate()
 
 
 class InMemoryDatabase:
@@ -141,8 +283,15 @@ class Runtime:
         scanning_repository: ScanningRepository | None = None,
         billable_event_repository=None,
         settings=None,
+        central_database=None,
+        laundry_database=None,
+        linen_database=None,
     ) -> None:
         self.settings = settings or get_settings()
+        self.central_database = central_database
+        self.laundry_database = laundry_database
+        self.linen_database = linen_database
+        self.operational = OperationalRepository(laundry_database, linen_database)
         self.outbox = outbox
         self.processed = processed
         self.audit_store = audit_store
@@ -239,6 +388,9 @@ def _build_runtime() -> Runtime:
             scanning_repository=MongoScanningRepository(linen),
             billable_event_repository=MongoBillableEventRepository(laundry),
             settings=settings,
+            central_database=central,
+            laundry_database=laundry,
+            linen_database=linen,
         )
 
     central = InMemoryDatabase()
@@ -257,6 +409,9 @@ def _build_runtime() -> Runtime:
         reconciliation_store=InMemoryReconciliationStore(),
         platform_service=PlatformAdminService(central, laundry, linen, audit_store),
         settings=get_settings(),
+        central_database=central,
+        laundry_database=laundry,
+        linen_database=linen,
     )
 
 
