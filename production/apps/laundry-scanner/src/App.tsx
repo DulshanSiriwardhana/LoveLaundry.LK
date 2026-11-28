@@ -25,6 +25,7 @@ import {
 import { actorId, getSession, logout, type SessionUser } from "./auth";
 import { LoginScreen } from "./LoginScreen";
 import { ThemeSwitcher } from "./ll-theme";
+import { LiveTag } from "./components/LiveTag";
 
 type Route = "operations" | "scan" | "bulk" | "wash" | "exceptions" | "dashboard";
 
@@ -129,7 +130,13 @@ function Rows({ rows }: { rows: Array<Record<string, unknown>> }) {
               )}
             >
               {columns.map((column) => (
-                <td key={column}>{renderValue(row[column])}</td>
+                <td key={column}>
+                  {column === "linen_id" && String(row[column] ?? "").trim() ? (
+                    <LiveTag linenId={String(row[column])} compact />
+                  ) : (
+                    renderValue(row[column])
+                  )}
+                </td>
               ))}
             </tr>
           ))}
@@ -664,7 +671,14 @@ export function App() {
               {saving ? "Submitting…" : "Submit scan"}
             </button>
             {scanResult ? (
-              <pre className="result">{JSON.stringify(scanResult, null, 2)}</pre>
+              <div className="result">
+                {scanResult.linen_id ? (
+                  <div style={{ marginBottom: 12 }}>
+                    <LiveTag linenId={scanResult.linen_id} />
+                  </div>
+                ) : null}
+                <pre style={{ margin: 0 }}>{JSON.stringify(scanResult, null, 2)}</pre>
+              </div>
             ) : null}
           </form>
         ) : null}

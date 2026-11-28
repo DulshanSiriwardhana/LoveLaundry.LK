@@ -166,3 +166,35 @@ main.site-page > footer > div > div[class~="mx-auto"] {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ── Mobile hardening: safe areas, touch targets, overflow, readable IDs ── */
+#root {
+  overflow-x: clip;
+  width: 100%;
+}
+main.site-page > section,
+main.site-page > footer {
+  padding-left: max(var(--page-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--page-gutter), env(safe-area-inset-right, 0px));
+}
+main.site-page > footer {
+  padding-bottom: calc(var(--section-space) + env(safe-area-inset-bottom, 0px));
+}
+th, td, code, .code-chip, [class*="tracking"], [class*="id"] {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.table-wrap, [class*="overflow-x-auto"], [class*="table-wrap"] {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+@media (pointer: coarse) {
+  button, a, [role="button"], input[type="submit"], input[type="button"] {
+    min-height: 44px;
+  }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]),
+  select, textarea {
+    min-height: 44px;
+    font-size: 16px;
+  }
+}

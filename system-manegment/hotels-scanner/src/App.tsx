@@ -21,11 +21,13 @@ import {
   type TransitionCatalogue,
 } from "./api";
 import { actorId, getSession, logout, type SessionUser } from "./auth";
+import { LiveTag } from "./components/LiveTag";
 import { LoginScreen } from "./LoginScreen";
 import { ThemeSwitcher } from "./ll-theme";
 import {
   classifyLinen,
   normaliseCode,
+  parseLinenCode,
   summarise,
   transitionViolation,
   type ScanRow,
@@ -154,6 +156,16 @@ function Rows({ rows }: { rows: Array<Record<string, unknown>> }) {
         </tbody>
       </table>
     </div>
+  );
+}
+
+/** Show the live QR when a row holds a linen tag; keep non-tag identifiers as chips. */
+function LinenTagChip({ code, fallback = "linen" }: { code?: string; fallback?: string }) {
+  const linenId = code ? parseLinenCode(code) : null;
+  return linenId ? (
+    <LiveTag linenId={linenId} compact />
+  ) : (
+    <code className="code-chip">{code || fallback}</code>
   );
 }
 
@@ -905,7 +917,7 @@ export function App() {
                 {qrVerification ? (
                   <div className="verify-result" aria-live="polite">
                     <div className="verify-result__head">
-                      <code className="code-chip">{qrVerification.code}</code>
+                      <LiveTag linenId={qrVerification.code} compact />
                       <span className="badge badge--success">Registered</span>
                     </div>
                     <dl className="verify-grid">
@@ -999,7 +1011,7 @@ export function App() {
                   {visibleRows.map((row, index) => (
                     <li key={`${row.code}-${row.at}-${index}`} className={`scan-row scan-row--${row.outcome}`}>
                       <div className="scan-row__main">
-                        <code className="code-chip">{row.code}</code>
+                        <LinenTagChip code={row.code} />
                         <span className="badge badge--soft">
                           {row.category ? row.category.replace(/_/g, " ") : "unclassified"}
                         </span>
@@ -1028,9 +1040,7 @@ export function App() {
                   {liveEvents.slice(0, 5).map((event, index) => (
                     <li key={`${event.at ?? ""}-${index}`} className="scan-row">
                       <div className="scan-row__main">
-                        <code className="code-chip">
-                          {event.linen?.linen_id ?? event.linen_ids?.[0] ?? "linen"}
-                        </code>
+                        <LinenTagChip code={event.linen?.linen_id ?? event.linen_ids?.[0]} />
                         <span className="badge badge--brand">{event.event ?? event.type ?? "event"}</span>
                       </div>
                       <div className="scan-row__meta">

@@ -172,8 +172,8 @@ const ChatWidget = () => {
                 aria-controls="love-laundry-chat"
                 className="
                     fixed
-                    bottom-6
-                    right-6
+                    bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))]
+                    right-[calc(1.5rem+env(safe-area-inset-right,0px))]
                     z-[9999]
                     flex
                     h-14
@@ -189,12 +189,12 @@ const ChatWidget = () => {
                     hover:-translate-y-1
                     hover:bg-[var(--ll-red)]
                     hover:shadow-[0_12px_36px_rgba(255, 0, 0, 0.5)]
-                    sm:bottom-8
-                    sm:right-8
+                    sm:bottom-[calc(2rem+env(safe-area-inset-bottom,0px))]
+                    sm:right-[calc(2rem+env(safe-area-inset-right,0px))]
                     sm:h-16
                     sm:w-16
-                    md:bottom-10
-                    md:right-10
+                    md:bottom-[calc(2.5rem+env(safe-area-inset-bottom,0px))]
+                    md:right-[calc(2.5rem+env(safe-area-inset-right,0px))]
                     md:h-[68px]
                     md:w-[68px]
                 "
@@ -219,11 +219,11 @@ const ChatWidget = () => {
                     aria-labelledby="love-laundry-chat-title"
                     className="
                         fixed
-                        bottom-24
-                        right-4
+                        bottom-[calc(6rem+env(safe-area-inset-bottom,0px))]
+                        right-[max(1rem,env(safe-area-inset-right,0px))]
                         z-[9998]
                         flex
-                        w-[calc(100%-32px)]
+                        w-[calc(100%-2rem-env(safe-area-inset-left,0px)-env(safe-area-inset-right,0px))]
                         max-w-[400px]
                         flex-col
                         overflow-hidden
@@ -232,14 +232,14 @@ const ChatWidget = () => {
                         border-[var(--border)]
                         bg-white
                         shadow-[0_24px_64px_rgba(0, 0, 0, 0.15)]
-                        sm:bottom-28
-                        sm:right-6
-                        md:bottom-32
-                        md:right-10
+                        sm:bottom-[calc(7rem+env(safe-area-inset-bottom,0px))]
+                        sm:right-[calc(1.5rem+env(safe-area-inset-right,0px))]
+                        md:bottom-[calc(8rem+env(safe-area-inset-bottom,0px))]
+                        md:right-[calc(2.5rem+env(safe-area-inset-right,0px))]
                     "
                     style={{
-                        height: "min(520px, calc(100vh - 160px))",
-                        maxHeight: "calc(100dvh - 160px)",
+                        height: "min(520px, calc(100dvh - 10rem - env(safe-area-inset-bottom, 0px)))",
+                        maxHeight: "calc(100dvh - 10rem - env(safe-area-inset-bottom, 0px))",
                     }}
                 >
                     <div className="flex items-center gap-3 bg-[var(--ll-red)] px-5 py-4">

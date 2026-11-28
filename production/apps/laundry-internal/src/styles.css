@@ -274,3 +274,75 @@ tbody tr:last-child td { border-bottom: 0; }
   .login-card { padding: 1.5rem; }
   .page-header__actions { width: 100%; }
 }
+
+/* ── Mobile hardening: safe areas, touch targets, overflow, readable IDs ── */
+html, body {
+  overflow-x: hidden;
+}
+#root {
+  overflow-x: clip;
+  width: 100%;
+}
+.topbar {
+  padding-top: calc(0.9rem + env(safe-area-inset-top, 0px));
+  padding-left: max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-left, 0px));
+  padding-right: max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-right, 0px));
+}
+.routes {
+  padding-left: max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-left, 0px));
+  padding-right: max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-right, 0px));
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.routes::-webkit-scrollbar { display: none; }
+.content {
+  padding-bottom: calc(2.5rem + env(safe-area-inset-bottom, 0px));
+  padding-left: max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-left, 0px));
+  padding-right: max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-right, 0px));
+}
+.login-shell {
+  padding-top: calc(2rem + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+  padding-left: max(1rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1rem, env(safe-area-inset-right, 0px));
+}
+.routes a, .routes button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.table-wrap {
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+.table-wrap table {
+  min-width: 640px;
+}
+th, td, .code-chip, .badge, .list__meta, .result, .stat-card__value {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.topbar h1, .section-heading h2, .page-header__title {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+@media (pointer: coarse) {
+  button, .btn, .routes a, .routes button, .actions button, a.badge {
+    min-height: 44px;
+  }
+  button, .btn, .routes a, .routes button, .actions button {
+    min-width: 44px;
+  }
+  .actions button { padding: 0.65rem 0.85rem; }
+  input, select, textarea {
+    min-height: 44px;
+    font-size: 16px;
+  }
+}
+@media (max-width: 640px) {
+  .session { gap: 0.5rem; }
+  .table-wrap table { min-width: 560px; }
+  th, td { padding: 0.65rem 0.7rem; }
+}

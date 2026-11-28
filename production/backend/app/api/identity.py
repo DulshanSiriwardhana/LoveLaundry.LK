@@ -10,6 +10,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response,
 from pydantic import BaseModel, Field
 
 from ..core.security import get_current_user
+from ..identity.models import is_valid_structured_id
+from ..identity.qr import render_qr_svg
 from ..permissions.service import require_capability
 from ..runtime import get_runtime
 
@@ -361,6 +363,21 @@ async def save_batch(payload: TagBatchRequest, principal=Depends(get_current_use
 )
 async def verify_batch(batch_id: str, principal=Depends(get_current_user)) -> dict:
     return await get_runtime().identity_service.verify_batch(batch_id, principal)
+
+
+@router.get("/i/{linen_id}/qr.svg")
+async def public_qr_svg(linen_id: str, request: Request) -> Response:
+    """Return a scannable QR image for a live tag without exposing item data."""
+
+    settings = get_runtime().settings
+    host = request.client.host if request.client else "unknown"
+    await _public_qr_limiter.check(f"qr:{host}", settings.qr_rate_limit_per_minute)
+    if not is_valid_structured_id(linen_id):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Unknown linen item")
+    item = await get_runtime().identity_service.repository.get_item(linen_id)
+    if item is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Unknown linen item")
+    return Response(content=render_qr_svg(item["qr_url"]), media_type="image/svg+xml")
 
 
 @router.get("/i/{linen_id}")

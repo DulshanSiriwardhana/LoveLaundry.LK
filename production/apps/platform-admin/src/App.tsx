@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import {
   API_BASE,
   createTagItem,
@@ -34,6 +34,7 @@ import {
 } from "./auth";
 import { LoginScreen } from "./LoginScreen";
 import { ThemeSwitcher } from "./ll-theme";
+import { LiveTag } from "./components/LiveTag";
 
 type Route =
   | "summary"
@@ -110,9 +111,11 @@ interface RowAction {
 function DataTable({
   rows,
   actions,
+  renderCell,
 }: {
   rows: Array<Record<string, unknown>>;
   actions?: (row: Record<string, unknown>) => RowAction[];
+  renderCell?: (column: string, row: Record<string, unknown>) => ReactNode | undefined;
 }) {
   const columns = Array.from(
     new Set(rows.slice(0, 20).flatMap((row) => Object.keys(row))),
@@ -145,9 +148,10 @@ function DataTable({
                   index,
               )}
             >
-              {columns.map((column) => (
-                <td key={column}>{renderValue(row[column])}</td>
-              ))}
+              {columns.map((column) => {
+                const custom = renderCell?.(column, row);
+                return <td key={column}>{custom !== undefined ? custom : renderValue(row[column])}</td>;
+              })}
               {rowActions[index]?.length ? (
                 <td>
                   <div className="actions">
@@ -576,6 +580,13 @@ export function App() {
           <>
             <DataTable
               rows={rows}
+              renderCell={(column, row) => {
+                if (column === "linen_id") {
+                  const linenId = String(row.linen_id ?? "").trim();
+                  return linenId ? <LiveTag linenId={linenId} compact /> : undefined;
+                }
+                return undefined;
+              }}
               actions={(row) => [
                 {
                   label: "QR sheet",

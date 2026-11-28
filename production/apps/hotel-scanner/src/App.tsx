@@ -23,6 +23,7 @@ import {
 import { actorId, getSession, logout, type SessionUser } from "./auth";
 import { LoginScreen } from "./LoginScreen";
 import { ThemeSwitcher } from "./ll-theme";
+import { LiveTag } from "./components/LiveTag";
 import {
   classifyLinen,
   normaliseCode,
@@ -905,7 +906,7 @@ export function App() {
                 {qrVerification ? (
                   <div className="verify-result" aria-live="polite">
                     <div className="verify-result__head">
-                      <code className="code-chip">{qrVerification.code}</code>
+                      <LiveTag linenId={qrVerification.code} />
                       <span className="badge badge--success">Registered</span>
                     </div>
                     <dl className="verify-grid">
@@ -999,7 +1000,7 @@ export function App() {
                   {visibleRows.map((row, index) => (
                     <li key={`${row.code}-${row.at}-${index}`} className={`scan-row scan-row--${row.outcome}`}>
                       <div className="scan-row__main">
-                        <code className="code-chip">{row.code}</code>
+                        <LiveTag linenId={row.code} compact />
                         <span className="badge badge--soft">
                           {row.category ? row.category.replace(/_/g, " ") : "unclassified"}
                         </span>
@@ -1028,9 +1029,10 @@ export function App() {
                   {liveEvents.slice(0, 5).map((event, index) => (
                     <li key={`${event.at ?? ""}-${index}`} className="scan-row">
                       <div className="scan-row__main">
-                        <code className="code-chip">
-                          {event.linen?.linen_id ?? event.linen_ids?.[0] ?? "linen"}
-                        </code>
+                        {(() => {
+                          const linenId = String(event.linen?.linen_id ?? event.linen_ids?.[0] ?? "").trim();
+                          return linenId ? <LiveTag linenId={linenId} compact /> : <code className="code-chip">linen</code>;
+                        })()}
                         <span className="badge badge--brand">{event.event ?? event.type ?? "event"}</span>
                       </div>
                       <div className="scan-row__meta">

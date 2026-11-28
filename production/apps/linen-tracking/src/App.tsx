@@ -3,6 +3,7 @@ import { fetchLinenOperations, recordLinenMovement, type LinenOperations } from 
 import { actorId, getSession, logout, type SessionUser } from "./auth";
 import { LoginScreen } from "./LoginScreen";
 import { ThemeSwitcher } from "./ll-theme";
+import { LiveTag } from "./components/LiveTag";
 
 const CURRENT_PERIOD = new Date().toISOString().slice(0, 7);
 
@@ -198,6 +199,11 @@ export function App() {
             <label className="field">
               <span>Linen ID</span>
               <input type="text" value={movement.linen_id} onChange={(e) => setMovement({ ...movement, linen_id: e.target.value })} />
+              {movement.linen_id.trim() ? (
+                <div style={{ marginTop: 8 }}>
+                  <LiveTag linenId={movement.linen_id.trim()} compact />
+                </div>
+              ) : null}
             </label>
             <label className="field">
               <span>Direction</span>

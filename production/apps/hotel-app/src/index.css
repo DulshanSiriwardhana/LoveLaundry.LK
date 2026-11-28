@@ -314,6 +314,74 @@
   .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .empty-panel { margin: .75rem 1rem 1rem; }
 }
+/* ── Mobile hardening: safe areas, touch targets, overflow, readable IDs ── */
+html, body { overflow-x: hidden; }
+#root { overflow-x: clip; width: 100%; }
+.app-header__inner {
+  padding-top: calc(.9rem + env(safe-area-inset-top, 0px));
+  padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+}
+.app-nav__inner {
+  padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.app-nav__inner::-webkit-scrollbar { display: none; }
+.app-main {
+  padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+  padding-bottom: calc(2.5rem + env(safe-area-inset-bottom, 0px));
+}
+.app-footer {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+}
+.login-shell {
+  padding-top: calc(2rem + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+  padding-left: max(1rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1rem, env(safe-area-inset-right, 0px));
+}
+.app-nav__link { display: inline-flex; align-items: center; min-height: 44px; }
+.table-wrap, .panel .overflow-x-auto, .panel [class*="overflow-x"] {
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+th, td, .code-chip, .badge, .stat-card__value, .stat-card__foot, .route-card__endpoint, .route-card__blurb, .list__meta {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.app-brand__title, .page-header__title, .hero-band h1 {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+@media (pointer: coarse) {
+  .btn, .app-nav__link, .icon-button, button, a.route-card, .route-card {
+    min-height: 44px;
+  }
+  .icon-button, button.btn, .app-nav__link {
+    min-width: 44px;
+  }
+  .icon-button { width: 2.75rem; height: 2.75rem; }
+  .field__input, input, select, textarea {
+    min-height: 44px;
+    font-size: 16px;
+  }
+}
+@media (max-width: 640px) {
+  .app-header__inner, .app-nav__inner, .app-main, .app-footer {
+    padding-left: max(1rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1rem, env(safe-area-inset-right, 0px));
+  }
+  .table-wrap table, .panel table { min-width: 560px; }
+  .panel { overflow-x: clip; }
+  .panel > .table-wrap, .panel .overflow-x-auto { overflow-x: auto; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
