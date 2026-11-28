@@ -385,3 +385,16 @@ th, td, .code-chip, .badge, .stat-card__value, .stat-card__foot, .route-card__en
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* Narrow screens: wrap nav items onto extra rows instead of hiding them
+   behind a horizontal scroll bar. */
+@media (max-width: 900px) {
+  .app-nav__inner, .routes, .qr-tabs {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    row-gap: .35rem;
+  }
+  .app-nav__link, .routes a, .routes button, .qr-tabs button {
+    flex: 0 0 auto;
+  }
+}

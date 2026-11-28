@@ -482,3 +482,16 @@ th, td, .code-chip, .badge, .list__meta, .result, .stat-card__value, .scan-row__
   .table-wrap table { min-width: 560px; }
   th, td { padding: 0.65rem 0.7rem; }
 }
+
+/* Narrow screens: wrap nav items onto extra rows instead of hiding them
+   behind a horizontal scroll bar. */
+@media (max-width: 900px) {
+  .app-nav__inner, .routes, .qr-tabs {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    row-gap: 0.35rem;
+  }
+  .app-nav__link, .routes a, .routes button, .qr-tabs button {
+    flex: 0 0 auto;
+  }
+}
